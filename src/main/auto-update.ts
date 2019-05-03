@@ -1,17 +1,15 @@
 import { autoUpdater, UpdateCheckResult } from "electron-updater";
 import { BrowserWindow, app, dialog, ipcMain } from "electron";
-import { MyBrowserWindow } from "./browserwindow";
 import log from "./log";
 import i18n from "./i18n";
 import path from "path";
 
 export class MyAutoUpdater {
-  private window: BrowserWindow | null = null;
+  private window: BrowserWindow;
 
-  constructor(win: MyBrowserWindow) {
-    this.window = win.getBrowserWindow();
+  constructor(window: BrowserWindow) {
+    this.window = window;
     autoUpdater.logger = log;
-
     autoUpdater.on("checking-for-update", _ => this.onCheckingForUpdate());
     autoUpdater.on("update-available", (info) => this.onUpdateAvailable(info));
     autoUpdater.on("update-not-available", (info) => this.onUpdateNotAvaialable(info));
@@ -48,11 +46,11 @@ export class MyAutoUpdater {
 
   private sendStatusToWindow(text: string) {
     log.info(text);
-    this.window!.webContents.send("message", text);
+    ipcMain.emit("browser:message", text);
   }
 
   private installUpdate(info: any) {
-    dialog.showMessageBox(this.window!, {
+    dialog.showMessageBox(this.window, {
       type: "info",
       title: `v${info.version} ${i18n.__("update.downloaded")}`,
       message: i18n.__("update.message"),
@@ -65,7 +63,7 @@ export class MyAutoUpdater {
   }
 
   private onUpdateFround(result: UpdateCheckResult) {
-    dialog.showMessageBox(this.window!, {
+    dialog.showMessageBox(this.window, {
       title: i18n.__('menu.checkversion'),
       type: "info",
       message: `v${result.updateInfo.version}(${result.updateInfo.releaseDate}) ${i18n.__('update.available')}`,
@@ -78,32 +76,31 @@ export class MyAutoUpdater {
   }
 
   private onNoUpdate() {
-    dialog.showMessageBox(this.window!, {
+    dialog.showMessageBox(this.window, {
       title: i18n.__('menu.checkversion'),
       type: 'info',
       message: `Current version is latest`,
       detail: `${i18n.__('update.noavailable')}`,
       buttons: [i18n.__('dialog.ok')],
       noLink: true
-    }, function(res){});
+    });
   }
 
   public async checkUpdates(showDialog = true) {
     autoUpdater.autoDownload = false;
-    autoUpdater.updateConfigPath = path.join(__dirname, "..", "dev.yml");
-    autoUpdater.channel = "dev";
-    const result = await autoUpdater.checkForUpdatesAndNotify();
-    if (result && (app.getVersion() < result.updateInfo.version)){
-      log.info('update available', result.updateInfo.version);
-      this.onUpdateFround(result);
-    }else{
-      log.info('update not available', result ? result.updateInfo.version : "-" );
-      if (showDialog) this.onNoUpdate();
+    if (process.env.UPDATE_CHANNEL)  autoUpdater.channel = process.env.UPDATE_CHANNEL;
+    try {
+      const result = await autoUpdater.checkForUpdatesAndNotify();
+      if (result && (app.getVersion() < result.updateInfo.version)){
+        log.info('update available', result.updateInfo.version);
+        this.onUpdateFround(result);
+      }else{
+        log.info('update not available', result ? result.updateInfo.version : "-" );
+        if (showDialog) this.onNoUpdate();
+      }
+    } catch (err) {
+      log.error(err);
     }
-  }
-
-  public checkForUpdatesAndNotify() {
-    autoUpdater.checkForUpdatesAndNotify();
   }
 
 }

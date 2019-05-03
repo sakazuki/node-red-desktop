@@ -2,12 +2,12 @@
   "name": "node-red-electron",
   "version": "1.0.0",
   "description": "Node-RED on Electron",
-  "main": "dist/main.js",
+  "main": "main/main.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node build.js",
     "watch": "tsc -w",
-    "lint": "node_modules/.bin/eslint -c .eslintrc.yml src/main.ts",
-    "start": "node_modules/.bin/electron dist/main.js"
+    "lint": "eslint -c .eslintrc.yml src/main.ts",
+    "start": "electron dist/main/main.js"
   },
   "keywords": [
     "electron",
@@ -36,7 +36,7 @@
     "electron-updater": "^4.0.6",
     "fs-extra": "^7.0.1",
     "i18n": "^0.8.3",
-    "ngrok": "^3.1.1",
+    "ngrok": "git+https://github.com/sakazuki/ngrok.git#adjust_for_electron_asar",
     "tmp": "^0.1.0"
   }
 }

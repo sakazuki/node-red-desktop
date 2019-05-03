@@ -1,0 +1,41 @@
+---
+appId: "com.electron.node-red"
+productName: "Node-RED"
+directories:
+  app: "dist"
+  output: "release"
+asar: true
+files:
+- "**/*"
+- "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme,test,__tests__,tests,powered-test,example,examples,*.d.ts}"
+- "!**/node_modules/.bin"
+- "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}"
+- "!**/._*"
+- "!.editorconfig"
+- "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,__pycache__,thumbs.db,.gitignore,.gitattributes,.flowconfig,.yarn-metadata.json,.idea,.vs,appveyor.yml,.travis.yml,circle.yml,npm-debug.log,.nyc_output,yarn.lock,.yarn-integrity}"
+- "!{.config,.sessions}.json"
+- "!{flows,flows_cred}.json"
+- "!.*"
+- "!log.txt"
+- "!objuscator/**/*"
+- "!*.jsop"
+win:
+  target:
+  # - nsis
+  - portable
+  icon: "images/tray.ico"
+  publish:
+  - provider: "github"
+nsis:
+  perMachine: false
+portable:
+  artifactName: "${productName}-${version}-portable.${ext}"
+mac:
+  category: "public.app-category.developer-tools"
+  target:
+  - zip
+  - dmg
+  icon: "images/icon.icns"
+  publish:
+  - provider: "generic"
+    url: "https://s3-us-west-2.amazonaws.com/frontops.exhands.org/release/${os}"

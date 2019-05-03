@@ -58,6 +58,7 @@ class BaseApplication {
     ipcMain.on("browser:before-close", (event: Electron.Event) => this.onBeforeClose(event));
     ipcMain.on("browser:closed", this.onClosed.bind(this));
     ipcMain.on("browser:restart", this.onRestart.bind(this));
+    ipcMain.on("browser:message", (text: string) => this.onMessage(text));
     ipcMain.on("history:update", this.updateMenu.bind(this));
     ipcMain.on("window:new", (url: string) => this.onNewWindow(url));
     ipcMain.on("auth:signin", (event: Electron.Event, args: any) => this.onSignIn(event, args));
@@ -113,8 +114,7 @@ class BaseApplication {
 
   private onReady() {
     this.create();
-    this.myAutoUpdater = new MyAutoUpdater(this.mainWindow!);
-    this.myAutoUpdater.checkForUpdatesAndNotify();
+    this.myAutoUpdater = new MyAutoUpdater(this.getBrowserWindow());
     this.myAutoUpdater.checkUpdates(false);
     this.tray = new MyTray();
   }
@@ -182,6 +182,10 @@ class BaseApplication {
     let current = urlparse.parse(url);
     current.search = this.status.langEnUS ? "?setLng=en-US" : "";
     return urlparse.format(current);
+  }
+
+  private onMessage(text: string) {
+    this.getBrowserWindow().webContents.send("message", text);
   }
 
   private onSignIn(event: Electron.Event, args: any) {

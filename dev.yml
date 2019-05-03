@@ -1,8 +1,8 @@
-version: 0.6.8
+version: 1.0.0
 files:
-  - url: FrontOps Setup 0.6.8.exe
-    sha512: of5UUXn3KZ0EU/0OxkjQg8CQWYMK2hpAvnfAzxVaP8G4i9n4oF+umm3rp18aoHnjANYmzBgYQTSNtIgN0SjCLw==
-path: FrontOps Setup 0.6.8.exe
-sha512: of5UUXn3KZ0EU/0OxkjQg8CQWYMK2hpAvnfAzxVaP8G4i9n4oF+umm3rp18aoHnjANYmzBgYQTSNtIgN0SjCLw==
-sha2: 88df06926b6f71b4393e8a027110a55209a4ae3e355091421f1314bced91ee38
-releaseDate: '2018-05-27T12:33:31.118Z'
+  - url: node-red-electron-setup-1.0.0.exe
+    sha512: r/wxh2vLqk2KB3v/hXJi359jSitomQp8NZbL8b23eDPdGJMsoX1Zh9vfkzPDuhi50mVma+2DzkBKzXxk/Jg9lQ==
+    size: 46178434
+path: node-red-electron-setup-1.0.0.exe
+sha512: r/wxh2vLqk2KB3v/hXJi359jSitomQp8NZbL8b23eDPdGJMsoX1Zh9vfkzPDuhi50mVma+2DzkBKzXxk/Jg9lQ==
+releaseDate: '2019-05-03T12:11:17.566Z'
