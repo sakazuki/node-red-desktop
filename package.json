@@ -1,0 +1,50 @@
+{
+  "name": "node-red-desktop",
+  "productName": "Node-RED-Desktop",
+  "version": "0.8.7-beta.1",
+  "description": "Node-RED Desktop",
+  "main": "main/main.js",
+  "scripts": {
+    "build": "tsc && node build.js",
+    "watch": "tsc -w",
+    "lint": "eslint -c .eslintrc.yml src/main/main.ts",
+    "start": "electron dist/main/main.js"
+  },
+  "keywords": [
+    "electron",
+    "node-red"
+  ],
+  "author": "sakazuki",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/electron-builder": "^2.8.0",
+    "@types/express": "^4.16.1",
+    "@types/fs-extra": "^5.0.5",
+    "@types/i18n": "^0.8.5",
+    "@types/semver": "^6.0.0",
+    "@types/tmp": "^0.1.0",
+    "@typescript-eslint/eslint-plugin": "^1.7.0",
+    "bulma": "^0.7.4",
+    "bulma-switch": "^2.0.0",
+    "commander": "^2.20.0",
+    "electron": "^5.0.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.2.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "jquery": "^3.4.1",
+    "prettier": "^1.17.0",
+    "typescript": "^3.4.5"
+  },
+  "dependencies": {
+    "electron-json-storage-sync": "^1.1.1",
+    "electron-log": "^3.0.5",
+    "electron-updater": "^4.0.6",
+    "express": "^4.16.4",
+    "express-ipfilter": "^1.0.1",
+    "fs-extra": "^7.0.1",
+    "i18n": "^0.8.3",
+    "ngrok": "git+https://github.com/sakazuki/ngrok.git#adjust_for_electron_asar",
+    "node-red": "^0.20.5",
+    "tmp": "^0.1.0"
+  }
+}
