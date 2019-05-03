@@ -1,0 +1,42 @@
+{
+  "name": "node-red-electron",
+  "version": "1.0.0",
+  "description": "Node-RED on Electron",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "node_modules/.bin/eslint -c .eslintrc.yml src/main.ts",
+    "start": "node_modules/.bin/electron dist/main.js"
+  },
+  "keywords": [
+    "electron",
+    "typescript",
+    "node-red"
+  ],
+  "author": "sakazuki",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/electron-builder": "^2.8.0",
+    "@types/fs-extra": "^5.0.5",
+    "@types/i18n": "^0.8.5",
+    "@types/semver": "^6.0.0",
+    "@types/tmp": "^0.1.0",
+    "@typescript-eslint/eslint-plugin": "^1.7.0",
+    "electron": "^5.0.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.2.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "prettier": "^1.17.0",
+    "typescript": "^3.4.5"
+  },
+  "dependencies": {
+    "electron-json-storage-sync": "^1.1.1",
+    "electron-log": "^3.0.5",
+    "electron-updater": "^4.0.6",
+    "fs-extra": "^7.0.1",
+    "i18n": "^0.8.3",
+    "ngrok": "^3.1.1",
+    "tmp": "^0.1.0"
+  }
+}
