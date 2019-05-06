@@ -1,8 +1,0 @@
-version: 1.0.0
-files:
-  - url: node-red-electron-setup-1.0.0.exe
-    sha512: r/wxh2vLqk2KB3v/hXJi359jSitomQp8NZbL8b23eDPdGJMsoX1Zh9vfkzPDuhi50mVma+2DzkBKzXxk/Jg9lQ==
-    size: 46178434
-path: node-red-electron-setup-1.0.0.exe
-sha512: r/wxh2vLqk2KB3v/hXJi359jSitomQp8NZbL8b23eDPdGJMsoX1Zh9vfkzPDuhi50mVma+2DzkBKzXxk/Jg9lQ==
-releaseDate: '2019-05-03T12:11:17.566Z'

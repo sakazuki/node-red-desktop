@@ -10,7 +10,7 @@ const Platform = builder.Platform;
 
 (async () => {
   try {
-    await fs.copy("index.html", path.join(__dirname, config.directories.app, "index.html"));
+    await fs.copy("loading.html", path.join(__dirname, config.directories.app, "loading.html"));
     await fs.copy("package.json", path.join(__dirname, config.directories.app, "package.json"));
     await fs.copy("images", path.join(__dirname, config.directories.app, "images"));
     await fs.copy("locales", path.join(__dirname, config.directories.app, "locales"));

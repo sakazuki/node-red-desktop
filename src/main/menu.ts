@@ -118,7 +118,7 @@ export class AppMenu {
           enabled: this.status.editorEnabled,
           type: "checkbox",
           checked: this.status.langEnUS,
-          click() { ipcMain.emit("view:lang-en"); }
+          click(item, focusedWindow) { ipcMain.emit("view:lang-en", item, focusedWindow); }
         },
         { type: "separator" },
         { label: i18n.__("menu.resetzoom"), role: "resetzoom" },
@@ -156,7 +156,7 @@ export class AppMenu {
         {   
           label: "Toggle Developer Tools",
           accelerator: process.platform === "darwin" ? "Alt+Command+I" : "Ctrl+Shift+I",
-          click() { ipcMain.emit("dev:tools"); }
+          click(item, focusedWindow) { ipcMain.emit("dev:tools", item, focusedWindow); }
         }
       ]
     };

@@ -1,6 +1,6 @@
 ---
-appId: "com.electron.node-red"
-productName: "Node-RED"
+appId: "com.electron.node-red-desktop"
+productName: "Node-RED-Desktop"
 directories:
   app: "dist"
   output: "release"
@@ -37,5 +37,4 @@ mac:
   - dmg
   icon: "images/icon.icns"
   publish:
-  - provider: "generic"
-    url: "https://s3-us-west-2.amazonaws.com/frontops.exhands.org/release/${os}"
+  - provider: "github"

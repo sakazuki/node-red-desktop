@@ -21,9 +21,11 @@ export class FileHistory {
   }
   public load(data: Array<string>) {
     this.clear();
-    data.reverse().forEach(v => {
-      if (fs.existsSync(v)) this.add(v, false);
-    });
+    if (data) {
+      data.reverse().forEach(v => {
+        if (fs.existsSync(v)) this.add(v, false);
+      });
+    }
     this.update();
     return this.history;
   }

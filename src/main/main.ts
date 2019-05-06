@@ -1,5 +1,5 @@
-import { app, App, BrowserWindowConstructorOptions, ipcMain, MenuItem, BrowserWindow, dialog, shell } from "electron";
-import { MyBrowserWindow } from "./browserwindow";
+import { app, App, BrowserWindowConstructorOptions, ipcMain, MenuItem, BrowserWindow, dialog, shell, Notification } from "electron";
+import { MyBrowserWindow } from "./browser-window";
 import { AppMenu } from "./menu"
 import path from "path";
 import { MyAutoUpdater } from "./auto-update";
@@ -10,9 +10,10 @@ import { FileManager } from "./file-manager";
 import { ConfigManager } from "./config-manager";
 import { MyTray } from "./tray";
 import ngrok from "ngrok";
+import { NodeREDApp } from "./node-red";
 
 const FILE_HISTORY_SIZE = 10;
-const HELP_WEB_URL = "https://electron.atom.io";
+const HELP_WEB_URL = "https://nodered.org/";
 const NGROK_INSPECT_URL = "http://localhost:4040";
 
 export interface AppStatus {
@@ -20,7 +21,9 @@ export interface AppStatus {
   ngrokUrl: string;
   ngrokStarted: boolean;
   modified: boolean;
+  newfile_changed: boolean;
   langEnUS: boolean;
+  userDir: string;
   currentFile: string;
 }
 
@@ -30,12 +33,13 @@ class BaseApplication {
   private appMenu: AppMenu | null = null;
   private tray: MyTray | null = null;
   private app: App;
-  private mainURL: string = path.join(__dirname, "..", "index.html");
+  // private mainURL: string = path.join(__dirname, "..", "index.html");
   private loadingURL: string = path.join(__dirname, "..", "loading.html");
   private config: ConfigManager;
   private fileManager: FileManager;
   private fileHistory: FileHistory;
   private status: AppStatus;
+  private red: NodeREDApp;
 
   constructor(app: App) {
     this.app = app;
@@ -50,16 +54,24 @@ class BaseApplication {
       ngrokUrl: '',
       ngrokStarted: false,
       modified: false,
+      newfile_changed: false,
       langEnUS: false,
-      currentFile: ''
+      userDir: this.fileManager.getUserDir(),
+      currentFile: this.fileManager.createTmp()
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
+    this.red = new NodeREDApp(this.status);
     ipcMain.on("browser:show", () => this.getBrowserWindow().show());
+    ipcMain.on("browser:hide", () => this.getBrowserWindow().hide());
     ipcMain.on("browser:before-close", (event: Electron.Event) => this.onBeforeClose(event));
     ipcMain.on("browser:closed", this.onClosed.bind(this));
     ipcMain.on("browser:restart", this.onRestart.bind(this));
     ipcMain.on("browser:message", (text: string) => this.onMessage(text));
+    ipcMain.on("browser:loading", this.onLoading.bind(this));
+    ipcMain.on("browser:go", (url: string) => this.go(url));
+    ipcMain.on("browser:update-title", this.setTitle.bind(this));
     ipcMain.on("history:update", this.updateMenu.bind(this));
+    ipcMain.on("menu:update", this.updateMenu.bind(this));
     ipcMain.on("window:new", (url: string) => this.onNewWindow(url));
     ipcMain.on("auth:signin", (event: Electron.Event, args: any) => this.onSignIn(event, args));
     ipcMain.on("auth:signedin", (event: Electron.Event, args: any) => this.onSignedIn(event, args));
@@ -81,7 +93,7 @@ class BaseApplication {
     ipcMain.on("help:web", this.onHelpWeb.bind(this));
     ipcMain.on("help:check-updates", this.onHelpCheckUpdates.bind(this));
     ipcMain.on("help:version", this.onHelpVersion.bind(this));
-    ipcMain.on("dev:tools", (item: MenuItem, focusedWindow: BrowserWindow) => this.onToggleDevTools(item, focusedWindow));
+    ipcMain.on("dev:tools",  (item: MenuItem, focusedWindow: BrowserWindow) => this.onToggleDevTools(item, focusedWindow));
   }
 
   private create() {
@@ -108,7 +120,7 @@ class BaseApplication {
     };
     const savedOption = this.config.data.windowBounds || {};
     Object.assign(options, savedOption);
-    this.mainWindow = new MyBrowserWindow(options, this.mainURL);
+    this.mainWindow = new MyBrowserWindow(options, this.loadingURL);
     this.fileHistory.load(this.config.data.recentFiles);
   }
 
@@ -117,6 +129,7 @@ class BaseApplication {
     this.myAutoUpdater = new MyAutoUpdater(this.getBrowserWindow());
     this.myAutoUpdater.checkUpdates(false);
     this.tray = new MyTray();
+    this.red.startRED();
   }
 
   private onActivated() {
@@ -137,9 +150,17 @@ class BaseApplication {
     return this.fileManager.test(this.status.currentFile);
   }
 
-  private confirmClose(): boolean {
-    if (!this.status.modified) return true;
-    const res = dialog.showMessageBox({
+  private checkEphemeralFile() {
+    if (this.usingTmpFile()) {
+      return this.status.newfile_changed;
+    } else {
+      return this.status.modified;
+    }
+  }
+
+  private leavable(): boolean {
+    if (!this.checkEphemeralFile()) return true;
+    const res = dialog.showMessageBox(this.getBrowserWindow(), {
       type: 'question',
       title: i18n.__('dialog.confirm'),
       message: i18n.__('dialog.closeMsg'),
@@ -163,11 +184,16 @@ class BaseApplication {
   }
 
   private onBeforeClose(event?: Electron.Event) {
-    if (this.confirmClose()) {
+    if (this.leavable()) {
+      this.unsetBeforeUnload();
       this.saveConfig();
     } else {
       if (event) event.preventDefault();
     }
+  }
+
+  private unsetBeforeUnload() {
+    this.getBrowserWindow().webContents.send("force:reload");
   }
 
   private onClosed() {
@@ -184,8 +210,28 @@ class BaseApplication {
     return urlparse.format(current);
   }
 
+  private setTitle() {
+    this.getBrowserWindow().setTitle(this.red.windowTitle());
+  }
+
+  private onLoading() {
+    return this.getBrowserWindow().loadURL(this.loadingURL);
+  }
+
+  private async go(url: string) {
+    await this.getBrowserWindow().loadURL(url);
+    this.setTitle();
+  }
+
   private onMessage(text: string) {
-    this.getBrowserWindow().webContents.send("message", text);
+    // this.getBrowserWindow().webContents.send("message", text);
+    const msg: Electron.NotificationConstructorOptions = {
+      title: app.getName(),
+      body: text,
+      closeButtonText: i18n.__('dialog.ok')
+    }
+    const notification = new Notification(msg);
+    notification.show();
   }
 
   private onSignIn(event: Electron.Event, args: any) {
@@ -196,11 +242,12 @@ class BaseApplication {
 
   private onEditorStarted(event: Electron.Event, args: any) {
     this.status.editorEnabled = true;
+    ipcMain.emit("menu:update");
   }
 
   private onNodesChange(event: Electron.Event, args: any) {
     this.status.modified = args.dirty;
-    //TODO: newfile_changed handling
+    if (args.dirty) this.status.newfile_changed = true;
   }
 
   private updateMenu() {
@@ -216,7 +263,9 @@ class BaseApplication {
   }
 
   private onFileNew() {
-    this.status.currentFile = this.fileManager.createTmp(__dirname);
+    const file = this.fileManager.createTmp();
+    this.status.newfile_changed = false;
+    this.setFlowFileAndRestart(file);
   };
 
   private getBrowserWindow() {
@@ -238,8 +287,7 @@ class BaseApplication {
     }
     if (file){
       this.fileHistory.add(file);
-      // openFlowFile(files[0]);
-      this.status.currentFile = file;
+      this.setFlowFileAndRestart(file);
     }
   };
 
@@ -249,7 +297,6 @@ class BaseApplication {
   };
 
   private onFileSaveAs(): boolean {
-    if (this.status.modified) this.onFileSave();
     const savefile = dialog.showSaveDialog(this.getBrowserWindow(), {
       title: i18n.__('dialog.saveFlowFile'),
       defaultPath: path.dirname(this.status.currentFile),
@@ -259,9 +306,14 @@ class BaseApplication {
       ]
     });
     if (!savefile) return false;
-    this.fileManager.saveAs(this.status.currentFile, savefile);
+    const oldfile = this.status.currentFile;
+    this.red.setFlowFile(savefile);
+    if (this.status.modified) {
+      this.onFileSave();
+    } else {
+      this.fileManager.saveAs(oldfile, savefile);
+    }
     this.fileHistory.add(savefile);
-    this.status.currentFile = savefile;
     return true;
   };
   
@@ -269,18 +321,44 @@ class BaseApplication {
     this.fileHistory.clear();
   }
 
-  private onEndpointLocal() {};
+  private setFlowFileAndRestart(file: string) {
+    if (!this.leavable()) return;
+    this.unsetBeforeUnload();
+    this.red.setFlowFileAndRestart(file);
+  }
+
+  private onEndpointLocal() {
+    this.openAny(this.red.getHttpUrl());
+  };
   
-  private onEndpointLocalAdmin() {};
+  private onEndpointLocalAdmin() {
+    this.openAny(this.red.getAdminUrl());
+  };
 
   private async onNgrokConnect() {
     try {
-      const url = await ngrok.connect();
+      const url = await ngrok.connect({proto: "http", addr: this.red.listenPort});
       this.status.ngrokUrl = url;
       this.status.ngrokStarted = true;
-      this.updateMenu();
+      ipcMain.emit("menu:update");
+      this.red.notify({
+        id: "ngrok",
+        payload:{
+          type: "success",
+          text: "conntcted with " + this.status.ngrokUrl
+        },
+        retain:false
+      }, 15000);
     }catch (err) {
       console.error(err);
+      this.red.notify({
+        id: "ngrok",
+        payload:{
+          type: "error",
+          text: err.msg + "\n" + err.details.err
+        },
+        retain:false
+      }, 15000);
     }
 
   };
@@ -288,21 +366,34 @@ class BaseApplication {
     try {
       await ngrok.disconnect(this.status.ngrokUrl);
       await ngrok.disconnect(this.status.ngrokUrl.replace("https://", "http://"));
+      ipcMain.emit("menu:update");
+      this.red.notify({
+        id: "ngrok",
+        payload:{
+          type: "success",
+          text: "disconnected " + this.status.ngrokUrl
+        },
+        retain:false
+      }, 3000);
       this.status.ngrokUrl = "";
-      this.updateMenu();
     }catch (err) {
       console.error(err);
     }
   };
+
   private onEndpointPublic() {
-    this.openAny(this.status.ngrokUrl);
-  };
-  private onNgrokInspect() {
-    this.openAny(NGROK_INSPECT_URL);
+    if (this.status.ngrokUrl) this.openAny(this.status.ngrokUrl);
   };
 
-  private onViewReload(item: MenuItem, focusedWindow: BrowserWindow) {
-    if (focusedWindow) focusedWindow.reload();
+  private onNgrokInspect() {
+    if (this.status.ngrokStarted) this.openAny(NGROK_INSPECT_URL);
+  };
+
+  private async onViewReload(item: MenuItem, focusedWindow: BrowserWindow) {
+    if (focusedWindow) {
+      await focusedWindow.loadURL(focusedWindow.webContents.getURL());
+      this.setTitle();
+    }
   };
 
   private onViewLangEn(item: MenuItem, focusedWindow: BrowserWindow) {
@@ -322,11 +413,19 @@ class BaseApplication {
   };
 
   private onHelpVersion() {
+    const body = `
+      Name: ${app.getName()} 
+      ${i18n.__('version.version')}: ${app.getVersion()}
+      ${this.red.info()}
+      ${this.myAutoUpdater!.info()}
+      ${this.fileManager.info()}
+    `.replace(/^\s*/gm, "");
+
     dialog.showMessageBox(this.getBrowserWindow(),{
       title: i18n.__('menu.version'),
       type: 'info',
       message: app.getName(),
-      detail: `${i18n.__('version.version')}: ${app.getVersion()}`,
+      detail: body,
       buttons: [i18n.__('dialog.ok')],
       noLink: true
     });

@@ -1,22 +1,34 @@
 import path from "path";
 import fs from "fs-extra";
 import tmp from "tmp";
+import os from "os";
 
 export class FileManager {
   private tmpBuffer: Array<tmp.FileResult> = [];
+  private userDir: string;
   private prefix: string;
 
   constructor(prefix: string) {
+    this.userDir = this.setupUserDir(prefix);
     this.prefix = prefix + "-";
     this.clearTmp();
   }
 
-  public createTmp(dir: string) {
-    const tmpfile = tmp.fileSync({dir: dir, prefix: this.prefix, postfix: '.tmp', discardDescriptor: true});
+  public createTmp() {
+    const tmpfile = tmp.fileSync({dir: this.userDir, prefix: this.prefix, postfix: '.tmp', discardDescriptor: true});
     this.tmpBuffer.push(tmpfile);
     fs.writeFileSync(tmpfile.name, "");
-    // newfile_changed = false;
     return tmpfile.name;
+  }
+
+  private setupUserDir(appname: string) {
+    const destdir = path.join(os.homedir(), "." + appname);
+    if (!fs.existsSync(destdir)) fs.mkdirSync(destdir);
+    return destdir;
+  }
+
+  public getUserDir() {
+    return this.userDir;
   }
 
   public test(file: string){
@@ -75,6 +87,10 @@ export class FileManager {
     } else {
       this.copy(src, dest);
     }
+  }
+
+  public info() {
+    return `Userdir: ${this.userDir}`
   }
 
 }

@@ -1,4 +1,3 @@
-import path from "path";
 import _i18n from "./i18n";
 
 if(typeof(require) === "function"){

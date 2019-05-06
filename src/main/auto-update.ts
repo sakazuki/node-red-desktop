@@ -1,4 +1,4 @@
-import { autoUpdater, UpdateCheckResult } from "electron-updater";
+import { autoUpdater, UpdateCheckResult, UpdateInfo } from "electron-updater";
 import { BrowserWindow, app, dialog, ipcMain } from "electron";
 import log from "./log";
 import i18n from "./i18n";
@@ -6,6 +6,7 @@ import path from "path";
 
 export class MyAutoUpdater {
   private window: BrowserWindow;
+  private updateInfo: UpdateInfo | null = null;
 
   constructor(window: BrowserWindow) {
     this.window = window;
@@ -52,7 +53,7 @@ export class MyAutoUpdater {
   private installUpdate(info: any) {
     dialog.showMessageBox(this.window, {
       type: "info",
-      title: `v${info.version} ${i18n.__("update.downloaded")}`,
+      title: `${app.getName()} v${info.version} ${i18n.__("update.downloaded")}`,
       message: i18n.__("update.message"),
       buttons: [i18n.__("update.restart"), i18n.__("update.later")]
     }, function(res) {
@@ -64,7 +65,7 @@ export class MyAutoUpdater {
 
   private onUpdateFround(result: UpdateCheckResult) {
     dialog.showMessageBox(this.window, {
-      title: i18n.__('menu.checkversion'),
+      title: app.getName() + ' ' + i18n.__('menu.checkversion'),
       type: "info",
       message: `v${result.updateInfo.version}(${result.updateInfo.releaseDate}) ${i18n.__('update.available')}`,
       buttons: [i18n.__('update.download'), i18n.__('update.donothing')]
@@ -77,7 +78,7 @@ export class MyAutoUpdater {
 
   private onNoUpdate() {
     dialog.showMessageBox(this.window, {
-      title: i18n.__('menu.checkversion'),
+      title: app.getName() + ' ' + i18n.__('menu.checkversion'),
       type: 'info',
       message: `Current version is latest`,
       detail: `${i18n.__('update.noavailable')}`,
@@ -91,6 +92,7 @@ export class MyAutoUpdater {
     if (process.env.UPDATE_CHANNEL)  autoUpdater.channel = process.env.UPDATE_CHANNEL;
     try {
       const result = await autoUpdater.checkForUpdatesAndNotify();
+      this.updateInfo = result ? result.updateInfo : null;
       if (result && (app.getVersion() < result.updateInfo.version)){
         log.info('update available', result.updateInfo.version);
         this.onUpdateFround(result);
@@ -103,4 +105,12 @@ export class MyAutoUpdater {
     }
   }
 
+  public info() {
+    if (!this.updateInfo) return 'update uncheked';
+    return `
+      New Version: ${this.updateInfo.version}
+      Release Date: ${this.updateInfo.releaseDate}
+      Release Name: ${this.updateInfo.releaseName}
+      `.replace(/^\s*/gm, "");
+  }
 }

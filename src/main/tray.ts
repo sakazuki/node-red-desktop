@@ -12,12 +12,36 @@ export class MyTray {
         click() { ipcMain.emit("browser:show"); }
       },
       {
-        label: i18n.__("menu.quit"), role: "quit"
+        label: 'Hide App',
+        click() { ipcMain.emit("browser:hide"); }
       },
-      { label: 'Item3', type: 'radio', checked: true },
-      { label: 'Item4', type: 'radio' }
+      { type: "separator" },
+      {
+        label: i18n.__("menu.openLocalURL"),
+        click() { ipcMain.emit("endpoint:local"); }
+      }, 
+      {
+        label: i18n.__("menu.openLocalAdminURL"),
+        click() { ipcMain.emit("endpoint:local-admin"); }
+      },
+      {
+        label: i18n.__("menu.openPublicURL"),
+        click() { ipcMain.emit("endpoint:public"); }
+      }, 
+      {
+        label: i18n.__("menu.openNgrokInspect"),
+        click() { ipcMain.emit("ngrok:inspect"); }
+      },
+      { type: "separator" },
+      {
+        label: i18n.__("menu.quit"), role: "quit"
+      }
     ])
     this.tray.setToolTip(`This is ${app.getName()}`);
     this.tray.setContextMenu(contextMenu);
+    this.tray.on("double-click", this.onShow.bind(this));
+  }
+  private onShow() {
+    ipcMain.emit("browser:show");
   }
 }

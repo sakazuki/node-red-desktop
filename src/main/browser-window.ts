@@ -1,7 +1,5 @@
 import { BrowserWindow, session, ipcMain, dialog } from "electron";
-
-// BrowserWindow is not inheritable because of native C++ class and other
-// https://github.com/electron/electron/issues/23
+import i18n from "./i18n";
 
 export class MyBrowserWindow {
   private window: BrowserWindow | null = null;
@@ -10,7 +8,6 @@ export class MyBrowserWindow {
     this.window = new BrowserWindow(options);
     this.window.on("close", (event) => { this.onClose(event); });
     this.window.on("closed", () => { this.onClosed(); });
-    this.window.on("minimize", (event: Electron.Event) => this.onMinimize(event));
     this.setupSessionHandler();
     this.window.webContents.on("new-window", (event, url) => this.onNewWindow(event, url));
     this.window.webContents.on("dom-ready", event => this.onDomReady(event));
@@ -31,17 +28,14 @@ export class MyBrowserWindow {
     this.window = null;
   }
 
-  private onMinimize(event: Electron.Event) {
-    event.preventDefault();
-    this.window!.hide();
-  }
-
   private setupSessionHandler() {
     if (!session.defaultSession) throw "session does not exist"
-    session.defaultSession.webRequest.onErrorOccurred(details => {
-      console.error("webrequest error", details);
-      setTimeout(this.window!.webContents.reload, 200);
-    });
+    session.defaultSession.webRequest.onCompleted({ urls: [] }, details => {
+      if (details.statusCode == 404) {
+        console.log(details);
+        // setTimeout(this.window!.webContents.reload, 200);
+      }
+    })
   }
 
   private onNewWindow(event: Electron.Event, url: string) {
@@ -66,4 +60,5 @@ export class MyBrowserWindow {
       event.preventDefault();
     }
   }
+
 }

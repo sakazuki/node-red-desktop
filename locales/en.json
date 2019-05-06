@@ -1,23 +1,4 @@
 {
-    "signin": "{{user}} is signed in.<br>Checking License...",
-    "signinError": "Your email '{{user}}' has not been verified yet.",
-    "freeMode": "FREE mode",
-    "freeModeMsg": "FREE mode.\nYou can use FrontOps within {{expire}} min.\n\nIf you use FrontOps without time limit,\nPlease purchase a license. Click [PURCHASE NOW] !!",
-    "purchase": "PURCHANSE NOW",
-    "login": {
-        "title": "FrontOps SignIn",
-        "panel-title": "Sign in to FrontOps",
-        "signin-button": "Sign In",
-        "forgot-password": "Forgot Password",
-        "new-user": "New User?",
-        "signup-button": "Sign Up Here!",
-        "firebaseui-login-title": "Use Another Service Account", 
-        "firebaseui-login": "Sign In"
-    },
-    "loading": {
-        "title": "FrontOps Loading...",
-        "caption": "Now Loading..."
-    },
     "menu": {
         "file": "File",
         "new": "New",
@@ -71,10 +52,7 @@
         "version": "Current Version",
         "latest": "Latest Version",
         "name": "Name",
-        "email": "Email",
-        "device": "Device",
-        "licenseType": "License",
-        "licenseExpire": "License Expire"
+        "email": "Email"
     },
     "update": {
         "title": " Available",

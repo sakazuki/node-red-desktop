@@ -1,23 +1,4 @@
 {
-    "signin": "{{user}} でサインインします.<br>ライセンス確認中...",
-    "signinError": "メールアドレス '{{user}}' の到達確認が完了していません。",
-    "freeMode": "Freeモード",
-    "freeModeMsg": "Freeモード.\n{{expire}} 分間使用できます\n\n時間制限を外したい時は、Standardライセンスを購入してください",
-    "purchase": "今すぐ購入",
-    "login": {
-        "title": "FrontOps サインイン",
-        "panel-title": "FrontOpsにサインイン",
-        "signin-button": "サインインする",
-        "forgot-password": "パスワードを忘れた",
-        "new-user": "新規ユーザですか？",
-        "signup-button": "ここからサインアップ",
-        "firebaseui-login-title": "別サービスのアカウントを使う", 
-        "firebaseui-login": "サインインする"
-    },
-    "loading": {
-        "title": "FrontOps 読み込み中...",
-        "caption": "読み込み中..."
-    },
     "menu": {
         "file": "ファイル",
         "new": "新規ファイル",
@@ -71,10 +52,7 @@
         "version": "現在バージョン",
         "latest": "最新バージョン",
         "name": "名前",
-        "email": "メール",
-        "device": "デバイス",
-        "licenseType": "ライセンス",
-        "licenseExpire": "有効期限"
+        "email": "メール"
     },
     "update": {
         "title": " が適用可能です",
