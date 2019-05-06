@@ -21,8 +21,8 @@ files:
 - "!*.jsop"
 win:
   target:
-  # - nsis
-  - portable
+  - nsis
+  # - portable
   icon: "images/tray.ico"
   publish:
   - provider: "github"

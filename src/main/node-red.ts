@@ -1,7 +1,6 @@
 import express from "express";
 import {IpFilter, IpDeniedError} from "express-ipfilter";
 const RED =  require("node-red");
-const Tokens = require("@node-red/editor-api/lib/auth/tokens");
 import http from "http";
 import { ipcMain, app } from "electron";
 import path from "path";
@@ -13,8 +12,6 @@ const CustomStorage = require("./custom-storage");
 
 const IP_ALLOWS = ['127.0.0.1'];
 const HELP_WEB_URL = "https://frontops.exhands.org";
-const SSL_SERVER_KEY = path.join(__dirname, "..", "server_key.pem");
-const SSL_SERVER_CERT = path.join(__dirname, "..", "server_crt.pem");
 
 export class NodeREDApp {
   private app: express.Express;
@@ -87,7 +84,7 @@ export class NodeREDApp {
           image: path.join(__dirname, "images", "node-red-256.png")
         },
         projects: {
-          // enabled: true
+          enabled: false
         }
       },
       nodesExcludes: [ '10-mqtt.js', '16-range.js', '31-tcpin.js', '32-udp.js', '36-rpi-gpio.js', '28-tail.js', '72-sentiment.js', '89-trigger.js', 'node-red-node-rbe' ],
@@ -134,22 +131,7 @@ export class NodeREDApp {
         error: err.message
       });
     })
-    // const options = {
-    //   key: fs.readFileSync(SSL_SERVER_KEY),
-    //   cert: fs.readFileSync(SSL_SERVER_CERT)
-    // }
-    // return https.createServer(options, this.app);
     return http.createServer(this.app);
-  }
-
-  private async setupAuth() {
-    //TODO: fix
-    const token = await Tokens.create("sakazuki@gmail.com", "node-red-editor", "*");
-    return token;
-  }
-
-  private revokeAuth(token: any) {
-    return Tokens.revoke(token);
   }
 
   public getAdminUrl() {

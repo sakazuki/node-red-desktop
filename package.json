@@ -1,6 +1,7 @@
 {
-  "name": "Node-RED-Desktop",
-  "version": "1.0.0",
+  "name": "node-red-desktop",
+  "productName": "Node-RED-Desktop",
+  "version": "0.8.1",
   "description": "Node-RED on Electron",
   "main": "main/main.js",
   "scripts": {
