@@ -23,9 +23,10 @@ win:
   target:
   - nsis
   # - portable
-  icon: "images/tray.ico"
+  icon: "images/node-red-256.png"
   publish:
   - provider: "github"
+    private: true
 nsis:
   perMachine: false
 portable:

@@ -11,6 +11,7 @@ export class MyAutoUpdater {
   constructor(window: BrowserWindow) {
     this.window = window;
     autoUpdater.logger = log;
+    autoUpdater.allowPrerelease = true;
     autoUpdater.on("checking-for-update", _ => this.onCheckingForUpdate());
     autoUpdater.on("update-available", (info) => this.onUpdateAvailable(info));
     autoUpdater.on("update-not-available", (info) => this.onUpdateNotAvaialable(info));
