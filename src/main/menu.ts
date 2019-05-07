@@ -1,7 +1,6 @@
 import { app, Menu, MenuItemConstructorOptions, ipcMain, MenuItem} from "electron";
 import i18n from "./i18n";
 import { FileHistory } from "./file-history";
-import { timingSafeEqual } from "crypto";
 import { AppStatus } from "./main";
 
 export class AppMenu {
@@ -46,6 +45,17 @@ export class AppMenu {
           enabled: this.status.editorEnabled,
           accelerator: "Shift+CmdOrCtrl+S",
           click() { ipcMain.emit("file:save-as"); }
+        },
+        { type: 'separator'},
+        {
+            label: i18n.__('menu.openUserDir'),
+            enabled: true,
+            click() { ipcMain.emit("file:open-userdir"); }
+        }, 
+        {
+            label: i18n.__('menu.openLogFile'),
+            enabled: true,
+            click() { ipcMain.emit("file:open-logfile"); }
         },
         { type: "separator"},
         { label: i18n.__("menu.quit"), role: "quit" }
@@ -113,12 +123,9 @@ export class AppMenu {
           click(item, focusedWindow) { ipcMain.emit("view:reload", item, focusedWindow); }
         },
         { type: "separator" },
-        { 
-          label: i18n.__("menu.en_us"),
-          enabled: this.status.editorEnabled,
-          type: "checkbox",
-          checked: this.status.langEnUS,
-          click(item, focusedWindow) { ipcMain.emit("view:lang-en", item, focusedWindow); }
+        {
+          label: i18n.__("menu.locales") + "...",
+          submenu: [],
         },
         { type: "separator" },
         { label: i18n.__("menu.resetzoom"), role: "resetzoom" },
@@ -178,6 +185,7 @@ export class AppMenu {
   
     let template: MenuItemConstructorOptions[];
     let openRecentMenu: Menu | any;
+    let localesMenu: Menu | any;
   
     if (process.platform === "darwin") {
       template = [darwin, file, edit, endpoint, view, help];
@@ -192,11 +200,14 @@ export class AppMenu {
     const menu = Menu.buildFromTemplate(template);
     if (process.platform === "darwin") {
       openRecentMenu = (menu.items[1] as any).submenu.items[2];
+      localesMenu = (menu.items[4] as any).submenu.items[2];
     } else {
       openRecentMenu = (menu.items[0] as any).submenu.items[2];
+      localesMenu = (menu.items[2] as any).submenu.items[2];
     }
     this.setOpenRecentMenu(openRecentMenu.submenu);
     openRecentMenu.enabled = (openRecentMenu.submenu.items.length > 0);
+    this.setLocalesMenu(localesMenu.submenu);
     Menu.setApplicationMenu(menu);
   }
 
@@ -220,6 +231,22 @@ export class AppMenu {
           click(){ ipcMain.emit("file:clear-recent"); }
         })
       );
+    }
+  }
+
+  private setLocalesMenu(localesMenu: Menu){
+    const locales = i18n.getLocales();
+    for(let i = 0; i < locales.length; i++){
+      localesMenu.append(
+        new MenuItem(
+          { 
+            label: locales[i],
+            type: "checkbox",
+            checked: (this.status.locale == locales[i]),
+            click(item, focusedWindow) { ipcMain.emit("view:set-locale", item, focusedWindow); }
+          },
+        )
+      )
     }
   }
 }

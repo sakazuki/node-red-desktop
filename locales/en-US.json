@@ -31,7 +31,7 @@
         "view": "View",
         "reload": "Reload",
         "palette": "Palette",
-        "en_us": "en-US",
+        "locales": "Locales",
         "resetzoom": "Actual Size",
         "zoomin": "Zoom In",
         "zoomout": "Zoom Out",

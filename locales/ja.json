@@ -31,7 +31,7 @@
         "view": "表示",
         "reload": "最新の情報に更新",
         "palette": "パレット",
-        "en_us": "英語表示",
+        "locales": "言語",
         "resetzoom": "ズームのリセット",
         "zoomin": "拡大",
         "zoomout": "縮小",

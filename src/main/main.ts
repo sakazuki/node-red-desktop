@@ -11,6 +11,7 @@ import { ConfigManager } from "./config-manager";
 import { MyTray } from "./tray";
 import ngrok from "ngrok";
 import { NodeREDApp } from "./node-red";
+import log from "./log";
 
 const FILE_HISTORY_SIZE = 10;
 const HELP_WEB_URL = "https://nodered.org/";
@@ -23,6 +24,7 @@ export interface AppStatus {
   modified: boolean;
   newfile_changed: boolean;
   langEnUS: boolean;
+  locale: string;
   userDir: string;
   currentFile: string;
 }
@@ -56,6 +58,7 @@ class BaseApplication {
       modified: false,
       newfile_changed: false,
       langEnUS: false,
+      locale: app.getLocale(),
       userDir: this.fileManager.getUserDir(),
       currentFile: this.fileManager.createTmp()
     };
@@ -82,6 +85,8 @@ class BaseApplication {
     ipcMain.on("file:clear-recent", this.onFileClearHistory.bind(this));
     ipcMain.on("file:save", this.onFileSave.bind(this));
     ipcMain.on("file:save-as", this.onFileSaveAs.bind(this));
+    ipcMain.on("file:open-userdir", this.onUserdirOpen.bind(this));
+    ipcMain.on("file:open-logfile", this.onLogfileOpen.bind(this));
     ipcMain.on("endpoint:local", this.onEndpointLocal.bind(this));
     ipcMain.on("endpoint:local-admin", this.onEndpointLocalAdmin.bind(this));
     ipcMain.on("endpoint:public", this.onEndpointPublic.bind(this));
@@ -89,7 +94,7 @@ class BaseApplication {
     ipcMain.on("ngrok:disconnect", this.onNgrokDisconnect.bind(this));
     ipcMain.on("ngrok:inspect", this.onNgrokInspect.bind(this));
     ipcMain.on("view:reload", (item: MenuItem, focusedWindow: BrowserWindow) => this.onViewReload(item, focusedWindow));
-    ipcMain.on("view:lang-en", (item: MenuItem, focusedWindow: BrowserWindow) => this.onViewLangEn(item, focusedWindow));
+    ipcMain.on("view:set-locale", (item: MenuItem, focusedWindow: BrowserWindow) => this.onSetLocale(item, focusedWindow));
     ipcMain.on("help:web", this.onHelpWeb.bind(this));
     ipcMain.on("help:check-updates", this.onHelpCheckUpdates.bind(this));
     ipcMain.on("help:version", this.onHelpVersion.bind(this));
@@ -125,6 +130,10 @@ class BaseApplication {
   }
 
   private onReady() {
+    try {
+      i18n.setLocale(app.getLocale());
+    } catch (err) { console.error(err) }
+    this.status.locale = i18n.getLocale();
     this.create();
     this.myAutoUpdater = new MyAutoUpdater(this.getBrowserWindow());
     this.myAutoUpdater.checkUpdates(false);
@@ -206,7 +215,7 @@ class BaseApplication {
 
   private setLangUrl(url: string){
     let current = urlparse.parse(url);
-    current.search = this.status.langEnUS ? "?setLng=en-US" : "";
+    current.search = "?setLng=" + this.status.locale;
     return urlparse.format(current);
   }
 
@@ -327,6 +336,14 @@ class BaseApplication {
     this.red.setFlowFileAndRestart(file);
   }
 
+  private onUserdirOpen() {
+    this.openAny("file://" + this.status.userDir);
+  }
+
+  private onLogfileOpen() {
+    this.openAny("file://" + log.transports.file.file!);
+  }
+
   private onEndpointLocal() {
     this.openAny(this.red.getHttpUrl());
   };
@@ -396,9 +413,9 @@ class BaseApplication {
     }
   };
 
-  private onViewLangEn(item: MenuItem, focusedWindow: BrowserWindow) {
+  private onSetLocale(item: MenuItem, focusedWindow: BrowserWindow) {
+    this.status.locale = item.label;
     if (focusedWindow) {
-      this.status.langEnUS = item.checked;
       let url = this.setLangUrl(focusedWindow.webContents.getURL());
       focusedWindow.loadURL(url);
     }
@@ -416,8 +433,8 @@ class BaseApplication {
     const body = `
       Name: ${app.getName()} 
       ${i18n.__('version.version')}: ${app.getVersion()}
-      ${this.red.info()}
       ${this.myAutoUpdater!.info()}
+      ${this.red.info()}
       ${this.fileManager.info()}
     `.replace(/^\s*/gm, "");
 

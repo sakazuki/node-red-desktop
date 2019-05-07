@@ -192,7 +192,8 @@ export class NodeREDApp {
   }
 
   public info() {
-    return `Node-RED v${RED.version()}`
+    return `Node-RED version: ${RED.version()}
+            Node.js  version: ${process.version}`;
   }
 
 }
