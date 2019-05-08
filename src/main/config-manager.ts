@@ -5,6 +5,7 @@ type CONFIG = {
   rememberLastFile: boolean;
   recentFiles: Array<string>;
   windowBounds: any;
+  locale: string;
 }
 
 export class ConfigManager {

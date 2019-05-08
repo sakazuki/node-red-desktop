@@ -17,8 +17,8 @@ function archiveLog(file: string) {
   }
 }
 
-log.transports.console.level = 'info';
-log.transports.file.level = 'debug';
+log.transports.console.level = 'debug';
+log.transports.file.level = 'info';
 log.transports.file.archiveLog = archiveLog;
 log.info(process.argv);
 

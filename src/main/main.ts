@@ -23,7 +23,6 @@ export interface AppStatus {
   ngrokStarted: boolean;
   modified: boolean;
   newfile_changed: boolean;
-  langEnUS: boolean;
   locale: string;
   userDir: string;
   currentFile: string;
@@ -57,7 +56,6 @@ class BaseApplication {
       ngrokStarted: false,
       modified: false,
       newfile_changed: false,
-      langEnUS: false,
       locale: app.getLocale(),
       userDir: this.fileManager.getUserDir(),
       currentFile: this.fileManager.createTmp()
@@ -131,7 +129,7 @@ class BaseApplication {
 
   private onReady() {
     try {
-      i18n.setLocale(app.getLocale());
+      i18n.setLocale(this.config.data.locale || app.getLocale());
     } catch (err) { console.error(err) }
     this.status.locale = i18n.getLocale();
     this.create();
@@ -152,6 +150,7 @@ class BaseApplication {
   private saveConfig() {
     this.config.data.recentFiles = this.fileHistory.history;
     this.config.data.windowBounds = this.getBrowserWindow().getBounds();
+    this.config.data.locale = this.status.locale;
     this.config.save();
   }
 
@@ -214,7 +213,7 @@ class BaseApplication {
   }
 
   private setLangUrl(url: string){
-    let current = urlparse.parse(url);
+    const current = urlparse.parse(url);
     current.search = "?setLng=" + this.status.locale;
     return urlparse.format(current);
   }
@@ -228,7 +227,7 @@ class BaseApplication {
   }
 
   private async go(url: string) {
-    await this.getBrowserWindow().loadURL(url);
+    await this.getBrowserWindow().loadURL(this.setLangUrl(url));
     this.setTitle();
   }
 
@@ -416,7 +415,7 @@ class BaseApplication {
   private onSetLocale(item: MenuItem, focusedWindow: BrowserWindow) {
     this.status.locale = item.label;
     if (focusedWindow) {
-      let url = this.setLangUrl(focusedWindow.webContents.getURL());
+      const url = this.setLangUrl(focusedWindow.webContents.getURL());
       focusedWindow.loadURL(url);
     }
   };

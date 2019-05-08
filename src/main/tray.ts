@@ -5,7 +5,7 @@ import i18n from "./i18n";
 export class MyTray {
   private tray: Tray;
   constructor() {
-    this.tray = new Tray(path.join(__dirname, "..", "images", "tray.ico"));
+    this.tray = new Tray(path.join(__dirname, "..", "images", "node-red-icon.png"));
     const contextMenu = Menu.buildFromTemplate([
       {
         label: 'Show App',

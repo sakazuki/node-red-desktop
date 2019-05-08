@@ -1,8 +1,8 @@
 {
   "name": "node-red-desktop",
   "productName": "Node-RED-Desktop",
-  "version": "0.8.3",
-  "description": "Node-RED on Electron",
+  "version": "0.8.5-beta.2",
+  "description": "Node-RED Desktop",
   "main": "main/main.js",
   "scripts": {
     "build": "tsc && node build.js",

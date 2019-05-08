@@ -23,7 +23,7 @@ win:
   target:
   - nsis
   # - portable
-  icon: "images/node-red-256.png"
+  icon: "images/node-red-icon.png"
   publish:
   - provider: "github"
     private: true

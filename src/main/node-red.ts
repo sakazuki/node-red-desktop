@@ -68,8 +68,7 @@ export class NodeREDApp {
           scripts: path.join(__dirname, "..", "renderer/renderer.js")
         },
         header: {
-          title: app.getName(),
-          image: __dirname + "/images/frontops.png"
+          title: app.getName()
         },
         palette: {
           editable: true
@@ -87,7 +86,7 @@ export class NodeREDApp {
           enabled: false
         }
       },
-      nodesExcludes: [ '10-mqtt.js', '16-range.js', '31-tcpin.js', '32-udp.js', '36-rpi-gpio.js', '28-tail.js', '72-sentiment.js', '89-trigger.js', 'node-red-node-rbe' ],
+      nodesExcludes: [],
       logging: {
         electron: {
           level: "debug",
