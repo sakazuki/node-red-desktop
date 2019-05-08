@@ -1,7 +1,7 @@
 {
   "name": "node-red-desktop",
   "productName": "Node-RED-Desktop",
-  "version": "0.8.5-beta.2",
+  "version": "0.8.5-beta.3",
   "description": "Node-RED Desktop",
   "main": "main/main.js",
   "scripts": {

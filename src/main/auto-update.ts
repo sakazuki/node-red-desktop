@@ -64,6 +64,10 @@ export class MyAutoUpdater {
     })
   }
 
+  public quitAndInstall() {
+    autoUpdater.quitAndInstall();
+  }
+
   private onUpdateFround(result: UpdateCheckResult) {
     dialog.showMessageBox(this.window, {
       title: app.getName() + ' ' + i18n.__('menu.checkversion'),
@@ -111,7 +115,6 @@ export class MyAutoUpdater {
     return `
       New Version: ${this.updateInfo.version}
       Release Date: ${this.updateInfo.releaseDate}
-      Release Name: ${this.updateInfo.releaseName}
       `.replace(/^\s*/gm, "");
   }
 }

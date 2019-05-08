@@ -209,7 +209,10 @@ class BaseApplication {
   }
 
   private onRestart() {
+    //TODO: test
     this.onBeforeClose();
+    this.myAutoUpdater!.quitAndInstall();
+    app.quit();
   }
 
   private setLangUrl(url: string){

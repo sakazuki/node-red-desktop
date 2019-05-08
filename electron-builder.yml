@@ -29,8 +29,9 @@ win:
     private: true
 nsis:
   perMachine: false
+  artifactName: ${productName}_Setup_${version}.${ext}
 portable:
-  artifactName: "${productName}-${version}-portable.${ext}"
+  artifactName: "${productName}_${version}_portable.${ext}"
 mac:
   category: "public.app-category.developer-tools"
   target:
