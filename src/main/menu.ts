@@ -48,10 +48,16 @@ export class AppMenu {
         },
         { type: 'separator'},
         {
+            label: i18n.__('menu.settings'),
+            enabled: true,
+            click() { ipcMain.emit("settings"); }
+        },
+        { type: 'separator'},
+        {
             label: i18n.__('menu.openUserDir'),
             enabled: true,
             click() { ipcMain.emit("file:open-userdir"); }
-        }, 
+        },
         {
             label: i18n.__('menu.openLogFile'),
             enabled: true,

@@ -34,8 +34,8 @@ class BaseApplication {
   private appMenu: AppMenu | null = null;
   private tray: MyTray | null = null;
   private app: App;
-  // private mainURL: string = path.join(__dirname, "..", "index.html");
   private loadingURL: string = path.join(__dirname, "..", "loading.html");
+  private settingsURL: string = path.join(__dirname, "..", "settings.html");
   private config: ConfigManager;
   private fileManager: FileManager;
   private fileHistory: FileHistory;
@@ -85,6 +85,7 @@ class BaseApplication {
     ipcMain.on("file:save-as", this.onFileSaveAs.bind(this));
     ipcMain.on("file:open-userdir", this.onUserdirOpen.bind(this));
     ipcMain.on("file:open-logfile", this.onLogfileOpen.bind(this));
+    ipcMain.on("settings", this.onSettings.bind(this));
     ipcMain.on("endpoint:local", this.onEndpointLocal.bind(this));
     ipcMain.on("endpoint:local-admin", this.onEndpointLocalAdmin.bind(this));
     ipcMain.on("endpoint:public", this.onEndpointPublic.bind(this));
@@ -97,6 +98,7 @@ class BaseApplication {
     ipcMain.on("help:check-updates", this.onHelpCheckUpdates.bind(this));
     ipcMain.on("help:version", this.onHelpVersion.bind(this));
     ipcMain.on("dev:tools",  (item: MenuItem, focusedWindow: BrowserWindow) => this.onToggleDevTools(item, focusedWindow));
+    ipcMain.on("settings:loaded", this.onSettingsLoaded.bind(this));
   }
 
   private create() {
@@ -346,6 +348,10 @@ class BaseApplication {
     this.openAny("file://" + log.transports.file.file!);
   }
 
+  private onSettings() {
+    return this.getBrowserWindow().loadURL(this.settingsURL);
+  }
+
   private onEndpointLocal() {
     this.openAny(this.red.getHttpUrl());
   };
@@ -452,6 +458,10 @@ class BaseApplication {
 
   private onToggleDevTools(item: MenuItem, focusedWindow: BrowserWindow) {
     if (focusedWindow) focusedWindow.webContents.toggleDevTools();
+  }
+
+  private onSettingsLoaded() {
+    this.getBrowserWindow().webContents.send("settings:update", this.config.data);
   }
 
 }

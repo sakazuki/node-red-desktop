@@ -10,6 +10,7 @@
         "openUserDir": "ユーザーディレクトリを開く",
         "openSamplesDir": "サンプルディレクトリを開く",
         "openLogFile": "ログファイルを開く",
+        "settings": "設定",
         "login": "ログインする",
         "quit": "終了",
         "edit": "編集",

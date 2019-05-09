@@ -10,10 +10,22 @@ const Platform = builder.Platform;
 
 (async () => {
   try {
-    await fs.copy("loading.html", path.join(__dirname, config.directories.app, "loading.html"));
-    await fs.copy("package.json", path.join(__dirname, config.directories.app, "package.json"));
-    await fs.copy("images", path.join(__dirname, config.directories.app, "images"));
-    await fs.copy("locales", path.join(__dirname, config.directories.app, "locales"));
+    const files = [
+      "loading.html",
+      "settings.html",
+      "package.json",
+      "images",
+      "locales",
+    ];
+    for (let file of files) {
+      await fs.copy(file, path.join(__dirname, config.directories.app, file));
+    }
+
+    // await fs.copy("loading.html", path.join(__dirname, config.directories.app, "loading.html"));
+    // await fs.copy("settings.html", path.join(__dirname, config.directories.app, "settings.html"));
+    // await fs.copy("package.json", path.join(__dirname, config.directories.app, "package.json"));
+    // await fs.copy("images", path.join(__dirname, config.directories.app, "images"));
+    // await fs.copy("locales", path.join(__dirname, config.directories.app, "locales"));
     // process.exit(0);
     
     const platform = (process.platform === "darwin") ? Platform.MAC : Platform.WINDOWS;
