@@ -1,6 +1,6 @@
 import express from "express";
 import {IpFilter, IpDeniedError} from "express-ipfilter";
-const RED =  require("node-red");
+import RED from "node-red";
 import http from "http";
 import { ipcMain, app } from "electron";
 import path from "path";
@@ -9,9 +9,20 @@ import { AppStatus } from "./main";
 import fs from "fs-extra";
 const CustomStorage = require("./custom-storage");
 
-
-const IP_ALLOWS = ['127.0.0.1'];
+const IP_ALLOWS = ["127.0.0.1"];
 const HELP_WEB_URL = "https://frontops.exhands.org";
+
+export const DEFAULT_NODES_EXCLUDES = [
+  "10-mqtt.js",
+  "16-range.js",
+  "31-tcpin.js",
+  "32-udp.js",
+  "36-rpi-gpio.js",
+  "89-trigger.js",
+  "node-red-node-tail",
+  "node-red-node-sentiment",
+  "node-red-node-rbe"
+];
 
 export class NodeREDApp {
   private app: express.Express;
@@ -83,10 +94,10 @@ export class NodeREDApp {
           image: path.join(__dirname, "images", "node-red-256.png")
         },
         projects: {
-          enabled: false
+          enabled: this.status.projectsEnabled || false
         }
       },
-      nodesExcludes: [],
+      nodesExcludes: this.status.nodesExcludes || [],
       logging: {
         electron: {
           level: "debug",
@@ -109,6 +120,7 @@ export class NodeREDApp {
         }
       }
     };
+    if (this.status.projectsEnabled) delete config.storageModule;
     return config;
   }
 
@@ -142,6 +154,7 @@ export class NodeREDApp {
   }
 
   private setupRED() {
+    log.debug(">>> settings", this.settings);
     RED.init(this.server, this.settings);
     this.app.use(this.settings.httpAdminRoot, RED.httpAdmin);
     this.app.use(this.settings.httpNodeRoot, RED.httpNode);

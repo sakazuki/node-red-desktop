@@ -76,5 +76,13 @@
         "yes": "Yes",
         "no": "No",
         "cancel": "Cancel"
+    },
+    "settings": {
+        "userdir": "User directory",
+        "credentialsecret": "Encryption key of your credentials file",
+        "nodesexcludes": "Nodes exclude",
+        "projects": "Projects enabled",
+        "submit": "Restart to apply",
+        "cancel": "Cancel"
     }
 }

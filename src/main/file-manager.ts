@@ -2,15 +2,16 @@ import path from "path";
 import fs from "fs-extra";
 import tmp from "tmp";
 import os from "os";
+import { ConfigManager } from "./config-manager";
 
 export class FileManager {
   private tmpBuffer: Array<tmp.FileResult> = [];
   private userDir: string;
   private prefix: string;
 
-  constructor(prefix: string) {
-    this.userDir = this.setupUserDir(prefix);
-    this.prefix = prefix + "-";
+  constructor(config: ConfigManager) {
+    this.userDir = this.setupUserDir(config);
+    this.prefix = config.getName() + "-";
     this.clearTmp();
   }
 
@@ -21,10 +22,15 @@ export class FileManager {
     return tmpfile.name;
   }
 
-  private setupUserDir(appname: string) {
-    const destdir = path.join(os.homedir(), "." + appname);
-    if (!fs.existsSync(destdir)) fs.mkdirSync(destdir);
-    return destdir;
+  private setupUserDir(config: ConfigManager) {
+    try {
+      if (config.data.userDir) fs.ensureDirSync(config.data.userDir);
+      return config.data.userDir;
+    } catch (err) {
+      const destdir = path.join(os.homedir(), "." + config.getName());
+      fs.ensureDirSync(destdir);
+      return destdir;
+    }
   }
 
   public getUserDir() {

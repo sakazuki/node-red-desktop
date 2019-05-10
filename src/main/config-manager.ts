@@ -6,6 +6,10 @@ type CONFIG = {
   recentFiles: Array<string>;
   windowBounds: any;
   locale: string;
+  userDir: string;
+  credentialSecret: string;
+  projectsEnabled: boolean;
+  nodesExcludes: Array<string>;
 }
 
 export class ConfigManager {
@@ -14,15 +18,19 @@ export class ConfigManager {
   constructor(name: string) {
     this.name = name;
     this.data = this.load();
+    // log.info(">>>>config loaded", this.data);
   }
 
+  public getName() { return this.name; }
+
   public load(): CONFIG {
-    const res = storage.get(this.name);
+    const res = storage.get(this.getName());
     return (res.status ? res.data : {}) as CONFIG;
   }
 
   public save() {
-    const res = storage.set(this.name, this.data);
+    const res = storage.set(this.getName(), this.data);
+    // log.info(">>>>config saved", res);
     if (res.status) {
       return true;
     } else {

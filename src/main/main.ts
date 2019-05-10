@@ -10,7 +10,7 @@ import { FileManager } from "./file-manager";
 import { ConfigManager } from "./config-manager";
 import { MyTray } from "./tray";
 import ngrok from "ngrok";
-import { NodeREDApp } from "./node-red";
+import { NodeREDApp, DEFAULT_NODES_EXCLUDES } from "./node-red";
 import log from "./log";
 
 const FILE_HISTORY_SIZE = 10;
@@ -25,7 +25,10 @@ export interface AppStatus {
   newfile_changed: boolean;
   locale: string;
   userDir: string;
+  credentialSecret: string;
   currentFile: string;
+  projectsEnabled: boolean;
+  nodesExcludes: Array<string>;
 }
 
 class BaseApplication {
@@ -48,17 +51,20 @@ class BaseApplication {
     this.app.on("activate", this.onActivated.bind(this));
     this.app.on("window-all-closed", this.onWindowAllClosed.bind(this));
     this.config = new ConfigManager(app.getName());
-    this.fileManager = new FileManager(app.getName());
+    this.fileManager = new FileManager(this.config);
     this.fileHistory = new FileHistory(FILE_HISTORY_SIZE, ipcMain);
     this.status = {
       editorEnabled: false,
-      ngrokUrl: '',
+      ngrokUrl: "",
       ngrokStarted: false,
       modified: false,
       newfile_changed: false,
-      locale: app.getLocale(),
+      locale: this.config.data.locale || app.getLocale(),
       userDir: this.fileManager.getUserDir(),
-      currentFile: this.fileManager.createTmp()
+      credentialSecret: this.config.data.credentialSecret || app.getName(),
+      currentFile: this.fileManager.createTmp(),
+      projectsEnabled: this.config.data.projectsEnabled || false,
+      nodesExcludes: this.config.data.nodesExcludes || DEFAULT_NODES_EXCLUDES
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
     this.red = new NodeREDApp(this.status);
@@ -99,6 +105,8 @@ class BaseApplication {
     ipcMain.on("help:version", this.onHelpVersion.bind(this));
     ipcMain.on("dev:tools",  (item: MenuItem, focusedWindow: BrowserWindow) => this.onToggleDevTools(item, focusedWindow));
     ipcMain.on("settings:loaded", this.onSettingsLoaded.bind(this));
+    ipcMain.on("settings:update", (event: Electron.Event, args: any) => this.onSettingsSubmit(event, args));
+    ipcMain.on("settings:cancel", this.onSettingsCancel.bind(this));
   }
 
   private create() {
@@ -146,13 +154,17 @@ class BaseApplication {
   }
 
   private onWindowAllClosed() {
-    if (process.platform !== 'darwin') this.app.quit();
+    if (process.platform !== "darwin") this.app.quit();
   }
 
   private saveConfig() {
     this.config.data.recentFiles = this.fileHistory.history;
     this.config.data.windowBounds = this.getBrowserWindow().getBounds();
     this.config.data.locale = this.status.locale;
+    this.config.data.userDir = this.status.userDir;
+    this.config.data.credentialSecret = this.status.credentialSecret || app.getName();
+    this.config.data.projectsEnabled = this.status.projectsEnabled;
+    this.config.data.nodesExcludes = this.status.nodesExcludes || DEFAULT_NODES_EXCLUDES;
     this.config.save();
   }
 
@@ -171,13 +183,13 @@ class BaseApplication {
   private leavable(): boolean {
     if (!this.checkEphemeralFile()) return true;
     const res = dialog.showMessageBox(this.getBrowserWindow(), {
-      type: 'question',
-      title: i18n.__('dialog.confirm'),
-      message: i18n.__('dialog.closeMsg'),
+      type: "question",
+      title: i18n.__("dialog.confirm"),
+      message: i18n.__("dialog.closeMsg"),
       buttons: [
-        i18n.__('dialog.yes'),
-        i18n.__('dialog.no'),
-        i18n.__('dialog.cancel')
+        i18n.__("dialog.yes"),
+        i18n.__("dialog.no"),
+        i18n.__("dialog.cancel")
       ]
     });
     if (res === 0) {
@@ -194,7 +206,10 @@ class BaseApplication {
   }
 
   private onBeforeClose(event?: Electron.Event) {
-    if (this.leavable()) {
+    const url = path.parse(this.getBrowserWindow().webContents.getURL());
+    if ( url.base === path.parse(this.settingsURL).base ) {
+      this.unsetBeforeUnload();
+    } else if (this.leavable()) {
       this.unsetBeforeUnload();
       this.saveConfig();
     } else {
@@ -241,7 +256,7 @@ class BaseApplication {
     const msg: Electron.NotificationConstructorOptions = {
       title: app.getName(),
       body: text,
-      closeButtonText: i18n.__('dialog.ok')
+      closeButtonText: i18n.__("dialog.ok")
     }
     const notification = new Notification(msg);
     notification.show();
@@ -285,15 +300,15 @@ class BaseApplication {
     return this.mainWindow!.getBrowserWindow()!
   }
 
-  private onFileOpen(file: string = '') {
+  private onFileOpen(file: string = "") {
     if (!file) {
       const files = dialog.showOpenDialog(this.getBrowserWindow(), {
-        title: i18n.__('dialog.openFlowFile'),
-        properties: ['openFile'],
+        title: i18n.__("dialog.openFlowFile"),
+        properties: ["openFile"],
         defaultPath: path.dirname(this.status.currentFile),
         filters: [
-          { name: 'flows file', extensions: ['json'] },
-          { name: 'ALL', extensions: ['*'] }
+          { name: "flows file", extensions: ["json"] },
+          { name: "ALL", extensions: ["*"] }
         ]
       });
       if (files) file = files[0];
@@ -311,11 +326,11 @@ class BaseApplication {
 
   private onFileSaveAs(): boolean {
     const savefile = dialog.showSaveDialog(this.getBrowserWindow(), {
-      title: i18n.__('dialog.saveFlowFile'),
+      title: i18n.__("dialog.saveFlowFile"),
       defaultPath: path.dirname(this.status.currentFile),
       filters: [
-        { name: 'flows file', extensions: ['json'] },
-        { name: 'ALL', extensions: ['*'] }
+        { name: "flows file", extensions: ["json"] },
+        { name: "ALL", extensions: ["*"] }
       ]
     });
     if (!savefile) return false;
@@ -440,18 +455,18 @@ class BaseApplication {
   private onHelpVersion() {
     const body = `
       Name: ${app.getName()} 
-      ${i18n.__('version.version')}: ${app.getVersion()}
+      ${i18n.__("version.version")}: ${app.getVersion()}
       ${this.myAutoUpdater!.info()}
       ${this.red.info()}
       ${this.fileManager.info()}
     `.replace(/^\s*/gm, "");
 
     dialog.showMessageBox(this.getBrowserWindow(),{
-      title: i18n.__('menu.version'),
-      type: 'info',
+      title: i18n.__("menu.version"),
+      type: "info",
       message: app.getName(),
       detail: body,
-      buttons: [i18n.__('dialog.ok')],
+      buttons: [i18n.__("dialog.ok")],
       noLink: true
     });
   }
@@ -461,7 +476,21 @@ class BaseApplication {
   }
 
   private onSettingsLoaded() {
-    this.getBrowserWindow().webContents.send("settings:update", this.config.data);
+    this.getBrowserWindow().webContents.send("settings:set", this.config.data);
+  }
+
+  private onSettingsSubmit(event: Electron.Event, args: any) {
+    this.status.userDir = args.userDir;
+    this.status.credentialSecret = args.credentialSecret;
+    this.status.nodesExcludes = args.nodesExcludes.trim().split("\n");
+    this.status.projectsEnabled = args.projectsEnabled;
+    this.saveConfig();
+    app.relaunch();
+    app.quit();
+  }
+
+  private onSettingsCancel() {
+    this.go(this.red.getAdminUrl());
   }
 
 }

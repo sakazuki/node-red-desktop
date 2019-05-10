@@ -12,19 +12,23 @@ export class AppMenu {
     this.fileHistory = fileHistory;
   }
 
+  private fileUsable() {
+    return this.status.editorEnabled && !this.status.projectsEnabled
+  }
+
   public setup(){
     const file: MenuItemConstructorOptions ={
       label: i18n.__("menu.file"),
       submenu: [
         {
           label: i18n.__("menu.new"),
-          enabled: this.status.editorEnabled,
+          enabled: this.fileUsable(),
           accelerator: "CmdOrCtrl+N",
           click() { ipcMain.emit("file:new"); }
         },
         {
           label: i18n.__("menu.open") + "...",
-          enabled: this.status.editorEnabled,
+          enabled: this.fileUsable(),
           accelerator: "CmdOrCtrl+O",
           click() { ipcMain.emit("file:open"); }
         },
@@ -42,13 +46,13 @@ export class AppMenu {
         },
         {
           label: i18n.__("menu.saveAsDeploy") + "...",
-          enabled: this.status.editorEnabled,
+          enabled: this.fileUsable(),
           accelerator: "Shift+CmdOrCtrl+S",
           click() { ipcMain.emit("file:save-as"); }
         },
         { type: 'separator'},
         {
-            label: i18n.__('menu.settings'),
+            label: i18n.__('menu.settings') + "...",
             enabled: true,
             click() { ipcMain.emit("settings"); }
         },
@@ -225,7 +229,7 @@ export class AppMenu {
         openRecentMenu.append(
           new MenuItem({
             label: files[i],
-            enabled: true,
+            enabled: this.fileUsable(),
             click(){ ipcMain.emit("file:open", files[i]); }
           })
         );

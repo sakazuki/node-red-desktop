@@ -11,45 +11,30 @@
     <section class="section">
       <div class="container">
         <div class="field">
-          <label class="label">Userdir</label>
+          <label id="label.userdir" class="label">Userdir</label>
           <div class="control">
-            <input class="input" type="text" placeholder="e.g Alex Smith">
+            <input id="userdir" class="input" type="text" placeholder="">
           </div>
         </div>
-        
+
         <div class="field">
-          <label class="label">Email</label>
+          <label id="label.credentialsecret" class="label">Credential secret</label>
           <div class="control">
-            <input class="input" type="email" placeholder="e.g. alexsmith@gmail.com">
+            <input id="credentialsecret" class="input" type="text" placeholder="">
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field">
+            <label id="label.nodesexcludes" class="label">Nodes blacklist</label>
+            <textarea id="nodesexcludes" class="textarea" placeholder="Do not load these nodes on startup" rows="10"></textarea>
           </div>
         </div>
 
         <div class="field">
           <div class="control">
-            <label class="checkbox">
-              <input type="checkbox">
-              I agree to the <a href="#">terms and conditions</a>
-            </label>
-          </div>
-        </div>
-
-        <div class="field">
-          <div class="control">
-            <input id="xxx" type="checkbox" name="switchRoundedDefault" class="switch is-rtl" checked="checked">
-            <label for="xxx">Switch rounded default</label>
-          </div>
-        </div>
-
-        <div class="field">
-          <div class="control">
-            <label class="radio">
-              <input type="radio" name="question">
-              Yes
-            </label>
-            <label class="radio">
-              <input type="radio" name="question">
-              No
-            </label>
+            <input id="projects" type="checkbox" name="projects" class="switch is-rtl" checked="checked">
+            <label id="label.projects" class="label" for="projects">Projects Enabled</label>
           </div>
         </div>
 
@@ -59,10 +44,10 @@
             <div class="level-item">
               <div class="field is-grouped">
                 <div class="control">
-                  <button id="submit" class="button is-link">Submit</button>
+                  <button id="button.submit" class="button is-link">Submit</button>
                 </div>
                 <div class="control">
-                  <button id="cancel" class="button is-text">Cancel</button>
+                  <button id="button.cancel" class="button is-text">Cancel</button>
                 </div>
               </div>
             </div>
