@@ -1,7 +1,7 @@
 import { BrowserWindow, session, ipcMain, dialog } from "electron";
 import i18n from "./i18n";
 
-export class MyBrowserWindow {
+export class CustomBrowserWindow {
   private window: BrowserWindow | null = null;
 
   constructor(options: Electron.BrowserWindowConstructorOptions, url: string) {

@@ -2,7 +2,7 @@ import { app, Menu, Tray, ipcMain } from "electron";
 import path from "path";
 import i18n from "./i18n";
 
-export class MyTray {
+export class CustomTray {
   private tray: Tray;
   constructor() {
     this.tray = new Tray(path.join(__dirname, "..", "images", "node-red-icon.png"));

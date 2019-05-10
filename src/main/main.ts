@@ -1,14 +1,14 @@
 import { app, App, BrowserWindowConstructorOptions, ipcMain, MenuItem, BrowserWindow, dialog, shell, Notification } from "electron";
-import { MyBrowserWindow } from "./browser-window";
+import { CustomBrowserWindow } from "./browser-window";
 import { AppMenu } from "./menu"
 import path from "path";
-import { MyAutoUpdater } from "./auto-update";
+import { CustomAutoUpdater } from "./auto-update";
 import i18n from "./i18n";
 import urlparse from "url";
 import { FileHistory } from "./file-history";
 import { FileManager } from "./file-manager";
 import { ConfigManager } from "./config-manager";
-import { MyTray } from "./tray";
+import { CustomTray } from "./tray";
 import ngrok from "ngrok";
 import { NodeREDApp, DEFAULT_NODES_EXCLUDES } from "./node-red";
 import log from "./log";
@@ -32,10 +32,10 @@ export interface AppStatus {
 }
 
 class BaseApplication {
-  private mainWindow: MyBrowserWindow | null = null;
-  private myAutoUpdater: MyAutoUpdater | null = null;
+  private mainWindow: CustomBrowserWindow | null = null;
+  private customAutoUpdater: CustomAutoUpdater | null = null;
   private appMenu: AppMenu | null = null;
-  private tray: MyTray | null = null;
+  private tray: CustomTray | null = null;
   private app: App;
   private loadingURL: string = path.join(__dirname, "..", "loading.html");
   private settingsURL: string = path.join(__dirname, "..", "settings.html");
@@ -133,7 +133,7 @@ class BaseApplication {
     };
     const savedOption = this.config.data.windowBounds || {};
     Object.assign(options, savedOption);
-    this.mainWindow = new MyBrowserWindow(options, this.loadingURL);
+    this.mainWindow = new CustomBrowserWindow(options, this.loadingURL);
     this.fileHistory.load(this.config.data.recentFiles);
   }
 
@@ -143,9 +143,9 @@ class BaseApplication {
     } catch (err) { console.error(err) }
     this.status.locale = i18n.getLocale();
     this.create();
-    this.myAutoUpdater = new MyAutoUpdater(this.getBrowserWindow());
-    this.myAutoUpdater.checkUpdates(false);
-    this.tray = new MyTray();
+    this.customAutoUpdater = new CustomAutoUpdater(this.getBrowserWindow());
+    this.customAutoUpdater.checkUpdates(false);
+    this.tray = new CustomTray();
     this.red.startRED();
   }
 
@@ -228,7 +228,7 @@ class BaseApplication {
   private onRestart() {
     //TODO: test
     this.onBeforeClose();
-    this.myAutoUpdater!.quitAndInstall();
+    this.customAutoUpdater!.quitAndInstall();
     app.quit();
   }
 
@@ -449,14 +449,14 @@ class BaseApplication {
   };
 
   private onHelpCheckUpdates() {
-    this.myAutoUpdater!.checkUpdates(true);
+    this.customAutoUpdater!.checkUpdates(true);
   };
 
   private onHelpVersion() {
     const body = `
       Name: ${app.getName()} 
       ${i18n.__("version.version")}: ${app.getVersion()}
-      ${this.myAutoUpdater!.info()}
+      ${this.customAutoUpdater!.info()}
       ${this.red.info()}
       ${this.fileManager.info()}
     `.replace(/^\s*/gm, "");
@@ -495,4 +495,4 @@ class BaseApplication {
 
 }
 
-const MyApp: BaseApplication = new BaseApplication(app);
+const main: BaseApplication = new BaseApplication(app);

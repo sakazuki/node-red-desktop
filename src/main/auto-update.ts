@@ -4,7 +4,7 @@ import log from "./log";
 import i18n from "./i18n";
 import path from "path";
 
-export class MyAutoUpdater {
+export class CustomAutoUpdater {
   private window: BrowserWindow;
   private updateInfo: UpdateInfo | null = null;
 

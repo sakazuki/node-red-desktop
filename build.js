@@ -21,11 +21,16 @@ const Platform = builder.Platform;
       await fs.copy(file, path.join(__dirname, config.directories.app, file));
     }
 
-    // await fs.copy("loading.html", path.join(__dirname, config.directories.app, "loading.html"));
-    // await fs.copy("settings.html", path.join(__dirname, config.directories.app, "settings.html"));
-    // await fs.copy("package.json", path.join(__dirname, config.directories.app, "package.json"));
-    // await fs.copy("images", path.join(__dirname, config.directories.app, "images"));
-    // await fs.copy("locales", path.join(__dirname, config.directories.app, "locales"));
+    const styles = [
+      "bulma/css/bulma.min.css",
+      "bulma-switch/dist/css/bulma-switch.min.css"
+    ];
+    for (let file of styles) {
+      const src = path.join(__dirname, "node_modules", file);
+      const base = path.parse(file).base
+      await fs.copy(src, path.join(__dirname, config.directories.app, base));
+    }
+
     process.exit(0);
     
     const platform = (process.platform === "darwin") ? Platform.MAC : Platform.WINDOWS;
