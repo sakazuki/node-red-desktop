@@ -83,6 +83,9 @@
         "nodesexcludes": "読み込まないノード",
         "projects": "プロジェクトを使う",
         "submit": "アプリを再起動して適用する",
-        "cancel": "キャンセル"
+        "cancel": "キャンセル",
+        "hideonminimize": "最小化したときにトレイに隠す",
+        "autocheckupdate": "起動時に更新を確認する",
+        "allowprerelease": "プレリリースを使う"
     }
 }

@@ -10,6 +10,10 @@ type CONFIG = {
   credentialSecret: string;
   projectsEnabled: boolean;
   nodesExcludes: Array<string>;
+  autoCheckUpdate: boolean;
+  allowPrerelease: boolean;
+  autoDownload: boolean;
+  hideOnMinimize: boolean;
 }
 
 export class ConfigManager {

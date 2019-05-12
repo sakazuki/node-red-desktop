@@ -8,6 +8,8 @@ export class CustomBrowserWindow {
     this.window = new BrowserWindow(options);
     this.window.on("close", (event) => { this.onClose(event); });
     this.window.on("closed", () => { this.onClosed(); });
+    // @ts-ignore
+    this.window.on("minimize", (event) => { this.onMinimize(event); })
     this.setupSessionHandler();
     this.window.webContents.on("new-window", (event, url) => this.onNewWindow(event, url));
     this.window.webContents.on("dom-ready", event => this.onDomReady(event));
@@ -26,6 +28,10 @@ export class CustomBrowserWindow {
   private onClosed() {
     ipcMain.emit("browser:closed");
     this.window = null;
+  }
+
+  private onMinimize(event: Electron.Event) {
+    ipcMain.emit("browser:minimize", event);
   }
 
   private setupSessionHandler() {

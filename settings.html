@@ -6,53 +6,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="./bulma.min.css">
     <link rel="stylesheet" href="./bulma-switch.min.css">
+    <script src="./jquery.slim.min.js"></script>
+    <style>
+      #tab-content div.container {
+        display: none;
+      }
+
+      #tab-content div.container.is-active {
+        display: block;
+      }
+    </style>
   </head>
   <body>
     <section class="section">
-      <div class="container">
-        <div class="field">
-          <label id="label.userdir" class="label">Userdir</label>
-          <div class="control">
-            <input id="userdir" class="input" type="text" placeholder="">
-          </div>
-        </div>
-
-        <div class="field">
-          <label id="label.credentialsecret" class="label">Credential secret</label>
-          <div class="control">
-            <input id="credentialsecret" class="input" type="text" placeholder="">
-          </div>
-        </div>
-
-        <div class="field">
+      <div id="tabs" class="tabs">
+        <ul>
+          <li data-tab="1" class="is-active"><a>Node-RED</a></li>
+          <li data-tab="2"><a>Other</a></li>
+        </ul>
+      </div>
+      <div id="tab-content">
+        <div data-content="1" class="container is-active">
           <div class="field">
-            <label id="label.nodesexcludes" class="label">Nodes blacklist</label>
-            <textarea id="nodesexcludes" class="textarea" placeholder="Do not load these nodes on startup" rows="10"></textarea>
+            <label id="label-userdir" class="label">Userdir</label>
+            <div class="control">
+              <input id="userdir" class="input" type="text" placeholder="">
+            </div>
+          </div>
+
+          <div class="field">
+            <label id="label-credentialsecret" class="label">Credential secret</label>
+            <div class="control">
+              <input id="credentialsecret" class="input" type="text" placeholder="">
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field">
+              <label id="label-nodesexcludes" class="label">Nodes blacklist</label>
+              <textarea id="nodesexcludes" class="textarea" placeholder="Do not load these nodes on startup" rows="10"></textarea>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="control">
+              <input id="projects" type="checkbox" name="projects" class="switch is-rtl">
+              <label id="label-projects" class="label" for="projects">Projects Enabled</label>
+            </div>
+          </div>
+
+        </div>
+
+        <div data-content="2" class="container">
+          <div class="field">
+            <div class="control">
+              <input id="hideonminimize" type="checkbox" name="hideonminimize" class="switch is-rtl">
+              <label id="label-hideonminimize" class="label" for="hideonminimize">Hide app on miminize</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="control">
+              <input id="autocheckupdate" type="checkbox" name="autocheckupdate" class="switch is-rtl">
+              <label id="label-autocheckupdate" class="label" for="autocheckupdate">Check update on startup</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="control">
+              <input id="allowprerelease" type="checkbox" name="allowprerelease" class="switch is-rtl">
+              <label id="label-allowprerelease" class="label" for="allowprerelease">Allow usging prerelase</label>
+            </div>
           </div>
         </div>
 
-        <div class="field">
-          <div class="control">
-            <input id="projects" type="checkbox" name="projects" class="switch is-rtl" checked="checked">
-            <label id="label.projects" class="label" for="projects">Projects Enabled</label>
-          </div>
-        </div>
-
+        <hr>
         <div class="level">
           <div class="level-left"></div>
           <div class="level-right">
             <div class="level-item">
               <div class="field is-grouped">
                 <div class="control">
-                  <button id="button.submit" class="button is-link">Submit</button>
+                  <button id="button-submit" class="button is-link">Submit</button>
                 </div>
                 <div class="control">
-                  <button id="button.cancel" class="button is-text">Cancel</button>
+                  <button id="button-cancel" class="button is-text">Cancel</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
     </section>
     <script src="renderer/settings.js"></script>
   </body>

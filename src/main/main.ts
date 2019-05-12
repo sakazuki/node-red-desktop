@@ -12,6 +12,7 @@ import { CustomTray } from "./tray";
 import ngrok from "ngrok";
 import { NodeREDApp, DEFAULT_NODES_EXCLUDES } from "./node-red";
 import log from "./log";
+import fs from "fs-extra";
 
 const FILE_HISTORY_SIZE = 10;
 const HELP_WEB_URL = "https://nodered.org/";
@@ -29,6 +30,10 @@ export interface AppStatus {
   currentFile: string;
   projectsEnabled: boolean;
   nodesExcludes: Array<string>;
+  autoCheckUpdate: boolean;
+  allowPrerelease: boolean;
+  autoDownload: boolean;
+  hideOnMinimize: boolean;
 }
 
 class BaseApplication {
@@ -62,14 +67,19 @@ class BaseApplication {
       locale: this.config.data.locale || app.getLocale(),
       userDir: this.fileManager.getUserDir(),
       credentialSecret: this.config.data.credentialSecret || app.getName(),
-      currentFile: this.fileManager.createTmp(),
+      currentFile: this.getStartFlow(),
       projectsEnabled: this.config.data.projectsEnabled || false,
-      nodesExcludes: this.config.data.nodesExcludes || DEFAULT_NODES_EXCLUDES
+      nodesExcludes: this.config.data.nodesExcludes || DEFAULT_NODES_EXCLUDES,
+      autoCheckUpdate: this.config.data.autoCheckUpdate || true,
+      allowPrerelease: this.config.data.allowPrerelease || false,
+      autoDownload: this.config.data.autoDownload || false,
+      hideOnMinimize: this.config.data.hideOnMinimize || false
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
     this.red = new NodeREDApp(this.status);
     ipcMain.on("browser:show", () => this.getBrowserWindow().show());
     ipcMain.on("browser:hide", () => this.getBrowserWindow().hide());
+    ipcMain.on("browser:minimize", (event: Electron.Event) => this.onMinimize(event));
     ipcMain.on("browser:before-close", (event: Electron.Event) => this.onBeforeClose(event));
     ipcMain.on("browser:closed", this.onClosed.bind(this));
     ipcMain.on("browser:restart", this.onRestart.bind(this));
@@ -137,6 +147,15 @@ class BaseApplication {
     this.fileHistory.load(this.config.data.recentFiles);
   }
 
+  private getStartFlow(): string {
+    const args = process.argv[2];
+    if (args && fs.existsSync(args)) {
+      return args
+    } else {
+      return this.fileManager.createTmp();
+    }
+  }
+
   private onReady() {
     try {
       i18n.setLocale(this.config.data.locale || app.getLocale());
@@ -144,8 +163,8 @@ class BaseApplication {
     this.status.locale = i18n.getLocale();
     this.create();
     this.customAutoUpdater = new CustomAutoUpdater(this.getBrowserWindow());
-    this.customAutoUpdater.checkUpdates(false);
-    this.tray = new CustomTray();
+    if (this.status.autoCheckUpdate) this.customAutoUpdater.checkUpdates(false, this.status.autoDownload);
+    this.tray = new CustomTray(this.red);
     this.red.startRED();
   }
 
@@ -165,6 +184,10 @@ class BaseApplication {
     this.config.data.credentialSecret = this.status.credentialSecret || app.getName();
     this.config.data.projectsEnabled = this.status.projectsEnabled;
     this.config.data.nodesExcludes = this.status.nodesExcludes || DEFAULT_NODES_EXCLUDES;
+    this.config.data.autoCheckUpdate = this.status.autoCheckUpdate;
+    this.config.data.allowPrerelease = this.status.allowPrerelease;
+    this.config.data.autoDownload = this.status.autoDownload;
+    this.config.data.hideOnMinimize = this.status.hideOnMinimize;
     this.config.save();
   }
 
@@ -203,6 +226,12 @@ class BaseApplication {
     } else {
       return false;
     }
+  }
+
+  private onMinimize(event?: Electron.Event) {
+    if (!this.status.hideOnMinimize) return;
+    event!.preventDefault();
+    this.getBrowserWindow().hide();
   }
 
   private onBeforeClose(event?: Electron.Event) {
@@ -406,7 +435,6 @@ class BaseApplication {
     try {
       await ngrok.disconnect(this.status.ngrokUrl);
       await ngrok.disconnect(this.status.ngrokUrl.replace("https://", "http://"));
-      ipcMain.emit("menu:update");
       this.red.notify({
         id: "ngrok",
         payload:{
@@ -416,6 +444,7 @@ class BaseApplication {
         retain:false
       }, 3000);
       this.status.ngrokUrl = "";
+      ipcMain.emit("menu:update");
     }catch (err) {
       console.error(err);
     }
@@ -449,7 +478,7 @@ class BaseApplication {
   };
 
   private onHelpCheckUpdates() {
-    this.customAutoUpdater!.checkUpdates(true);
+    this.customAutoUpdater!.checkUpdates(true, this.status.autoDownload);
   };
 
   private onHelpVersion() {
@@ -484,6 +513,10 @@ class BaseApplication {
     this.status.credentialSecret = args.credentialSecret;
     this.status.nodesExcludes = args.nodesExcludes.trim().split("\n");
     this.status.projectsEnabled = args.projectsEnabled;
+    this.status.autoCheckUpdate = args.autoCheckUpdate;
+    this.status.allowPrerelease = args.allowPrerelease;
+    this.status.autoDownload = args.autoDownload;
+    this.status.hideOnMinimize = args.hideOnMinimize;
     this.saveConfig();
     app.relaunch();
     app.quit();

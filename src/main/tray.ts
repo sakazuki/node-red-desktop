@@ -1,10 +1,13 @@
 import { app, Menu, Tray, ipcMain } from "electron";
 import path from "path";
 import i18n from "./i18n";
+import { NodeREDApp } from "./node-red";
 
 export class CustomTray {
   private tray: Tray;
-  constructor() {
+  private red: NodeREDApp;
+  constructor(red: NodeREDApp) {
+    this.red = red;
     this.tray = new Tray(path.join(__dirname, "..", "images", "node-red-icon.png"));
     const contextMenu = Menu.buildFromTemplate([
       {
@@ -37,7 +40,7 @@ export class CustomTray {
         label: i18n.__("menu.quit"), role: "quit"
       }
     ])
-    this.tray.setToolTip(`This is ${app.getName()}`);
+    this.tray.setToolTip(`${app.getName()}(port:${this.red.listenPort})`);
     this.tray.setContextMenu(contextMenu);
     this.tray.on("double-click", this.onShow.bind(this));
   }

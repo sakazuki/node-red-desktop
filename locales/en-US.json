@@ -83,6 +83,9 @@
         "nodesexcludes": "Nodes exclude",
         "projects": "Projects enabled",
         "submit": "Restart to apply",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "hideonminimize": "Hide into tray on minimize",
+        "autocheckupdate": "Check update on startup",
+        "allowprerelease": "Allow to use pre-release"
     }
 }

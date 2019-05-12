@@ -2,7 +2,6 @@ import { autoUpdater, UpdateCheckResult, UpdateInfo } from "electron-updater";
 import { BrowserWindow, app, dialog, ipcMain } from "electron";
 import log from "./log";
 import i18n from "./i18n";
-import path from "path";
 
 export class CustomAutoUpdater {
   private window: BrowserWindow;
@@ -85,15 +84,14 @@ export class CustomAutoUpdater {
     dialog.showMessageBox(this.window, {
       title: app.getName() + ' ' + i18n.__('menu.checkversion'),
       type: 'info',
-      message: `Current version is latest`,
-      detail: `${i18n.__('update.noavailable')}`,
+      message: `${i18n.__('update.noavailable')}`,
       buttons: [i18n.__('dialog.ok')],
       noLink: true
     });
   }
 
-  public async checkUpdates(showDialog = true) {
-    autoUpdater.autoDownload = false;
+  public async checkUpdates(showDialog = true, autoDownload = false) {
+    autoUpdater.autoDownload = autoDownload;
     if (process.env.UPDATE_CHANNEL)  autoUpdater.channel = process.env.UPDATE_CHANNEL;
     try {
       const result = await autoUpdater.checkForUpdatesAndNotify();

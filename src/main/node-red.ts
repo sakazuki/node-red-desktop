@@ -10,7 +10,7 @@ import fs from "fs-extra";
 const CustomStorage = require("./custom-storage");
 
 const IP_ALLOWS = ["127.0.0.1"];
-const HELP_WEB_URL = "https://frontops.exhands.org";
+const HELP_WEB_URL = "https://github.com/sakazuki/node-red-desktop";
 
 export const DEFAULT_NODES_EXCLUDES = [
   "10-mqtt.js",
@@ -56,6 +56,7 @@ export class NodeREDApp {
   }
 
   private setupSettings() {
+    const _this = this;
     const config = {
       verbose: true,
       httpAdminRoot: this.adminPath,
@@ -70,7 +71,7 @@ export class NodeREDApp {
         methods: "GET,PUT,POST,DELETE"
       },
       functionGlobalContext: {
-        // events: RED.events
+        get NGROK_URL(): string { return _this.status.ngrokUrl }
       },
       editorTheme: {
         page: {
