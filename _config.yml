@@ -1,1 +1,11 @@
+title: Node-RED Desktop
+description: Desktop applicaiton of Node-RED. You can get a quick and easy powerful tool.
+
 theme: jekyll-theme-cayman
+exclude:
+  - node_modules
+  - dist
+  - release
+  - Gemfile
+  - Gemfile.lock
+  - vendor

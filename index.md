@@ -4,7 +4,7 @@ This is a desktop applicaiton of Node-RED
 
 ![screen](https://raw.githubusercontent.com/sakazuki/node-red-desktop/doc/screenshot.png)
 
-## Benefit: Quick and Easy
+## Your benefits
 
 You can 
 - easily setup Node-RED on your desktop.
