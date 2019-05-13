@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import {IpcMain} from "electron";
 
 export class FileHistory {
-  public history: Array<string> = [];
+  public history: string[] = [];
   private size: number;
   private ipcMain: IpcMain;
   constructor(size: number = 10, ipcMain: IpcMain) {
@@ -19,7 +19,7 @@ export class FileHistory {
     this.history.splice(this.size);
     if (update) this.update();
   }
-  public load(data: Array<string>) {
+  public load(data: string[]) {
     this.clear();
     if (data) {
       data.reverse().forEach(v => {

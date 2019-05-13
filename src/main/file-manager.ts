@@ -5,7 +5,7 @@ import os from "os";
 import { ConfigManager } from "./config-manager";
 
 export class FileManager {
-  private tmpBuffer: Array<tmp.FileResult> = [];
+  private tmpBuffer: tmp.FileResult[] = [];
   private userDir: string;
   private prefix: string;
 
@@ -23,12 +23,11 @@ export class FileManager {
   }
 
   private setupUserDir(config: ConfigManager) {
-    const destdir = path.join(os.homedir(), "." + config.getName());
     try {
-      if (!config.data.userDir) config.data.userDir = destdir;
       fs.ensureDirSync(config.data.userDir);
       return config.data.userDir;
     } catch (err) {
+      const destdir = path.join(os.homedir(), "." + config.getName());
       fs.ensureDirSync(destdir);
       return destdir;
     }
@@ -39,7 +38,7 @@ export class FileManager {
   }
 
   public test(file: string){
-    return new RegExp(`${this.prefix}(.+)\.tmp`).exec(path.basename(file));
+    return new RegExp(`${this.prefix}(.+)\\.tmp`).exec(path.basename(file));
   }
 
   private clearBackup(file: tmp.FileResult) {

@@ -7,10 +7,10 @@ import path from "path";
 import log from "./log";
 import { AppStatus } from "./main";
 import fs from "fs-extra";
-const CustomStorage = require("./custom-storage");
+import CustomStorage =  require("./custom-storage");
 
 const IP_ALLOWS = ["127.0.0.1"];
-const HELP_WEB_URL = "https://github.com/sakazuki/node-red-desktop";
+const HELP_WEB_URL = "https://sakazuki.github.io/node-red-desktop/";
 
 export const DEFAULT_NODES_EXCLUDES = [
   "10-mqtt.js",
@@ -64,7 +64,6 @@ export class NodeREDApp {
       userDir: this.status.userDir,
       flowFile: this.status.currentFile,
       storageModule: CustomStorage, 
-      //TODO: 
       credentialSecret: app.getName(),
       httpNodeCors: {
         origin: "*",
@@ -103,7 +102,7 @@ export class NodeREDApp {
         electron: {
           level: "debug",
           metrics: true,
-          handler(settings: any){
+          handler(){
             return function(msg: any) {
               var m = ({
                 20: "error",

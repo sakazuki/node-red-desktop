@@ -2,7 +2,7 @@ import log from "electron-log";
 import fs from "fs";
 import path from "path";
 
-function archiveLog(file: string) {
+function archiveLog(file: string): void {
   var info = path.parse(file);
   try {
     const iso = new Date().toISOString().replace(/[-:]/g, "");

@@ -1,5 +1,6 @@
 import { BrowserWindow, session, ipcMain, dialog } from "electron";
 import i18n from "./i18n";
+import log from "./log";
 
 export class CustomBrowserWindow {
   private window: BrowserWindow | null = null;
@@ -38,7 +39,7 @@ export class CustomBrowserWindow {
     if (!session.defaultSession) throw "session does not exist"
     session.defaultSession.webRequest.onCompleted({ urls: [] }, details => {
       if (details.statusCode == 404) {
-        console.log(details);
+        log.log(details);
         // setTimeout(this.window!.webContents.reload, 200);
       }
     })

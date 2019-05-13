@@ -52,20 +52,20 @@ export class AppMenu {
         },
         { type: 'separator'},
         {
-            label: i18n.__('menu.settings') + "...",
-            enabled: true,
-            click() { ipcMain.emit("settings"); }
+          label: i18n.__('menu.settings') + "...",
+          enabled: true,
+          click() { ipcMain.emit("settings"); }
         },
         { type: 'separator'},
         {
-            label: i18n.__('menu.openUserDir'),
-            enabled: true,
-            click() { ipcMain.emit("file:open-userdir"); }
+          label: i18n.__('menu.openUserDir'),
+          enabled: true,
+          click() { ipcMain.emit("file:open-userdir"); }
         },
         {
-            label: i18n.__('menu.openLogFile'),
-            enabled: true,
-            click() { ipcMain.emit("file:open-logfile"); }
+          label: i18n.__('menu.openLogFile'),
+          enabled: true,
+          click() { ipcMain.emit("file:open-logfile"); }
         },
         { type: "separator"},
         { label: i18n.__("menu.quit"), role: "quit" }
@@ -229,7 +229,7 @@ export class AppMenu {
     Menu.setApplicationMenu(menu);
   }
 
-  private setOpenRecentMenu(openRecentMenu: Menu){
+  private setOpenRecentMenu(openRecentMenu: Menu): void{
     const files = this.fileHistory.history;
     if (files.length > 0){
       for(let i = 0; i < files.length; i++){
@@ -252,7 +252,7 @@ export class AppMenu {
     }
   }
 
-  private setLocalesMenu(localesMenu: Menu){
+  private setLocalesMenu(localesMenu: Menu): void{
     const locales = i18n.getLocales();
     for(let i = 0; i < locales.length; i++){
       localesMenu.append(

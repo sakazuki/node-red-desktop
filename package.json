@@ -1,7 +1,7 @@
 {
   "name": "node-red-desktop",
   "productName": "Node-RED-Desktop",
-  "version": "0.8.7-beta.2",
+  "version": "0.8.7-beta.3",
   "description": "Node-RED Desktop",
   "main": "main/main.js",
   "scripts": {
@@ -19,6 +19,7 @@
   "devDependencies": {
     "@types/electron-builder": "^2.8.0",
     "@types/express": "^4.16.1",
+    "@types/file-url": "^3.0.2",
     "@types/fs-extra": "^5.0.5",
     "@types/i18n": "^0.8.5",
     "@types/semver": "^6.0.0",

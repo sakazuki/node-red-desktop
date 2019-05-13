@@ -1,4 +1,5 @@
-const lfs = require("@node-red/runtime/lib/storage/localfilesystem");
+// @ts-ignore
+import lfs = require("@node-red/runtime/lib/storage/localfilesystem");
 
 module.exports = {
   init: lfs.init,
@@ -14,4 +15,3 @@ module.exports = {
   saveLibraryEntry: lfs.saveLibraryEntry,
   projects: lfs.projects
 }
-

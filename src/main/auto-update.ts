@@ -13,12 +13,16 @@ export class CustomAutoUpdater {
     this.window = window;
     this.status = status;
     autoUpdater.logger = log;
-    autoUpdater.on("checking-for-update", _ => this.onCheckingForUpdate());
-    autoUpdater.on("update-available", (info) => this.onUpdateAvailable(info));
-    autoUpdater.on("update-not-available", (info) => this.onUpdateNotAvaialable(info));
-    autoUpdater.on("error", (err) => this.onError(err));
-    autoUpdater.on("download-progress", (progressObj) => this.onDownloadProgress(progressObj));
-    autoUpdater.on("update-downloaded", (info) => this.onUpdateDownloaded(info));
+    autoUpdater.on("checking-for-update", () => this.onCheckingForUpdate());
+    autoUpdater.on("update-available", info => this.onUpdateAvailable(info));
+    autoUpdater.on("update-not-available", info =>
+      this.onUpdateNotAvaialable(info)
+    );
+    autoUpdater.on("error", err => this.onError(err));
+    autoUpdater.on("download-progress", progressObj =>
+      this.onDownloadProgress(progressObj)
+    );
+    autoUpdater.on("update-downloaded", info => this.onUpdateDownloaded(info));
     if (this.status.autoCheckUpdate) this.checkUpdates(false);
   }
 
@@ -26,7 +30,7 @@ export class CustomAutoUpdater {
     return autoUpdater;
   }
 
-  private onCheckingForUpdate(){
+  private onCheckingForUpdate() {
     this.sendStatusToWindow("Checking for update...");
   }
 
@@ -43,8 +47,11 @@ export class CustomAutoUpdater {
   }
 
   private onDownloadProgress(progressObj: any) {
-    const log_message = `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}% (${progressObj.transferred}/${progressObj.total})`
-    this.sendStatusToWindow(log_message, true);
+    const logMessage =
+      `Download speed: ${progressObj.bytesPerSecond}` +
+      `- Downloaded ${progressObj.percent}% ` +
+      `(${progressObj.transferred}/${progressObj.total})`;
+    this.sendStatusToWindow(logMessage, true);
   }
 
   private onUpdateDownloaded(info: UpdateCheckResult) {
@@ -64,7 +71,7 @@ export class CustomAutoUpdater {
       message: i18n.__("update.message"),
       buttons: [i18n.__("update.restart"), i18n.__("update.later")]
     });
-    if (res === 0){
+    if (res === 0) {
       ipcMain.emit("browser:restart");
     }
   }
@@ -75,23 +82,24 @@ export class CustomAutoUpdater {
 
   private async onUpdateFround(result: UpdateCheckResult) {
     const res = dialog.showMessageBox(this.window, {
-      title: app.getName() + ' ' + i18n.__('menu.checkversion'),
+      title: app.getName() + " " + i18n.__("menu.checkversion"),
       type: "info",
-      message: `v${result.updateInfo.version}(${result.updateInfo.releaseDate}) ${i18n.__('update.available')}`,
-      buttons: [i18n.__('update.download'), i18n.__('update.donothing')]
+      message:
+        `v${result.updateInfo.version}(${result.updateInfo.releaseDate}) ${i18n.__("update.available")}`,
+      buttons: [i18n.__("update.download"), i18n.__("update.donothing")]
     });
-    if (res === 0){
+    if (res === 0) {
       await autoUpdater.checkForUpdates();
       await autoUpdater.downloadUpdate();
-    };
+    }
   }
 
   private onNoUpdate() {
     dialog.showMessageBox(this.window, {
-      title: app.getName() + ' ' + i18n.__('menu.checkversion'),
-      type: 'info',
-      message: `${i18n.__('update.noavailable')}`,
-      buttons: [i18n.__('dialog.ok')],
+      title: app.getName() + " " + i18n.__("menu.checkversion"),
+      type: "info",
+      message: `${i18n.__("update.noavailable")}`,
+      buttons: [i18n.__("dialog.ok")],
       noLink: true
     });
   }
@@ -99,15 +107,19 @@ export class CustomAutoUpdater {
   public async checkUpdates(showDialog = true) {
     autoUpdater.autoDownload = this.status.autoDownload;
     autoUpdater.allowPrerelease = this.status.allowPrerelease;
-    if (process.env.UPDATE_CHANNEL)  autoUpdater.channel = process.env.UPDATE_CHANNEL;
+    if (process.env.UPDATE_CHANNEL)
+      autoUpdater.channel = process.env.UPDATE_CHANNEL;
     try {
       const result = await autoUpdater.checkForUpdatesAndNotify();
       this.updateInfo = result ? result.updateInfo : null;
-      if (result && (app.getVersion() < result.updateInfo.version)){
-        log.info('update available', result.updateInfo.version);
+      if (result && app.getVersion() < result.updateInfo.version) {
+        log.info("update available", result.updateInfo.version);
         await this.onUpdateFround(result);
-      }else{
-        log.info('update not available', result ? result.updateInfo.version : "-" );
+      } else {
+        log.info(
+          "update not available",
+          result ? result.updateInfo.version : "-"
+        );
         if (showDialog) await this.onNoUpdate();
       }
     } catch (err) {
@@ -116,7 +128,7 @@ export class CustomAutoUpdater {
   }
 
   public info() {
-    if (!this.updateInfo) return 'update uncheked';
+    if (!this.updateInfo) return "update uncheked";
     return `
       New Version: ${this.updateInfo.version}
       Release Date: ${this.updateInfo.releaseDate}
