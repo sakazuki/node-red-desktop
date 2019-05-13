@@ -37,6 +37,6 @@ mac:
   target:
   - zip
   - dmg
-  icon: "images/icon.icns"
+  icon: "images/node-red-icon.icns"
   publish:
   - provider: "github"
