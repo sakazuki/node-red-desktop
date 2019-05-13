@@ -23,11 +23,12 @@ export class FileManager {
   }
 
   private setupUserDir(config: ConfigManager) {
+    const destdir = path.join(os.homedir(), "." + config.getName());
     try {
-      if (config.data.userDir) fs.ensureDirSync(config.data.userDir);
+      if (!config.data.userDir) config.data.userDir = destdir;
+      fs.ensureDirSync(config.data.userDir);
       return config.data.userDir;
     } catch (err) {
-      const destdir = path.join(os.homedir(), "." + config.getName());
       fs.ensureDirSync(destdir);
       return destdir;
     }

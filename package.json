@@ -1,7 +1,7 @@
 {
   "name": "node-red-desktop",
   "productName": "Node-RED-Desktop",
-  "version": "0.8.7-beta.1",
+  "version": "0.8.7-beta.2",
   "description": "Node-RED Desktop",
   "main": "main/main.js",
   "scripts": {
@@ -28,6 +28,7 @@
     "bulma-switch": "^2.0.0",
     "commander": "^2.20.0",
     "electron": "^5.0.0",
+    "electron-icon-generator": "^1.0.2",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.2.0",
     "eslint-plugin-prettier": "^3.0.1",
@@ -41,6 +42,7 @@
     "electron-updater": "^4.0.6",
     "express": "^4.16.4",
     "express-ipfilter": "^1.0.1",
+    "file-url": "^3.0.0",
     "fs-extra": "^7.0.1",
     "i18n": "^0.8.3",
     "ngrok": "git+https://github.com/sakazuki/ngrok.git#adjust_for_electron_asar",

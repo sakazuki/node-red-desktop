@@ -13,6 +13,7 @@ import ngrok from "ngrok";
 import { NodeREDApp, DEFAULT_NODES_EXCLUDES } from "./node-red";
 import log from "./log";
 import fs from "fs-extra";
+import fileUrl from "file-url";
 
 const FILE_HISTORY_SIZE = 10;
 const HELP_NODERED_URL = "https://nodered.org/";
@@ -44,8 +45,8 @@ class BaseApplication {
   private appMenu: AppMenu | null = null;
   private tray: CustomTray | null = null;
   private app: App;
-  private loadingURL: string = path.join(__dirname, "..", "loading.html");
-  private settingsURL: string = path.join(__dirname, "..", "settings.html");
+  private loadingURL: string = fileUrl(path.join(__dirname, "..", "loading.html"));
+  private settingsURL: string = fileUrl(path.join(__dirname, "..", "settings.html"));
   private config: ConfigManager;
   private fileManager: FileManager;
   private fileHistory: FileHistory;
@@ -172,7 +173,10 @@ class BaseApplication {
   }
 
   private onActivated() {
-    if (this.mainWindow === null) this.create();
+    if (this.mainWindow === null) {
+      this.create();
+      this.go(this.red.getAdminUrl());
+    }
   }
 
   private onWindowAllClosed() {
@@ -255,10 +259,10 @@ class BaseApplication {
 
   private onClosed() {
     this.fileManager.clearTmp();
+    this.mainWindow = null;
   }
 
   private onRestart() {
-    //TODO: test
     this.onBeforeClose();
     this.customAutoUpdater!.quitAndInstall();
     app.quit();
@@ -329,6 +333,9 @@ class BaseApplication {
   };
 
   private getBrowserWindow() {
+    if (this.mainWindow === null) {
+      this.create();
+    }
     return this.mainWindow!.getBrowserWindow()!
   }
 
@@ -388,11 +395,11 @@ class BaseApplication {
   }
 
   private onUserdirOpen() {
-    this.openAny("file://" + this.status.userDir);
+    this.openAny(fileUrl(this.status.userDir));
   }
 
   private onLogfileOpen() {
-    this.openAny("file://" + log.transports.file.file!);
+    this.openAny(fileUrl(log.transports.file.file!));
   }
 
   private onSettings() {
