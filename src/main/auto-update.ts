@@ -3,6 +3,7 @@ import { BrowserWindow, app, dialog, ipcMain } from "electron";
 import log from "./log";
 import i18n from "./i18n";
 import { AppStatus } from "./main";
+import { ProgressInfo } from "builder-util-runtime";
 
 export class CustomAutoUpdater {
   private window: BrowserWindow;
@@ -46,12 +47,13 @@ export class CustomAutoUpdater {
     this.sendStatusToWindow("Error in auto-updater. " + err);
   }
 
-  private onDownloadProgress(progressObj: any) {
+  private onDownloadProgress(progressObj: ProgressInfo) {
     const logMessage =
       `Download speed: ${progressObj.bytesPerSecond}` +
       `- Downloaded ${progressObj.percent}% ` +
       `(${progressObj.transferred}/${progressObj.total})`;
     this.sendStatusToWindow(logMessage, true);
+    ipcMain.emit("browser:progress", progressObj.percent / 100);
   }
 
   private onUpdateDownloaded(info: UpdateCheckResult) {

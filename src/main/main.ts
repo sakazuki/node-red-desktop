@@ -49,6 +49,17 @@ export interface AppStatus {
   hideOnMinimize: boolean;
 }
 
+type UserSettings = {
+  userDir: string;
+  credentialSecret: string;
+  projectsEnabled: boolean;
+  nodesExcludes: string;
+  autoCheckUpdate: boolean;
+  allowPrerelease: boolean;
+  autoDownload: boolean;
+  hideOnMinimize: boolean;
+}
+
 class BaseApplication {
   private mainWindow: CustomBrowserWindow | null = null;
   private customAutoUpdater: CustomAutoUpdater | null = null;
@@ -108,6 +119,7 @@ class BaseApplication {
     ipcMain.on("browser:loading", this.onLoading.bind(this));
     ipcMain.on("browser:go", (url: string) => this.go(url));
     ipcMain.on("browser:update-title", this.setTitle.bind(this));
+    ipcMain.on("browser:progress", (progress: number) => this.setProgress(progress));
     ipcMain.on("history:update", this.updateMenu.bind(this));
     ipcMain.on("menu:update", this.updateMenu.bind(this));
     ipcMain.on("window:new", (url: string) => this.onNewWindow(url));
@@ -120,7 +132,7 @@ class BaseApplication {
     ipcMain.on("editor:started", (event: Electron.Event, args: any) =>
       this.onEditorStarted(event, args)
     );
-    ipcMain.on("nodes:change", (event: Electron.Event, args: any) =>
+    ipcMain.on("nodes:change", (event: Electron.Event, args: {dirty: boolean}) =>
       this.onNodesChange(event, args)
     );
     ipcMain.on("file:new", this.onFileNew.bind(this));
@@ -160,7 +172,7 @@ class BaseApplication {
       this.onToggleDevTools(item, focusedWindow)
     );
     ipcMain.on("settings:loaded", this.onSettingsLoaded.bind(this));
-    ipcMain.on("settings:update", (event: Electron.Event, args: any) =>
+    ipcMain.on("settings:update", (event: Electron.Event, args: UserSettings) =>
       this.onSettingsSubmit(event, args)
     );
     ipcMain.on("settings:cancel", this.onSettingsCancel.bind(this));
@@ -195,7 +207,8 @@ class BaseApplication {
   }
 
   private getStartFlow(): string {
-    const args = process.argv[2];
+    const firstArg = app.isPackaged ? 1 : 2;
+    const args = process.argv[firstArg];
     if (args && fs.existsSync(args)) {
       return args;
     } else {
@@ -325,6 +338,10 @@ class BaseApplication {
     this.getBrowserWindow().setTitle(this.red.windowTitle());
   }
 
+  private setProgress(progress: number){
+    this.getBrowserWindow().setProgressBar(progress);
+  }
+
   private onLoading() {
     return this.getBrowserWindow().loadURL(this.loadingURL);
   }
@@ -354,7 +371,7 @@ class BaseApplication {
     ipcMain.emit("menu:update");
   }
 
-  private onNodesChange(event: Electron.Event, args: any) {
+  private onNodesChange(event: Electron.Event, args: {dirty: boolean}) {
     this.status.modified = args.dirty;
     if (args.dirty) this.status.newfileChanged = true;
   }
@@ -576,7 +593,7 @@ class BaseApplication {
     this.getBrowserWindow().webContents.send("settings:set", this.config.data);
   }
 
-  private onSettingsSubmit(event: Electron.Event, args: any) {
+  private onSettingsSubmit(event: Electron.Event, args: UserSettings) {
     this.status.userDir = args.userDir;
     this.status.credentialSecret = args.credentialSecret;
     this.status.nodesExcludes = args.nodesExcludes.trim().split("\n");
