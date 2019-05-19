@@ -64,7 +64,7 @@ export class NodeREDApp {
       userDir: this.status.userDir,
       flowFile: this.status.currentFile,
       storageModule: CustomStorage, 
-      credentialSecret: app.getName(),
+      credentialSecret: this.status.credentialSecret,
       httpNodeCors: {
         origin: "*",
         methods: "GET,PUT,POST,DELETE"
@@ -103,17 +103,21 @@ export class NodeREDApp {
           level: "debug",
           metrics: true,
           handler(){
-            return function(msg: any) {
-              var m = ({
+            const electronLogLevel = function(noderedLevel: number): string {
+              const levelMap: any = {
+                10: "error",
                 20: "error",
                 30: "warn",
                 40: "info",
-                60: "verbose",
                 50: "debug",
-                // 60: "debug",
+                60: "verbose",
                 98: "info",
                 99: "info"
-              } as any)[msg.level];
+              };
+              return levelMap[noderedLevel];
+            };
+            return function(msg: {level: number, msg?: {stack?: object}, type?: string}) {
+              var m = electronLogLevel(msg.level);
               if(m && msg.msg) (log as any)[m](msg.msg);
             }
           }

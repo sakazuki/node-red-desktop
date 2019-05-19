@@ -8,7 +8,7 @@ export class CustomTray {
   private red: NodeREDApp;
   constructor(red: NodeREDApp) {
     this.red = red;
-    this.tray = new Tray(path.join(__dirname, "..", "images", "node-red-icon.png"));
+    this.tray = new Tray(path.join(__dirname, "..", "images", "node-red-tray.png"));
     const contextMenu = Menu.buildFromTemplate([
       {
         label: 'Show App',

@@ -50,7 +50,7 @@ ipc.on("settings:set", (event, settings) => {
 $("#button-submit").on("click", function(event) {
   const data = {
     userDir: $("#userdir").val(),
-    credentailSecret: $("#credentialsecret").val(),
+    credentialSecret: $("#credentialsecret").val(),
     nodesExcludes: $("#nodesexcludes").val(),
     projectsEnabled: $("#projects").prop("checked"),
     hideOnMinimize: $("#hideonminimize").prop("checked"),
