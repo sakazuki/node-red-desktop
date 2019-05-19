@@ -158,10 +158,10 @@ export class AppMenu {
           label: "Node-RED-Desktop",
           click() { ipcMain.emit("help:node-red-desktop"); }
         },
-        {
-          label: "Author",
-          click() { ipcMain.emit("help:author"); }
-        },
+        // {
+        //   label: "Author",
+        //   click() { ipcMain.emit("help:author"); }
+        // },
         { type: "separator" },
         {
           label: i18n.__("menu.checkversion") + "...",
