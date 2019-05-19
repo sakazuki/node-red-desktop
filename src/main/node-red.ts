@@ -132,7 +132,7 @@ export class NodeREDApp {
     this.app.use(this.adminPath, IpFilter(IP_ALLOWS, {
       mode: "allow",
       logLevel: "deny",
-      detectIP(req: express.Request) {
+      detectIp(req: express.Request) {
         return req.headers["x-forwarded-for"] || IP_ALLOWS[0]
       }
     }));
