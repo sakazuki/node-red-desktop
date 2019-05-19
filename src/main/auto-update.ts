@@ -4,6 +4,7 @@ import log from "./log";
 import i18n from "./i18n";
 import { AppStatus } from "./main";
 import { ProgressInfo } from "builder-util-runtime";
+import semver from "semver";
 
 export class CustomAutoUpdater {
   private window: BrowserWindow;
@@ -82,7 +83,7 @@ export class CustomAutoUpdater {
     autoUpdater.quitAndInstall();
   }
 
-  private async onUpdateFround(result: UpdateCheckResult) {
+  private async onUpdateFound(result: UpdateCheckResult) {
     const res = dialog.showMessageBox(this.window, {
       title: app.getName() + " " + i18n.__("menu.checkversion"),
       type: "info",
@@ -114,9 +115,9 @@ export class CustomAutoUpdater {
     try {
       const result = await autoUpdater.checkForUpdatesAndNotify();
       this.updateInfo = result ? result.updateInfo : null;
-      if (result && app.getVersion() < result.updateInfo.version) {
+      if (result && semver.lt(app.getVersion(), result.updateInfo.version)) {
         log.info("update available", result.updateInfo.version);
-        await this.onUpdateFround(result);
+        await this.onUpdateFound(result);
       } else {
         log.info(
           "update not available",
