@@ -203,7 +203,6 @@ class BaseApplication {
     const savedOption = this.config.data.windowBounds || {};
     Object.assign(options, savedOption);
     this.mainWindow = new CustomBrowserWindow(options, this.loadingURL);
-    this.fileHistory.load(this.config.data.recentFiles);
   }
 
   private getStartFlow(): string {
@@ -224,6 +223,7 @@ class BaseApplication {
     }
     this.status.locale = i18n.getLocale();
     this.create();
+    this.fileHistory.load(this.config.data.recentFiles);
     this.customAutoUpdater = new CustomAutoUpdater(
       this.getBrowserWindow(),
       this.status
@@ -397,6 +397,7 @@ class BaseApplication {
   private getBrowserWindow() {
     if (this.mainWindow === null) {
       this.create();
+      this.go(this.red.getAdminUrl());
     }
     return this.mainWindow!.getBrowserWindow()!;
   }
