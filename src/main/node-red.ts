@@ -1,5 +1,9 @@
 import express from "express";
 import {IpFilter, IpDeniedError} from "express-ipfilter";
+// must load before node-red
+const runtime = require("@node-red/runtime");
+const installer = require("@node-red/registry/lib/installer");
+const newExec = require("./node-red-runtime-exec");
 import RED from "node-red";
 import http from "http";
 import { ipcMain, app } from "electron";
@@ -43,6 +47,8 @@ export class NodeREDApp {
     this.server = this.setupServer();
     this.listenIp = process.env.LISTEN_IP || "127.0.0.1";
     this.listenPort = this.defineListenPort();
+    this.patchInstaller();
+    this.patchRuntimeExec();
     this.setupRED();
   }
 
@@ -162,6 +168,20 @@ export class NodeREDApp {
     RED.init(this.server, this.settings);
     this.app.use(this.settings.httpAdminRoot, RED.httpAdmin);
     this.app.use(this.settings.httpNodeRoot, RED.httpNode);
+  }
+
+  private patchInstaller() {
+    installer._checkPrereq = installer.checkPrereq;
+    installer.checkPrereq = () => {
+      return new Promise(resolve => {
+        resolve();
+      })
+    }
+  }
+
+  private patchRuntimeExec() {
+    newExec.init(RED.runtime._);
+    runtime._.nodes.paletteEditorEnabled = () => { return true };
   }
 
   public async startRED() {

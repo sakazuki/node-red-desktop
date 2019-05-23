@@ -1,7 +1,7 @@
 {
   "name": "node-red-desktop",
   "productName": "Node-RED-Desktop",
-  "version": "0.8.7",
+  "version": "0.8.8",
   "description": "Node-RED Desktop",
   "main": "main/main.js",
   "scripts": {
@@ -47,6 +47,7 @@
     "i18n": "^0.8.3",
     "ngrok": "git+https://github.com/sakazuki/ngrok.git#adjust_for_electron_asar",
     "node-red": "^0.20.5",
+    "npm": "^6.9.0",
     "tmp": "^0.1.0"
   }
 }
