@@ -4,6 +4,13 @@ This is a desktop applicaiton of Node-RED
 
 ![screen](https://raw.githubusercontent.com/sakazuki/node-red-desktop/doc/screenshot.png)
 
+## Download
+
+Download the binary file from [download page](https://github.com/sakazuki/node-red-desktop/releases)
+
+- Windows: [**Node-RED-Desktop_Setup_X.X.X.exe**](https://github.com/sakazuki/node-red-desktop/releases)
+- Mac: [**Node-RED-Desktop-X.X.X.dmg**](https://github.com/sakazuki/node-red-desktop/releases)
+
 ## Your benefits
 
 You can 
@@ -22,7 +29,8 @@ You can use almost all powerful and useful Node-RED features
 ## Node-RED-Desktop features
 
 - [Node-RED](https://nodered.org/) v0.20.5
-- [ngrok](https://ngrok.com/) integrated 
+- [ngrok](https://ngrok.com/) integrated
+- npm integrated
 - multi language
   - english
   - japanese
@@ -57,8 +65,5 @@ You can use almost all powerful and useful Node-RED features
 
 ## How to install additional nodes
 
-- Requirement:  
-  - you can use npm commmand on the shell (win:Command Prompt or mac:bash)
-  - refs: [node.js](https://nodejs.org/)
-
 1. click **[Manage pallete]-[install]**
+
