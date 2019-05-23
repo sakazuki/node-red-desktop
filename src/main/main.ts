@@ -283,7 +283,7 @@ class BaseApplication {
       ]
     });
     if (res === 0) {
-      if (this.usingTmpFile()) {
+      if (!this.status.projectsEnabled && this.usingTmpFile()) {
         return this.onFileSaveAs();
       } else {
         return this.onFileSave();
