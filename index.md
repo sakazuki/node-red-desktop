@@ -67,3 +67,8 @@ You can use almost all powerful and useful Node-RED features
 
 1. click **[Manage pallete]-[install]**
 
+- This function uses Node-RED Destktop builtin npm.  
+Some npm modules need to be compiled from node binary or C/C++ when installing.  
+In such cases, you need to install node.js before.  
+If so, please install node v12.x.x from https://nodejs.org/ and retry to install them.
+
