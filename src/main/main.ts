@@ -176,6 +176,7 @@ class BaseApplication {
       this.onSettingsSubmit(event, args)
     );
     ipcMain.on("settings:cancel", this.onSettingsCancel.bind(this));
+    ipcMain.on("node:add", this.onNodeAdd.bind(this));
   }
 
   private create() {
@@ -610,6 +611,17 @@ class BaseApplication {
 
   private onSettingsCancel() {
     this.go(this.red.getAdminUrl());
+  }
+
+  private onNodeAdd() {
+    const dirs = dialog.showOpenDialog(this.getBrowserWindow(), {
+      title: i18n.__("dialog.openNodeDir"),
+      properties: ["openDirectory"],
+      defaultPath: this.status.userDir
+    });
+    if (dirs) {
+      this.red.installLocalNode(dirs[0]);
+    }
   }
 }
 

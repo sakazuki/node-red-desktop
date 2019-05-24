@@ -58,6 +58,12 @@ export class AppMenu {
         },
         { type: 'separator'},
         {
+          label: i18n.__('menu.addLocalNode') + "...",
+          enabled: true,
+          click() { ipcMain.emit("node:add"); }
+        },
+        { type: 'separator'},
+        {
           label: i18n.__('menu.openUserDir'),
           enabled: true,
           click() { ipcMain.emit("file:open-userdir"); }

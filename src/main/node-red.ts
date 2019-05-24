@@ -3,7 +3,7 @@ import {IpFilter, IpDeniedError} from "express-ipfilter";
 // must load before node-red
 const runtime = require("@node-red/runtime");
 const installer = require("@node-red/registry/lib/installer");
-const newExec = require("./node-red-runtime-exec");
+import newExec from "./node-red-runtime-exec";
 import RED from "node-red";
 import http from "http";
 import { ipcMain, app } from "electron";
@@ -184,6 +184,10 @@ export class NodeREDApp {
     runtime._.nodes.paletteEditorEnabled = () => { return true };
   }
 
+  get exec() {
+    return newExec;
+  }
+
   public async startRED() {
     this.server.close();
     try {
@@ -215,7 +219,30 @@ export class NodeREDApp {
     ipcMain.emit("browser:update-title");
   }
 
-  public notify(data: any, timeout: number) {
+  public installLocalNode(dir: string) {
+    const pkginfo = require(path.join(dir, "package.json"));
+    this.exec.run("npm", ["link", dir], {cwd: this.status.userDir}, true).then(() => {
+      return require("@node-red/registry").addModule(pkginfo.name).then((info: {nodes: any}) => {
+        RED.runtime.events.emit("runtime-event", {
+          id: "node/added",
+          payload: info.nodes,
+          retain: false
+        });
+      });
+    }).catch((err: any) => {
+      log.info(err);
+      this.notify({
+        id: "node-add-fail",
+        payload: {
+          type: "error",
+          text: `fail to add ${pkginfo.name}@${pkginfo.version}`
+        },
+        retain: false
+      }, 3000);
+    });
+  }
+  
+  public notify(data: {id: string, payload: {type: string, text: string}, retain: boolean}, timeout: number) {
     RED.runtime.events.emit("runtime-event", data);
     function closeNotify() {
       RED.runtime.events.emit("runtime-event", {

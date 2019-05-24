@@ -11,6 +11,7 @@
         "openSamplesDir": "サンプルディレクトリを開く",
         "openLogFile": "ログファイルを開く",
         "settings": "設定",
+        "addLocalNode": "ローカルのノードを追加",
         "login": "ログインする",
         "quit": "終了",
         "edit": "編集",
@@ -75,7 +76,8 @@
         "ok": "OK",
         "yes": "はい",
         "no": "いいえ",
-        "cancel": "取り消し"
+        "cancel": "取り消し",
+        "openNodeDir": "ローカルのノードを追加する"
     },
     "settings": {
         "userdir": "ユーザディレクトリ",

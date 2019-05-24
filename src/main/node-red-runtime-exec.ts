@@ -1,26 +1,32 @@
-// @ts-nocheck
+import { EventEmitter } from "events";
+
 // based on @node-red/runtime/lib/exec.js
 
 const child_process = require('child_process');
 const { util } = require('@node-red/util');
 const path = require('path');
 
-var events;
-var origExec;
+type RuntimeExec = {
+    init: Function;
+    run: Function;
+}
 
-function logLines(id,type,data) {
+let events: EventEmitter;
+let origExec: RuntimeExec;
+
+function logLines(id: string, type: string, data: string): void {
     events.emit("event-log", {id:id,payload:{ts: Date.now(),data:data,type:type}});
 }
 
-module.exports = {
-    init: function(_runtime) {
+const newExec = {
+    init: function(_runtime: {events: any, exec: any}) {
         events = _runtime.events;
         if (!origExec) {
             origExec = _runtime.exec;
             _runtime.exec = this;
         }
     },
-    run: function(command,args,options,emit) {
+    run: function(command: string, args: string[], options: any, emit: boolean) {
         if (path.parse(command).name !== "npm") {
             return origExec.run(command,args,options,emit);
         }
@@ -38,21 +44,21 @@ module.exports = {
             let stderr = "";
 
             const child = child_process.fork(npmCliCommand,args,options);
-            child.stdout.on('data', (data) => {
+            child.stdout.on('data', (data: any) => {
                 const str = ""+data;
                 stdout += str;
                 emit && logLines(invocationId,"out",str);
             });
-            child.stderr.on('data', (data) => {
+            child.stderr.on('data', (data: any) => {
                 const str = ""+data;
                 stderr += str;
                 emit && logLines(invocationId,"err",str);
             });
-            child.on('error', function(err) {
+            child.on('error', function(err: Error) {
                 stderr = err.toString();
                 emit && logLines(invocationId,"err",stderr);
             })
-            child.on('close', (code) => {
+            child.on('close', (code: number) => {
                 let result = {
                     code: code,
                     stdout: stdout,
@@ -69,3 +75,5 @@ module.exports = {
         })
     }
 }
+
+export = newExec;
