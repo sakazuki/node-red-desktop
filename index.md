@@ -100,6 +100,7 @@ If so, please install node v12.x.x from [Node.js official site](https://nodejs.o
   $ cd $USER/.Node-RED-Desktop
   $ electron-rebuild --version 5.0.0
   ```
+
 ## How to use excluded standard nodes
 
 - You can activate them at **[Nodes exclude]** form in **[File]-[Settings...]**.  
