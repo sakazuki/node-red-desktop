@@ -29,6 +29,7 @@
     "bulma-switch": "^2.0.0",
     "commander": "^2.20.0",
     "electron": "^5.0.0",
+    "electron-rebuild": "^1.8.4",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^4.2.0",
     "eslint-plugin-prettier": "^3.0.1",
