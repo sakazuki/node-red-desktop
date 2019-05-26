@@ -1,0 +1,8 @@
+div#header {
+    -webkit-app-region: drag;
+    -webkit-user-select: none;
+}
+
+ul.header-toolbar.hide {
+    -webkit-app-region: no-drag;
+}

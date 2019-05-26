@@ -82,7 +82,8 @@ export class NodeREDApp {
         page: {
           title: app.getName(),
           favicon: path.join(__dirname, "..", "images", "favicon.ico"),
-          scripts: path.join(__dirname, "..", "renderer/renderer.js")
+          scripts: path.join(__dirname, "..", "renderer/renderer.js"),
+          css: path.join(__dirname, "..", "renderer/desktop.css")
         },
         header: {
           title: app.getName()
