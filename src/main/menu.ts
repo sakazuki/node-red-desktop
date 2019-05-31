@@ -147,15 +147,21 @@ export class AppMenu {
           submenu: [],
         },
         { type: "separator" },
-        { label: i18n.__("menu.resetzoom"), role: "resetzoom" },
-        { label: i18n.__("menu.zoomin"), role: "zoomin" },
-        { label: i18n.__("menu.zoomout"), role: "zoomout" },
-        { type: "separator" },
         { label: i18n.__("menu.togglefullscreen"), role: "togglefullscreen" },
         { label: i18n.__("menu.minimize"), role: "minimize" }
       ]
     };
-    
+    if (macOS) {
+      const viewMac = [
+        { type: "separator" },
+        { label: i18n.__("menu.resetzoom"), role: "resetzoom" },
+        { label: i18n.__("menu.zoomin"), role: "zoomin" },
+        { label: i18n.__("menu.zoomout"), role: "zoomout" }
+      ];
+      //@ts-ignore
+      view.submenu.splice(-3, 0, ...viewMac);
+    };
+
     const help: MenuItemConstructorOptions = {
       role: "help",
       submenu: [
@@ -183,17 +189,25 @@ export class AppMenu {
         }
       ]
     };
-  
+    if (macOS) {
+      //@ts-ignore
+      help.submenu.splice(-1);
+    };
+
     const dev: MenuItemConstructorOptions = {
       label: "Dev",
       submenu: [
         {   
           label: "Toggle Developer Tools",
-          accelerator: macOS ? "Alt+Command+I" : "Ctrl+Shift+I",
+          accelerator: "Ctrl+Shift+I",
           click(item, focusedWindow) { ipcMain.emit("dev:tools", item, focusedWindow); }
         }
       ]
     };
+    if (macOS) {
+      //@ts-ignore
+      dev.submenu[0].accelerator = "Alt+Command+I";
+    }
   
     const darwin: MenuItemConstructorOptions = {
       label: app.getName(),
