@@ -479,10 +479,15 @@ class BaseApplication {
 
   private async onNgrokConnect() {
     try {
-      const url = await ngrok.connect({
+      const ngrokOptions: ngrok.INgrokOptions = {
         proto: "http",
-        addr: this.red.listenPort
-      });
+        addr: this.red.listenPort,
+        binPath: (bin: string) => bin.replace("app.asar", "app.asar.unpacked")
+      };
+      if (process.env.NRD_NGROK_START_ARGS) {
+        ngrokOptions.startArgs = process.env.NRD_NGROK_START_ARGS
+      }
+      const url = await ngrok.connect(ngrokOptions);
       this.status.ngrokUrl = url;
       this.status.ngrokStarted = true;
       ipcMain.emit("menu:update");
