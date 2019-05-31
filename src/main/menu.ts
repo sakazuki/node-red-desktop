@@ -3,6 +3,8 @@ import i18n from "./i18n";
 import { FileHistory } from "./file-history";
 import { AppStatus } from "./main";
 
+const macOS = process.platform === "darwin";
+
 export class AppMenu {
   private status: AppStatus;
   private fileHistory: FileHistory;
@@ -71,6 +73,13 @@ export class AppMenu {
         { label: i18n.__("menu.quit"), role: "quit" }
       ]
     };
+    if (macOS) {
+      //@ts-ignore
+      file.submenu.splice(-2);
+      //@ts-ignore
+      file.submenu.splice(-4, 2);
+    };
+
     const edit: MenuItemConstructorOptions = {
       label: i18n.__("menu.edit"),
       submenu: [
@@ -180,7 +189,7 @@ export class AppMenu {
       submenu: [
         {   
           label: "Toggle Developer Tools",
-          accelerator: process.platform === "darwin" ? "Alt+Command+I" : "Ctrl+Shift+I",
+          accelerator: macOS ? "Alt+Command+I" : "Ctrl+Shift+I",
           click(item, focusedWindow) { ipcMain.emit("dev:tools", item, focusedWindow); }
         }
       ]
@@ -189,7 +198,16 @@ export class AppMenu {
     const darwin: MenuItemConstructorOptions = {
       label: app.getName(),
       submenu: [
-        { label: i18n.__('menu.about'), role: 'about' },
+        {
+          label: i18n.__('menu.about'),
+          click() { ipcMain.emit("help:version"); }
+        },
+        { type: 'separator'},
+        {
+          label: i18n.__('menu.settings') + "...",
+          accelerator: 'Command+,',
+          click() { ipcMain.emit("settings"); }
+        },
         { type: "separator" },
         { role: "services", submenu: []},
         { type: "separator" },
@@ -205,7 +223,7 @@ export class AppMenu {
     let openRecentMenu: Menu | any;
     let localesMenu: Menu | any;
   
-    if (process.platform === "darwin") {
+    if (macOS) {
       template = [darwin, file, edit, endpoint, view, help];
     } else {
       template = [file, endpoint, view, help];
@@ -216,7 +234,7 @@ export class AppMenu {
     };
   
     const menu = Menu.buildFromTemplate(template);
-    if (process.platform === "darwin") {
+    if (macOS) {
       openRecentMenu = (menu.items[1] as any).submenu.items[2];
       localesMenu = (menu.items[4] as any).submenu.items[2];
     } else {
