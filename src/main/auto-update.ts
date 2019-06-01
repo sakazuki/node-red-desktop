@@ -133,7 +133,7 @@ export class CustomAutoUpdater {
   public info() {
     if (!this.updateInfo) return "update uncheked";
     return `
-      New Version: ${this.updateInfo.version}
+      Latest Version: ${this.updateInfo.version}
       Release Date: ${this.updateInfo.releaseDate}
       `.replace(/^\s*/gm, "");
   }

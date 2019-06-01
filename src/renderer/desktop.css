@@ -7,7 +7,7 @@ ul.header-toolbar.hide {
     -webkit-app-region: no-drag;
 }
 
-div#full-shade2 {
+div#nrd-shade {
     position: absolute;
     top: 0;
     left: 0;
