@@ -17,9 +17,10 @@ program.option("-n --no-build").parse(process.argv);
       "package.json",
       "images",
       "locales",
+      "src/renderer/desktop.css"
     ];
     for (let file of files) {
-      await fs.copy(file, path.join(__dirname, config.directories.app, file));
+      await fs.copy(file, path.join(__dirname, config.directories.app, file.replace("src/", "")));
     }
 
     const styles = [
