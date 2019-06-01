@@ -228,8 +228,8 @@ export class NodeREDApp {
   }
 
   public async execNpmLink(dir: string) {
-    const pkginfo = this.loadPackageInfo(path.join(dir, "package.json"));
     try {
+      const pkginfo = this.loadPackageInfo(path.join(dir, "package.json"));
       await this.exec.run("npm", ["link", dir], {cwd: this.status.userDir}, true);
       const info: {nodes: any} = await registry.addModule(pkginfo.name);
       RED.runtime.events.emit("runtime-event", {
@@ -243,7 +243,7 @@ export class NodeREDApp {
         id: "node-add-fail",
         payload: {
           type: "error",
-          text: `fail to add ${pkginfo.name}@${pkginfo.version}`
+          text: `fail to add ${err}`
         },
         retain: false
       }, 3000);
@@ -251,8 +251,8 @@ export class NodeREDApp {
   }
   
   public async execNpmInstall(args: string) {
-    const before = this.loadPackageInfo(path.join(this.status.userDir, "package.json"));
     try {
+      const before = this.loadPackageInfo(path.join(this.status.userDir, "package.json"));
       await this.exec.run("npm", ["install", args], {cwd: this.status.userDir}, true);
       const after = this.loadPackageInfo(path.join(this.status.userDir, "package.json"));
       const newPkgs = _.difference(Object.keys(after.dependencies), Object.keys(before.dependencies));

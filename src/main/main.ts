@@ -25,7 +25,6 @@ import log from "./log";
 import fs from "fs-extra";
 import fileUrl from "file-url";
 import prompt from "electron-prompt";
-import rebuild from 'electron-rebuild';
 
 const FILE_HISTORY_SIZE = 10;
 const HELP_NODERED_URL = "https://nodered.org/";
@@ -659,11 +658,12 @@ class BaseApplication {
     log.info(">>> Rebuild Start")
     this.getBrowserWindow().webContents.send("shade:show");
     try {
-      await rebuild({
+      const rebuild = require(path.join(this.config.data.userDir, "node_modules", "electron-rebuild"));
+      await rebuild.rebuild({
         buildPath: this.config.data.userDir,
         electronVersion: process.versions.electron
       });
-      log.info(">>> Rebuild Successful");
+      log.info(">>> Rebuild success");
     } catch(err) {
       log.error(">>> Rebuild failed", err);
     }
