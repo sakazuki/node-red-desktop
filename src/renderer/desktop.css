@@ -6,3 +6,17 @@ div#header {
 ul.header-toolbar.hide {
     -webkit-app-region: no-drag;
 }
+
+div#full-shade2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgba(160,160,160,0.5);
+    background-image: none;
+    background-size: 10%;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 20;
+}

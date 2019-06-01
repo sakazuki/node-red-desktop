@@ -3,6 +3,8 @@
 const electron = window.nodeRequire("electron");
 const ipc = electron.ipcRenderer;
 
+$("#full-shade").after('<div id="nrd-shade" class="hide"></div>');
+
 RED.events.on("nodes:change",function(state) {
   ipc.send("nodes:change", state);
 });
@@ -29,9 +31,18 @@ ipc.on("editor:start", (event, message) => {
 });
 
 ipc.on("shade:show", (event, message) => {
-  $("#full-shade").show();
+  $("#nrd-shade").show();
+});
+
+ipc.on("shade:start", (event, message) => {
+  $("#nrd-shade").css("background-image", "url(red/images/spin.svg)");
+});
+
+ipc.on("shade:end", (event, message) => {
+  $("#nrd-shade").css("background-image", "none");
 });
 
 ipc.on("shade:hide", (event, message) => {
-  $("#full-shade").hide();
+  $("#nrd-shade").css("background-image", "none");
+  $("#nrd-shade").hide();
 });

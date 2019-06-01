@@ -622,19 +622,21 @@ class BaseApplication {
   }
 
   private async onNodeAddLocal() {
+    this.getBrowserWindow().webContents.send("shade:show");
     const dirs = dialog.showOpenDialog(this.getBrowserWindow(), {
       title: i18n.__("dialog.openNodeDir"),
       properties: ["openDirectory"],
       defaultPath: this.status.userDir
     });
     if (dirs) {
-      this.getBrowserWindow().webContents.send("shade:show");
+      this.getBrowserWindow().webContents.send("shade:start");
       await this.red.execNpmLink(dirs[0]);
-      this.getBrowserWindow().webContents.send("shade:hide");
     }
+    this.getBrowserWindow().webContents.send("shade:hide");
   }
 
   private async onNodeAddRemote() {
+    this.getBrowserWindow().webContents.send("shade:show");
     const res = await prompt({
       width: this.getBrowserWindow().getBounds().width * 0.5,
       height: 200,
@@ -648,21 +650,18 @@ class BaseApplication {
       }
     }, this.getBrowserWindow());
     if (res) {
-      this.getBrowserWindow().webContents.send("shade:show");
+      this.getBrowserWindow().webContents.send("shade:start");
       await this.red.execNpmInstall(res);
-      this.getBrowserWindow().webContents.send("shade:hide");
     }
+    this.getBrowserWindow().webContents.send("shade:hide");
   }
 
   private async onNodeRebuild() {
     log.info(">>> Rebuild Start")
     this.getBrowserWindow().webContents.send("shade:show");
     try {
-      const rebuild = require(path.join(this.config.data.userDir, "node_modules", "electron-rebuild"));
-      await rebuild.rebuild({
-        buildPath: this.config.data.userDir,
-        electronVersion: process.versions.electron
-      });
+      this.getBrowserWindow().webContents.send("shade:start");
+      await this.red.rebuildForElectron();
       log.info(">>> Rebuild success");
     } catch(err) {
       log.error(">>> Rebuild failed", err);

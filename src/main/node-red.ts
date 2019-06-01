@@ -278,6 +278,26 @@ export class NodeREDApp {
     };
   }
 
+  public async rebuildForElectron() {
+    try {
+      const rebuild = require(path.join(this.status.userDir, "node_modules", "electron-rebuild"));
+      await rebuild.rebuild({
+        buildPath: this.status.userDir,
+        electronVersion: process.versions.electron
+      });
+    } catch(err) {
+      log.info(err);
+      this.notify({
+        id: "rebuild-fail",
+        payload: {
+          type: "error",
+          text: `fail to rebuild. ${err}`
+        },
+        retain: false
+      }, 3000);
+    }
+  }
+
   public notify(data: {id: string, payload: {type: string, text: string}, retain: boolean}, timeout: number) {
     RED.runtime.events.emit("runtime-event", data);
     function closeNotify() {
