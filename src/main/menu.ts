@@ -58,12 +58,6 @@ export class AppMenu {
         },
         { type: 'separator'},
         {
-          label: i18n.__('menu.addLocalNode') + "...",
-          enabled: true,
-          click() { ipcMain.emit("node:add"); }
-        },
-        { type: 'separator'},
-        {
           label: i18n.__('menu.openUserDir'),
           enabled: true,
           click() { ipcMain.emit("file:open-userdir"); }
@@ -128,7 +122,25 @@ export class AppMenu {
         } 
       ]
     };
-  
+
+    const tools: MenuItemConstructorOptions = {
+      label: i18n.__("menu.tools"),
+      submenu: [
+        {
+          label: i18n.__("menu.addLocalNode") + "...",
+          click() { ipcMain.emit("node:addLocal"); }
+        },
+        {
+          label: i18n.__("menu.addRemoteNode") + "...",
+          click() { ipcMain.emit("node:addRemote"); }
+        },
+        { type: "separator"},
+        {
+          label: i18n.__("menu.rebuild") + "...",
+          click() { ipcMain.emit("node:rebuild"); }
+        }
+      ]
+    };
   
     const view: MenuItemConstructorOptions = {
       label: i18n.__("menu.view"),
@@ -154,7 +166,7 @@ export class AppMenu {
     };
     
     const help: MenuItemConstructorOptions = {
-      role: "help",
+      label: i18n.__("menu.help"),
       submenu: [
         {
           label: "Node-RED",
@@ -212,9 +224,9 @@ export class AppMenu {
     let localesMenu: Menu | any;
   
     if (process.platform === "darwin") {
-      template = [darwin, file, edit, endpoint, view, help];
+      template = [darwin, file, edit, endpoint, tools, view, help];
     } else {
-      template = [file, endpoint, view, help];
+      template = [file, endpoint, tools, view, help];
     }
   
     if (new RegExp(`${app.getName()}-debug`).exec(process.env.NODE_DEBUG!)) {
@@ -224,10 +236,10 @@ export class AppMenu {
     const menu = Menu.buildFromTemplate(template);
     if (process.platform === "darwin") {
       openRecentMenu = (menu.items[1] as any).submenu.items[2];
-      localesMenu = (menu.items[4] as any).submenu.items[2];
+      localesMenu = (menu.items[5] as any).submenu.items[2];
     } else {
       openRecentMenu = (menu.items[0] as any).submenu.items[2];
-      localesMenu = (menu.items[2] as any).submenu.items[2];
+      localesMenu = (menu.items[3] as any).submenu.items[2];
     }
     this.setOpenRecentMenu(openRecentMenu.submenu);
     openRecentMenu.enabled = (openRecentMenu.submenu.items.length > 0);

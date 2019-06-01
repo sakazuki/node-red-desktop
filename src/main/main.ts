@@ -24,6 +24,8 @@ import { NodeREDApp } from "./node-red";
 import log from "./log";
 import fs from "fs-extra";
 import fileUrl from "file-url";
+import prompt from "electron-prompt";
+import rebuild from 'electron-rebuild';
 
 const FILE_HISTORY_SIZE = 10;
 const HELP_NODERED_URL = "https://nodered.org/";
@@ -176,7 +178,9 @@ class BaseApplication {
       this.onSettingsSubmit(event, args)
     );
     ipcMain.on("settings:cancel", this.onSettingsCancel.bind(this));
-    ipcMain.on("node:add", this.onNodeAdd.bind(this));
+    ipcMain.on("node:addLocal", this.onNodeAddLocal.bind(this));
+    ipcMain.on("node:addRemote", this.onNodeAddRemote.bind(this));
+    ipcMain.on("node:rebuild", this.onNodeRebuild.bind(this));
   }
 
   private create() {
@@ -618,15 +622,52 @@ class BaseApplication {
     this.go(this.red.getAdminUrl());
   }
 
-  private onNodeAdd() {
+  private async onNodeAddLocal() {
     const dirs = dialog.showOpenDialog(this.getBrowserWindow(), {
       title: i18n.__("dialog.openNodeDir"),
       properties: ["openDirectory"],
       defaultPath: this.status.userDir
     });
     if (dirs) {
-      this.red.installLocalNode(dirs[0]);
+      this.getBrowserWindow().webContents.send("shade:show");
+      await this.red.execNpmLink(dirs[0]);
+      this.getBrowserWindow().webContents.send("shade:hide");
     }
+  }
+
+  private async onNodeAddRemote() {
+    const res = await prompt({
+      width: this.getBrowserWindow().getBounds().width * 0.5,
+      height: 200,
+      resizable: true,
+      title: "Install a node",
+      label: "npm install",
+      value: "",
+      inputAttrs: {
+        type: "text",
+        required: true
+      }
+    }, this.getBrowserWindow());
+    if (res) {
+      this.getBrowserWindow().webContents.send("shade:show");
+      await this.red.execNpmInstall(res);
+      this.getBrowserWindow().webContents.send("shade:hide");
+    }
+  }
+
+  private async onNodeRebuild() {
+    log.info(">>> Rebuild Start")
+    this.getBrowserWindow().webContents.send("shade:show");
+    try {
+      await rebuild({
+        buildPath: this.config.data.userDir,
+        electronVersion: process.versions.electron
+      });
+      log.info(">>> Rebuild Successful");
+    } catch(err) {
+      log.error(">>> Rebuild failed", err);
+    }
+    this.getBrowserWindow().webContents.send("shade:hide");
   }
 }
 

@@ -27,3 +27,11 @@ ipc.on("editor:start", (event, message) => {
   });
   observer.observe(document, {childList:true, subtree: true});
 });
+
+ipc.on("shade:show", (event, message) => {
+  $("#full-shade").show();
+});
+
+ipc.on("shade:hide", (event, message) => {
+  $("#full-shade").hide();
+});

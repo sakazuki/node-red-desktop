@@ -6,12 +6,14 @@ const installer = require("@node-red/registry/lib/installer");
 import newExec from "./node-red-runtime-exec";
 import RED from "node-red";
 import http from "http";
-import { ipcMain, app } from "electron";
+import { ipcMain, app, ipcRenderer } from "electron";
 import path from "path";
 import log from "./log";
 import { AppStatus } from "./main";
 import fs from "fs-extra";
 import CustomStorage =  require("./custom-storage");
+const registry = require("@node-red/registry");
+import _ from "lodash";
 
 const IP_ALLOWS = ["127.0.0.1"];
 const HELP_WEB_URL = "https://sakazuki.github.io/node-red-desktop/";
@@ -220,17 +222,22 @@ export class NodeREDApp {
     ipcMain.emit("browser:update-title");
   }
 
-  public installLocalNode(dir: string) {
-    const pkginfo = require(path.join(dir, "package.json"));
-    this.exec.run("npm", ["link", dir], {cwd: this.status.userDir}, true).then(() => {
-      return require("@node-red/registry").addModule(pkginfo.name).then((info: {nodes: any}) => {
-        RED.runtime.events.emit("runtime-event", {
-          id: "node/added",
-          payload: info.nodes,
-          retain: false
-        });
-      });
-    }).catch((err: any) => {
+  private loadPackageInfo(file: string): any {
+    const data = fs.readFileSync(file);
+    return JSON.parse(data.toString());
+  }
+
+  public async execNpmLink(dir: string) {
+    const pkginfo = this.loadPackageInfo(path.join(dir, "package.json"));
+    try {
+      await this.exec.run("npm", ["link", dir], {cwd: this.status.userDir}, true);
+      const info: {nodes: any} = await registry.addModule(pkginfo.name);
+      RED.runtime.events.emit("runtime-event", {
+        id: "node/added",
+        payload: info.nodes,
+        retain: false
+      })
+    } catch(err) {
       log.info(err);
       this.notify({
         id: "node-add-fail",
@@ -240,9 +247,37 @@ export class NodeREDApp {
         },
         retain: false
       }, 3000);
-    });
+    }
   }
   
+  public async execNpmInstall(args: string) {
+    const before = this.loadPackageInfo(path.join(this.status.userDir, "package.json"));
+    try {
+      await this.exec.run("npm", ["install", args], {cwd: this.status.userDir}, true);
+      const after = this.loadPackageInfo(path.join(this.status.userDir, "package.json"));
+      const newPkgs = _.difference(Object.keys(after.dependencies), Object.keys(before.dependencies));
+      log.info("Installed packages", newPkgs)
+      for (const pkgname of newPkgs) {
+        const info: {nodes: any} = await registry.addModule(pkgname);
+        RED.runtime.events.emit("runtime-event", {
+          id: "node/added",
+          payload: info.nodes,
+          retain: false
+        });
+      }
+    } catch(err) {
+      log.info(err);
+      this.notify({
+        id: "node-add-fail",
+        payload: {
+          type: "error",
+          text: `fail to npm install. ${err}`
+        },
+        retain: false
+      }, 3000);
+    };
+  }
+
   public notify(data: {id: string, payload: {type: string, text: string}, retain: boolean}, timeout: number) {
     RED.runtime.events.emit("runtime-event", data);
     function closeNotify() {
