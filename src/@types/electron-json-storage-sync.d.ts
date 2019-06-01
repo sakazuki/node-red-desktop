@@ -1,7 +1,7 @@
 declare module 'electron-json-storage-sync' {
   export type success = {
     status: boolean;
-    data: success | error;
+    data: any;
   }
   export type error = {
     status: false;

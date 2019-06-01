@@ -48,6 +48,7 @@ export interface AppStatus {
   allowPrerelease: boolean;
   autoDownload: boolean;
   hideOnMinimize: boolean;
+  openLastFile: boolean;
 }
 
 type UserSettings = {
@@ -59,6 +60,7 @@ type UserSettings = {
   allowPrerelease: boolean;
   autoDownload: boolean;
   hideOnMinimize: boolean;
+  openLastFile: boolean;
 }
 
 class BaseApplication {
@@ -102,7 +104,8 @@ class BaseApplication {
       autoCheckUpdate: this.config.data.autoCheckUpdate,
       allowPrerelease: this.config.data.allowPrerelease,
       autoDownload: this.config.data.autoDownload,
-      hideOnMinimize: this.config.data.hideOnMinimize
+      hideOnMinimize: this.config.data.hideOnMinimize,
+      openLastFile: this.config.data.openLastFile
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
     this.red = new NodeREDApp(this.status);
@@ -212,11 +215,12 @@ class BaseApplication {
   private getStartFlow(): string {
     const firstArg = app.isPackaged ? 1 : 2;
     const args = process.argv[firstArg];
-    if (args && fs.existsSync(args)) {
-      return args;
-    } else {
-      return this.fileManager.createTmp();
+    if (args && fs.existsSync(args)) return args;
+    if (this.config.data.openLastFile) {
+      const lastFile = this.config.data.recentFiles[0];
+      if (fs.existsSync(lastFile)) return lastFile;
     }
+    return this.fileManager.createTmp();
   }
 
   private onReady() {
@@ -259,6 +263,7 @@ class BaseApplication {
     this.config.data.allowPrerelease = this.status.allowPrerelease;
     this.config.data.autoDownload = this.status.autoDownload;
     this.config.data.hideOnMinimize = this.status.hideOnMinimize;
+    this.config.data.openLastFile = this.status.openLastFile;
     this.config.save();
   }
 
@@ -612,6 +617,7 @@ class BaseApplication {
     this.status.allowPrerelease = args.allowPrerelease;
     this.status.autoDownload = args.autoDownload;
     this.status.hideOnMinimize = args.hideOnMinimize;
+    this.status.openLastFile = args.openLastFile;
     this.saveConfig();
     app.relaunch();
     app.quit();

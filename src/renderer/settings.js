@@ -25,6 +25,7 @@ function initLang() {
   $("#label-hideonminimize").text(_i18n.__("settings.hideonminimize"));
   $("#label-autocheckupdate").text(_i18n.__("settings.autocheckupdate"));
   $("#label-allowprerelease").text(_i18n.__("settings.allowprerelease"));
+  $("#label-openlastfile").text(_i18n.__("settings.openlastfile"))
 }
 
 $(document).on("dragover", event => event.preventDefault());
@@ -45,6 +46,7 @@ ipc.on("settings:set", (event, settings) => {
   $("#hideonminimize").prop("checked", settings.hideOnMinimize);
   $("#autocheckupdate").prop("checked", settings.autoCheckUpdate);
   $("#allowprerelease").prop("checked", settings.allowPrerelease);
+  $("#openlastfile").prop("checked", settings.openLastFile);
 })
 
 $("#button-submit").on("click", function(event) {
@@ -55,7 +57,8 @@ $("#button-submit").on("click", function(event) {
     projectsEnabled: $("#projects").prop("checked"),
     hideOnMinimize: $("#hideonminimize").prop("checked"),
     autoCheckUpdate: $("#autocheckupdate").prop("checked"),
-    allowPrerelease: $("#allowprerelease").prop("checked")
+    allowPrerelease: $("#allowprerelease").prop("checked"),
+    openLastFile: $("#openlastfile").prop("checked")
   }
   ipc.send("settings:update", data);
 });

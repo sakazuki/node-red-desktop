@@ -91,6 +91,7 @@
         "cancel": "Cancel",
         "hideonminimize": "Hide into tray on minimize",
         "autocheckupdate": "Check update on startup",
-        "allowprerelease": "Allow to use pre-release"
+        "allowprerelease": "Allow to use pre-release",
+        "openlastfile": "Open a last file on startup"
     }
 }

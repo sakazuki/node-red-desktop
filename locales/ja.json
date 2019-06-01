@@ -91,6 +91,7 @@
         "cancel": "キャンセル",
         "hideonminimize": "最小化したときにトレイに隠す",
         "autocheckupdate": "起動時に更新を確認する",
-        "allowprerelease": "プレリリースを使う"
+        "allowprerelease": "プレリリースを使う",
+        "openlastfile": "起動時に前回のファイルを開く"
     }
 }

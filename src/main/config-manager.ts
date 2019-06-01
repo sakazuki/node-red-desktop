@@ -6,7 +6,7 @@ import os from "os";
 import { DEFAULT_NODES_EXCLUDES } from "./node-red";
 
 interface CONFIG {
-  rememberLastFile: boolean;
+  openLastFile: boolean;
   recentFiles: string[];
   windowBounds: Electron.Rectangle;
   locale: string;
@@ -21,7 +21,7 @@ interface CONFIG {
 };
 
 const DEFAULT_CONFIG: CONFIG = {
-  rememberLastFile: true,
+  openLastFile: true,
   recentFiles: [],
   windowBounds: {} as Electron.Rectangle,
   locale: app.getLocale(),
@@ -48,9 +48,21 @@ export class ConfigManager {
     return this.name;
   }
 
+  private migration(config: any): CONFIG {
+    //v0.8.9
+    if (!config.hasOwnProperty("openLastFile")) config.openLastFile = DEFAULT_CONFIG.openLastFile;
+    return config;
+  }
+
   public load(): CONFIG {
     const res = storage.get(this.getName());
-    return (res.status ? res.data : DEFAULT_CONFIG) as CONFIG;
+    let config;
+    if (res.status) {
+      config = this.migration(res.data);
+    } else {
+      config = DEFAULT_CONFIG;
+    }
+    return config
   }
 
   public save(): boolean {
