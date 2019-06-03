@@ -46,3 +46,26 @@ ipc.on("shade:hide", (event, message) => {
   $("#nrd-shade").css("background-image", "none");
   $("#nrd-shade").hide();
 });
+
+ipc.on("red:notify", (event, type, message, timeout) => {
+  var options = {
+    type: type,
+    modal: true,
+    fixed: false,
+    timeout: timeout
+  };
+  if (!timeout) {
+    Object.assign(options, {
+      fixed: true,
+      buttons: [
+        {
+          text: RED._("common.label.close"),
+          click: function() {
+            notification.close();
+          }
+        }
+      ]
+    });
+  }
+  var notification = RED.notify(message, options);
+});

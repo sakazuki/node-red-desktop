@@ -25,6 +25,9 @@ import log from "./log";
 import fs from "fs-extra";
 import fileUrl from "file-url";
 import prompt from "electron-prompt";
+import semver from "semver";
+
+const macOS = process.platform === "darwin";
 
 const FILE_HISTORY_SIZE = 10;
 const HELP_NODERED_URL = "https://nodered.org/";
@@ -49,6 +52,7 @@ export interface AppStatus {
   autoDownload: boolean;
   hideOnMinimize: boolean;
   openLastFile: boolean;
+  nodeCommandEnabled: boolean;
 }
 
 type UserSettings = {
@@ -105,7 +109,8 @@ class BaseApplication {
       allowPrerelease: this.config.data.allowPrerelease,
       autoDownload: this.config.data.autoDownload,
       hideOnMinimize: this.config.data.hideOnMinimize,
-      openLastFile: this.config.data.openLastFile
+      openLastFile: this.config.data.openLastFile,
+      nodeCommandEnabled: false
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
     this.red = new NodeREDApp(this.status);
@@ -183,6 +188,9 @@ class BaseApplication {
     ipcMain.on("node:addLocal", this.onNodeAddLocal.bind(this));
     ipcMain.on("node:addRemote", this.onNodeAddRemote.bind(this));
     ipcMain.on("node:rebuild", this.onNodeRebuild.bind(this));
+    ipcMain.on("dialog:error", (message: string) =>
+      this.onErrorDialog(message)
+    );
   }
 
   private create() {
@@ -248,7 +256,7 @@ class BaseApplication {
   }
 
   private onWindowAllClosed() {
-    if (process.platform !== "darwin") this.app.quit();
+    if (!macOS) this.app.quit();
   }
 
   private saveConfig() {
@@ -375,8 +383,23 @@ class BaseApplication {
 
   private onSignedIn(event: Electron.Event, args: any) {}
 
-  private onEditorStarted(event: Electron.Event, args: any) {
+  private async checkNodeVersion() {
+    try {
+      const res: execResult = await this.red.exec.run("node", ["-v"], {}, false);
+      log.info(">>> Check node.js version", res);
+      if (res.code === 0) {
+        const range = semver.validRange(process.version.split(".")[0]);
+        return semver.satisfies(res.stdout.trim(), range)
+      }
+    } catch (err) {
+      log.error(err);
+    }
+    return false;
+  }
+
+  private async onEditorStarted(event: Electron.Event, args: any) {
     this.status.editorEnabled = true;
+    this.status.nodeCommandEnabled = await this.checkNodeVersion();
     ipcMain.emit("menu:update");
   }
 
@@ -500,30 +523,32 @@ class BaseApplication {
       this.status.ngrokUrl = url;
       this.status.ngrokStarted = true;
       ipcMain.emit("menu:update");
-      this.red.notify(
-        {
-          id: "ngrok",
-          payload: {
-            type: "success",
-            text: "conntcted with " + this.status.ngrokUrl
-          },
-          retain: false
-        },
-        15000
-      );
+      this.onSuccessDialog("conntcted with " + this.status.ngrokUrl);
+      // this.red.notify(
+      //   {
+      //     id: "ngrok",
+      //     payload: {
+      //       type: "success",
+      //       text: "conntcted with " + this.status.ngrokUrl
+      //     },
+      //     retain: false
+      //   },
+      //   15000
+      // );
     } catch (err) {
       log.error(err);
-      this.red.notify(
-        {
-          id: "ngrok",
-          payload: {
-            type: "error",
-            text: err.msg + "\n" + err.details.err
-          },
-          retain: false
-        },
-        15000
-      );
+      this.onErrorDialog(JSON.stringify(err));
+      // this.red.notify(
+      //   {
+      //     id: "ngrok",
+      //     payload: {
+      //       type: "error",
+      //       text: err.msg + "\n" + err.details.err
+      //     },
+      //     retain: false
+      //   },
+      //   15000
+      // );
     }
   }
   private async onNgrokDisconnect() {
@@ -532,17 +557,18 @@ class BaseApplication {
       await ngrok.disconnect(
         this.status.ngrokUrl.replace("https://", "http://")
       );
-      this.red.notify(
-        {
-          id: "ngrok",
-          payload: {
-            type: "success",
-            text: "disconnected " + this.status.ngrokUrl
-          },
-          retain: false
-        },
-        3000
-      );
+      this.onSuccessDialog("disconnected " + this.status.ngrokUrl, 3000);
+      // this.red.notify(
+      //   {
+      //     id: "ngrok",
+      //     payload: {
+      //       type: "success",
+      //       text: "disconnected " + this.status.ngrokUrl
+      //     },
+      //     retain: false
+      //   },
+      //   3000
+      // );
       this.status.ngrokUrl = "";
       ipcMain.emit("menu:update");
     } catch (err) {
@@ -600,6 +626,22 @@ class BaseApplication {
     });
   }
 
+  private onSuccessDialog(message: string, timeout?: number) {
+    this.getBrowserWindow().webContents.send("red:notify", "success", message, timeout);
+  }
+
+  private onErrorDialog(message: string) {
+    this.getBrowserWindow().webContents.send("red:notify", "error", message);
+    // dialog.showMessageBox(this.getBrowserWindow(), {
+    //   title: title,
+    //   type: "error",
+    //   message: body,
+    //   detail: detail,
+    //   buttons: [i18n.__("dialog.ok")],
+    //   noLink: true
+    // });
+  }
+
   private onToggleDevTools(item: MenuItem, focusedWindow: BrowserWindow) {
     if (focusedWindow) focusedWindow.webContents.toggleDevTools();
   }
@@ -627,22 +669,36 @@ class BaseApplication {
     this.go(this.red.getAdminUrl());
   }
 
-  private async onNodeAddLocal() {
+  private showShade() {
     this.getBrowserWindow().webContents.send("shade:show");
+    this.appMenu!.enabled = false;
+  }
+
+  private loadingShade() {
+    this.getBrowserWindow().webContents.send("shade:start");
+  }
+
+  private hideShade() {
+    this.appMenu!.enabled = true;
+    this.getBrowserWindow().webContents.send("shade:hide");
+  }
+
+  private async onNodeAddLocal() {
+    this.showShade();
     const dirs = dialog.showOpenDialog(this.getBrowserWindow(), {
       title: i18n.__("dialog.openNodeDir"),
       properties: ["openDirectory"],
       defaultPath: this.status.userDir
     });
     if (dirs) {
-      this.getBrowserWindow().webContents.send("shade:start");
+      this.loadingShade();
       await this.red.execNpmLink(dirs[0]);
     }
-    this.getBrowserWindow().webContents.send("shade:hide");
+    this.hideShade();
   }
 
   private async onNodeAddRemote() {
-    this.getBrowserWindow().webContents.send("shade:show");
+    this.showShade();
     const res = await prompt({
       width: this.getBrowserWindow().getBounds().width * 0.5,
       height: 200,
@@ -656,23 +712,23 @@ class BaseApplication {
       }
     }, this.getBrowserWindow());
     if (res) {
-      this.getBrowserWindow().webContents.send("shade:start");
+      this.loadingShade();
       await this.red.execNpmInstall(res);
     }
-    this.getBrowserWindow().webContents.send("shade:hide");
+    this.hideShade();
   }
 
   private async onNodeRebuild() {
     log.info(">>> Rebuild Start")
-    this.getBrowserWindow().webContents.send("shade:show");
+    this.showShade();
     try {
-      this.getBrowserWindow().webContents.send("shade:start");
+      this.loadingShade();
       await this.red.rebuildForElectron();
       log.info(">>> Rebuild success");
     } catch(err) {
       log.error(">>> Rebuild failed", err);
     }
-    this.getBrowserWindow().webContents.send("shade:hide");
+    this.hideShade();
   }
 }
 

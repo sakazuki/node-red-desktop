@@ -227,75 +227,86 @@ export class NodeREDApp {
     return JSON.parse(data.toString());
   }
 
-  public async execNpmLink(dir: string) {
+  private async addModule(pkgname: string) {
     try {
-      const pkginfo = this.loadPackageInfo(path.join(dir, "package.json"));
-      await this.exec.run("npm", ["link", dir], {cwd: this.status.userDir}, true);
-      const info: {nodes: any} = await registry.addModule(pkginfo.name);
+      const info: {nodes: any} = await registry.addModule(pkgname);
       RED.runtime.events.emit("runtime-event", {
         id: "node/added",
         payload: info.nodes,
         retain: false
-      })
-    } catch(err) {
-      log.info(err);
+      });
+    } catch (err) {
+      if (err.code === "module_already_loaded") {
+        this.error(err, `${pkgname} already loaded`);
+        return;
+      }
+      if (err.code !== "MODULE_NOT_FOUND") throw err;
       this.notify({
-        id: "node-add-fail",
+        id: "not_node-red_module",
         payload: {
-          type: "error",
-          text: `fail to add ${err}`
+          type: "info",
+          text: `${pkgname} installed`
         },
         retain: false
       }, 3000);
+    }
+  }
+
+  private error(err: any, message: string) {
+    log.info(err, message);
+    ipcMain.emit("dialog:error", JSON.stringify([message, err]));
+  }
+
+  public async execNpmLink(dir: string) {
+    try {
+      const pkginfo = this.loadPackageInfo(path.join(dir, "package.json"));
+      if (!pkginfo.hasOwnProperty("node-red")) throw new Error("This module does not have a node-red property");
+      const res = await this.exec.run("npm", ["link", dir], {cwd: this.status.userDir}, true);
+      if (res.code !== 0) throw res;
+      this.addModule(pkginfo.name);
+    } catch(err) {
+      this.error(err, "fail to add a node. check detail in log.");
     }
   }
   
   public async execNpmInstall(args: string) {
     try {
       const before = this.loadPackageInfo(path.join(this.status.userDir, "package.json"));
-      await this.exec.run("npm", ["install", args], {cwd: this.status.userDir}, true);
+      const res = await this.exec.run("npm", ["install", args], {cwd: this.status.userDir}, true);
+      if (res.code !== 0) throw res;
       const after = this.loadPackageInfo(path.join(this.status.userDir, "package.json"));
       const newPkgs = _.difference(Object.keys(after.dependencies), Object.keys(before.dependencies));
       log.info("Installed packages", newPkgs)
       for (const pkgname of newPkgs) {
-        const info: {nodes: any} = await registry.addModule(pkgname);
-        RED.runtime.events.emit("runtime-event", {
-          id: "node/added",
-          payload: info.nodes,
-          retain: false
-        });
+        const pkginfo = this.loadPackageInfo(path.join(this.status.userDir, "node_modules", pkgname, "package.json"));
+        log.debug(pkginfo);
+        if (pkginfo.hasOwnProperty("node-red")) this.addModule(pkgname);
       }
     } catch(err) {
-      log.info(err);
-      this.notify({
-        id: "node-add-fail",
-        payload: {
-          type: "error",
-          text: `fail to npm install. ${err}`
-        },
-        retain: false
-      }, 3000);
+      this.error(err, "fail to npm install. check detail in log.");
     };
   }
 
   public async rebuildForElectron() {
     try {
-      const rebuild = require(path.join(this.status.userDir, "node_modules", "electron-rebuild"));
+      const userModulePath = path.join(this.status.userDir, "node_modules");
+      if (module.paths.indexOf(userModulePath) < 0) module.paths.push(userModulePath);
+      const rebuild = require("electron-rebuild");
       await rebuild.rebuild({
         buildPath: this.status.userDir,
         electronVersion: process.versions.electron
       });
     } catch(err) {
-      log.info(err);
-      this.notify({
-        id: "rebuild-fail",
-        payload: {
-          type: "error",
-          text: `fail to rebuild. ${err}`
-        },
-        retain: false
-      }, 3000);
+      this.error(err, "fail to rebuild. check detail in log.");
     }
+  }
+
+  public getHttpNodePath() {
+    const res: string[] = [];
+    RED.httpNode._router.stack.forEach(function(route: {route?: {methods: any, path: string}}) {
+      if (route.route && route.route.methods["get"] ) res.push(route.route.path)
+    });
+    return res;
   }
 
   public notify(data: {id: string, payload: {type: string, text: string}, retain: boolean}, timeout: number) {

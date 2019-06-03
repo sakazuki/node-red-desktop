@@ -26,7 +26,7 @@ const newExec = {
             _runtime.exec = this;
         }
     },
-    run: function(command: string, args: string[], options: any, emit: boolean) {
+    run: function(command: string, args: string[], options: any, emit: boolean): Promise<execResult> {
         if (path.parse(command).name !== "npm") {
             return origExec.run(command,args,options,emit);
         }

@@ -8,14 +8,28 @@ const macOS = process.platform === "darwin";
 export class AppMenu {
   private status: AppStatus;
   private fileHistory: FileHistory;
+  private _enabled: boolean;
 
   constructor(status: AppStatus, fileHistory: FileHistory) {
     this.status = status;
     this.fileHistory = fileHistory;
+    this._enabled = true;
+  }
+
+  get enabled() { return this._enabled; }
+
+  set enabled(value) {
+    if (this._enabled === value) return;
+    this._enabled = value;
+    this.setup();
   }
 
   private fileUsable() {
-    return this.status.editorEnabled && !this.status.projectsEnabled
+    return this.enabled && this.status.editorEnabled && !this.status.projectsEnabled
+  }
+
+  private editorUsable() {
+    return this.enabled && this.status.editorEnabled
   }
 
   public setup(){
@@ -42,7 +56,7 @@ export class AppMenu {
         { type: "separator"},
         {
           label: i18n.__("menu.saveDeploy"),
-          enabled: this.status.editorEnabled,
+          enabled: this.editorUsable(),
           accelerator: "CmdOrCtrl+S",
           click() { ipcMain.emit("file:save"); }
         },
@@ -55,7 +69,7 @@ export class AppMenu {
         { type: 'separator'},
         {
           label: i18n.__('menu.settings') + "...",
-          enabled: true,
+          enabled: this.enabled,
           click() { ipcMain.emit("settings"); }
         },
         { type: 'separator'},
@@ -100,33 +114,33 @@ export class AppMenu {
       submenu: [
         {
           label: i18n.__("menu.openLocalURL"),
-          enabled: this.status.editorEnabled,
+          enabled: this.editorUsable(),
           click() { ipcMain.emit("endpoint:local"); }
         }, 
         {
           label: i18n.__("menu.openLocalAdminURL"),
-          enabled: this.status.editorEnabled,
+          enabled: this.editorUsable(),
           click() { ipcMain.emit("endpoint:local-admin"); }
         },
         { type: "separator" },
         {
           label: i18n.__("menu.ngrokConnect"),
-          enabled: (this.status.ngrokUrl.length === 0),
+          enabled: this.enabled && (this.status.ngrokUrl.length === 0),
           click() { ipcMain.emit("ngrok:connect"); }
         },
         {
           label: i18n.__("menu.ngrokDisconnect"),
-          enabled: (this.status.ngrokUrl.length > 0),
+          enabled: this.enabled && (this.status.ngrokUrl.length > 0),
           click() { ipcMain.emit("ngrok:disconnect") }
         }, 
         {
           label: i18n.__("menu.openPublicURL"),
-          enabled: (this.status.ngrokUrl.length > 0),
+          enabled: this.enabled && (this.status.ngrokUrl.length > 0),
           click() { ipcMain.emit("endpoint:public"); }
         }, 
         {
           label: i18n.__("menu.openNgrokInspect"),
-          enabled: this.status.ngrokStarted,
+          enabled: this.enabled && this.status.ngrokStarted,
           click() { ipcMain.emit("ngrok:inspect"); }
         } 
       ]
@@ -137,15 +151,18 @@ export class AppMenu {
       submenu: [
         {
           label: i18n.__("menu.addLocalNode") + "...",
+          enabled: this.enabled,
           click() { ipcMain.emit("node:addLocal"); }
         },
         {
           label: i18n.__("menu.addRemoteNode") + "...",
+          enabled: this.enabled,
           click() { ipcMain.emit("node:addRemote"); }
         },
         { type: "separator"},
         {
           label: i18n.__("menu.rebuild") + "...",
+          enabled: this.enabled && this.status.nodeCommandEnabled,
           click() { ipcMain.emit("node:rebuild"); }
         }
       ]
@@ -156,25 +173,47 @@ export class AppMenu {
       submenu: [
         {
           label: i18n.__("menu.reload"),
+          enabled: this.enabled,
           accelerator: "CmdOrCtrl+R",
           click(item, focusedWindow) { ipcMain.emit("view:reload", item, focusedWindow); }
         },
         { type: "separator" },
         {
           label: i18n.__("menu.locales") + "...",
+          enabled: this.enabled,
           submenu: [],
         },
         { type: "separator" },
-        { label: i18n.__("menu.togglefullscreen"), role: "togglefullscreen" },
-        { label: i18n.__("menu.minimize"), role: "minimize" }
+        {
+          label: i18n.__("menu.togglefullscreen"),
+          enabled: this.enabled,
+          role: "togglefullscreen"
+        },
+        {
+          label: i18n.__("menu.minimize"),
+          enabled: this.enabled,
+          role: "minimize"
+        }
       ]
     };
     if (macOS) {
       const viewMac = [
         { type: "separator" },
-        { label: i18n.__("menu.resetzoom"), role: "resetzoom" },
-        { label: i18n.__("menu.zoomin"), role: "zoomin" },
-        { label: i18n.__("menu.zoomout"), role: "zoomout" }
+        {
+          label: i18n.__("menu.resetzoom"),
+          enabled: this.enabled,
+          role: "resetzoom"
+        },
+        { 
+          label: i18n.__("menu.zoomin"),
+          enabled: this.enabled,
+          role: "zoomin"
+        },
+        { 
+          label: i18n.__("menu.zoomout"),
+          enabled: this.enabled,
+          role: "zoomout"
+        }
       ];
       //@ts-ignore
       view.submenu.splice(-3, 0, ...viewMac);
@@ -185,10 +224,12 @@ export class AppMenu {
       submenu: [
         {
           label: "Node-RED",
+          enabled: this.enabled,
           click() { ipcMain.emit("help:node-red"); }
         },
         {
           label: "Node-RED-Desktop",
+          enabled: this.enabled,
           click() { ipcMain.emit("help:node-red-desktop"); }
         },
         // {
@@ -198,11 +239,12 @@ export class AppMenu {
         { type: "separator" },
         {
           label: i18n.__("menu.checkversion") + "...",
-          // enabled: true,
+          enabled: this.enabled,
           click() { ipcMain.emit("help:check-updates"); }
         },
         {
           label: i18n.__("menu.version"),
+          enabled: this.enabled,
           click() { ipcMain.emit("help:version"); }
         }
       ]
@@ -232,11 +274,13 @@ export class AppMenu {
       submenu: [
         {
           label: i18n.__('menu.about'),
+          enabled: this.enabled,
           click() { ipcMain.emit("help:version"); }
         },
         { type: 'separator'},
         {
           label: i18n.__('menu.settings') + "...",
+          enabled: this.enabled,
           accelerator: 'Command+,',
           click() { ipcMain.emit("settings"); }
         },
@@ -296,6 +340,7 @@ export class AppMenu {
       openRecentMenu.append(
         new MenuItem({
           label: i18n.__('menu.clearRecent'),
+          enabled: this.enabled,
           click(){ ipcMain.emit("file:clear-recent"); }
         })
       );
@@ -310,6 +355,7 @@ export class AppMenu {
           { 
             label: locales[i],
             type: "checkbox",
+            enabled: this.enabled,
             checked: (this.status.locale == locales[i]),
             click(item, focusedWindow) { ipcMain.emit("view:set-locale", item, focusedWindow); }
           },
