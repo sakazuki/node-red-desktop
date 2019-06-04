@@ -189,7 +189,7 @@ class BaseApplication {
     ipcMain.on("node:addRemote", this.onNodeAddRemote.bind(this));
     ipcMain.on("node:rebuild", this.onNodeRebuild.bind(this));
     ipcMain.on("dialog:error", (message: string) =>
-      this.onErrorDialog(message)
+      this.showErrorDialog(message)
     );
   }
 
@@ -523,7 +523,7 @@ class BaseApplication {
       this.status.ngrokUrl = url;
       this.status.ngrokStarted = true;
       ipcMain.emit("menu:update");
-      this.onSuccessDialog("conntcted with " + this.status.ngrokUrl);
+      this.showSuccessDialog("conntcted with " + this.status.ngrokUrl);
       // this.red.notify(
       //   {
       //     id: "ngrok",
@@ -537,7 +537,7 @@ class BaseApplication {
       // );
     } catch (err) {
       log.error(err);
-      this.onErrorDialog(JSON.stringify(err));
+      this.showErrorDialog(JSON.stringify(err));
       // this.red.notify(
       //   {
       //     id: "ngrok",
@@ -557,7 +557,7 @@ class BaseApplication {
       await ngrok.disconnect(
         this.status.ngrokUrl.replace("https://", "http://")
       );
-      this.onSuccessDialog("disconnected " + this.status.ngrokUrl, 3000);
+      this.showSuccessDialog("disconnected " + this.status.ngrokUrl, 3000);
       // this.red.notify(
       //   {
       //     id: "ngrok",
@@ -577,7 +577,8 @@ class BaseApplication {
   }
 
   private onEndpointPublic() {
-    if (this.status.ngrokUrl) this.openAny(this.status.ngrokUrl);
+    if (!this.status.ngrokUrl) return;
+    this.openAny(this.status.ngrokUrl);
   }
 
   private onNgrokInspect() {
@@ -626,11 +627,11 @@ class BaseApplication {
     });
   }
 
-  private onSuccessDialog(message: string, timeout?: number) {
+  private showSuccessDialog(message: string, timeout?: number) {
     this.getBrowserWindow().webContents.send("red:notify", "success", message, timeout);
   }
 
-  private onErrorDialog(message: string) {
+  private showErrorDialog(message: string) {
     this.getBrowserWindow().webContents.send("red:notify", "error", message);
     // dialog.showMessageBox(this.getBrowserWindow(), {
     //   title: title,

@@ -323,7 +323,7 @@ export class AppMenu {
     Menu.setApplicationMenu(menu);
   }
 
-  private setOpenRecentMenu(openRecentMenu: Menu): void{
+  private setOpenRecentMenu(openRecentMenu: Menu): void {
     const files = this.fileHistory.history;
     if (files.length > 0){
       for(let i = 0; i < files.length; i++){
@@ -347,7 +347,7 @@ export class AppMenu {
     }
   }
 
-  private setLocalesMenu(localesMenu: Menu): void{
+  private setLocalesMenu(localesMenu: Menu): void {
     const locales = i18n.getLocales();
     for(let i = 0; i < locales.length; i++){
       localesMenu.append(

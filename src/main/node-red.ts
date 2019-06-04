@@ -301,14 +301,6 @@ export class NodeREDApp {
     }
   }
 
-  public getHttpNodePath() {
-    const res: string[] = [];
-    RED.httpNode._router.stack.forEach(function(route: {route?: {methods: any, path: string}}) {
-      if (route.route && route.route.methods["get"] ) res.push(route.route.path)
-    });
-    return res;
-  }
-
   public notify(data: {id: string, payload: {type: string, text: string}, retain: boolean}, timeout: number) {
     RED.runtime.events.emit("runtime-event", data);
     function closeNotify() {
@@ -323,7 +315,9 @@ export class NodeREDApp {
 
   public info() {
     return `Node-RED version: ${RED.version()}
-            Node.js  version: ${process.version}`;
+            Node.js  version: ${process.version}
+            Electron version: ${process.versions.electron}
+            Chrome   version: ${process.versions.chrome}`;
   }
 
 }
