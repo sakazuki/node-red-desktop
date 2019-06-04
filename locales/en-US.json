@@ -80,7 +80,9 @@
         "yes": "Yes",
         "no": "No",
         "cancel": "Cancel",
-        "openNodeDir": "Add a local node"
+        "openNodeDir": "Add a node from local",
+        "npmInstall": "Add a node from remote",
+        "npmInstallDesc": "Input module name or URL"
     },
     "settings": {
         "userdir": "User directory",
@@ -92,6 +94,9 @@
         "hideonminimize": "Hide into tray on minimize",
         "autocheckupdate": "Check update on startup",
         "allowprerelease": "Allow to use pre-release",
-        "openlastfile": "Open a last file on startup"
+        "openlastfile": "Open a last file on startup",
+        "httpnodeauth": "HTTP Node Authentication",
+        "httpnodeauthuser": "Username",
+        "httpnodeauthpass": "Password"
     }
 }

@@ -80,7 +80,9 @@
         "yes": "はい",
         "no": "いいえ",
         "cancel": "取り消し",
-        "openNodeDir": "ローカルのノードを追加する"
+        "openNodeDir": "ローカルのノードを追加する",
+        "npmInstall": "リモートのノードを追加します",
+        "npmInstallDesc": "モジュール名またはURLを指定してください"
     },
     "settings": {
         "userdir": "ユーザディレクトリ",
@@ -92,6 +94,9 @@
         "hideonminimize": "最小化したときにトレイに隠す",
         "autocheckupdate": "起動時に更新を確認する",
         "allowprerelease": "プレリリースを使う",
-        "openlastfile": "起動時に前回のファイルを開く"
+        "openlastfile": "起動時に前回のファイルを開く",
+        "httpnodeauth": "HTTPノードのアクセス認証",
+        "httpnodeauthuser": "ユーザ名",
+        "httpnodeauthpass": "パスワード"
     }
 }

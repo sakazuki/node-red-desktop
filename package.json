@@ -38,9 +38,13 @@
     "typescript": "^3.4.5"
   },
   "dependencies": {
+    "@types/basic-auth": "^1.1.2",
+    "@types/bcryptjs": "^2.4.2",
+    "basic-auth": "^2.0.1",
+    "bcryptjs": "^2.4.3",
     "electron-json-storage-sync": "^1.1.1",
     "electron-log": "^3.0.5",
-    "electron-prompt": "^1.3.1",
+    "electron-prompt": "git+https://github.com/sakazuki/electron-prompt.git#pass_options",
     "electron-updater": "^4.0.6",
     "express": "^4.16.4",
     "express-ipfilter": "^1.0.1",

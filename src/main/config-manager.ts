@@ -18,6 +18,7 @@ interface CONFIG {
   allowPrerelease: boolean;
   autoDownload: boolean;
   hideOnMinimize: boolean;
+  httpNodeAuth: {user: string, pass: string};
 };
 
 const DEFAULT_CONFIG: CONFIG = {
@@ -32,7 +33,8 @@ const DEFAULT_CONFIG: CONFIG = {
   autoCheckUpdate: true,
   allowPrerelease: false,
   autoDownload: false,
-  hideOnMinimize: false
+  hideOnMinimize: false,
+  httpNodeAuth: {user: "", pass: ""}
 };
 
 export class ConfigManager {
@@ -51,6 +53,7 @@ export class ConfigManager {
   private migration(config: any): CONFIG {
     //v0.8.9
     if (!config.hasOwnProperty("openLastFile")) config.openLastFile = DEFAULT_CONFIG.openLastFile;
+    if (!config.hasOwnProperty("httpNodeAuth")) config.httpNodeAuth = DEFAULT_CONFIG.httpNodeAuth;
     return config;
   }
 

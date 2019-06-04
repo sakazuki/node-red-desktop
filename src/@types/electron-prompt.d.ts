@@ -1,9 +1,5 @@
 declare module "electron-prompt" {
-  interface promptOptions {
-    title?: string;
-    width?: number;
-    height?: number;
-    resizable?: boolean;
+  interface promptOptions extends Electron.BrowserWindowConstructorOptions {
     label?: string;
     value?: string;
     type?: string;
@@ -11,7 +7,6 @@ declare module "electron-prompt" {
     selectOptions?: object;
     useHtmlLabel?: boolean;
     icon?: string;
-    customStylesheet?: string;
   }
 
   export default function (options?: promptOptions, parentBrowserWindow?: Electron.BrowserWindow): Promise<string | undefined>;

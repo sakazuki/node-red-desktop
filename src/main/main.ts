@@ -53,6 +53,7 @@ export interface AppStatus {
   hideOnMinimize: boolean;
   openLastFile: boolean;
   nodeCommandEnabled: boolean;
+  httpNodeAuth: {user: string, pass: string}
 }
 
 type UserSettings = {
@@ -65,6 +66,7 @@ type UserSettings = {
   autoDownload: boolean;
   hideOnMinimize: boolean;
   openLastFile: boolean;
+  httpNodeAuth: {user: string, pass: string}
 }
 
 class BaseApplication {
@@ -110,7 +112,8 @@ class BaseApplication {
       autoDownload: this.config.data.autoDownload,
       hideOnMinimize: this.config.data.hideOnMinimize,
       openLastFile: this.config.data.openLastFile,
-      nodeCommandEnabled: false
+      nodeCommandEnabled: false,
+      httpNodeAuth: this.config.data.httpNodeAuth
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
     this.red = new NodeREDApp(this.status);
@@ -188,8 +191,8 @@ class BaseApplication {
     ipcMain.on("node:addLocal", this.onNodeAddLocal.bind(this));
     ipcMain.on("node:addRemote", this.onNodeAddRemote.bind(this));
     ipcMain.on("node:rebuild", this.onNodeRebuild.bind(this));
-    ipcMain.on("dialog:error", (message: string) =>
-      this.showErrorDialog(message)
+    ipcMain.on("dialog:show", (type: "success" | "error" | "info", message: string, timeout?: number) =>
+      this.showRedNotify(type, message, timeout)
     );
   }
 
@@ -272,6 +275,7 @@ class BaseApplication {
     this.config.data.autoDownload = this.status.autoDownload;
     this.config.data.hideOnMinimize = this.status.hideOnMinimize;
     this.config.data.openLastFile = this.status.openLastFile;
+    this.config.data.httpNodeAuth = this.status.httpNodeAuth;
     this.config.save();
   }
 
@@ -523,32 +527,11 @@ class BaseApplication {
       this.status.ngrokUrl = url;
       this.status.ngrokStarted = true;
       ipcMain.emit("menu:update");
-      this.showSuccessDialog("conntcted with " + this.status.ngrokUrl);
-      // this.red.notify(
-      //   {
-      //     id: "ngrok",
-      //     payload: {
-      //       type: "success",
-      //       text: "conntcted with " + this.status.ngrokUrl
-      //     },
-      //     retain: false
-      //   },
-      //   15000
-      // );
+      const body = `conntcted with <a href="${this.status.ngrokUrl}" target="_blank">${this.status.ngrokUrl}</a>`;
+      this.showRedNotify("success", body);
     } catch (err) {
       log.error(err);
-      this.showErrorDialog(JSON.stringify(err));
-      // this.red.notify(
-      //   {
-      //     id: "ngrok",
-      //     payload: {
-      //       type: "error",
-      //       text: err.msg + "\n" + err.details.err
-      //     },
-      //     retain: false
-      //   },
-      //   15000
-      // );
+      this.showRedNotify("error", JSON.stringify(err));
     }
   }
   private async onNgrokDisconnect() {
@@ -557,18 +540,7 @@ class BaseApplication {
       await ngrok.disconnect(
         this.status.ngrokUrl.replace("https://", "http://")
       );
-      this.showSuccessDialog("disconnected " + this.status.ngrokUrl, 3000);
-      // this.red.notify(
-      //   {
-      //     id: "ngrok",
-      //     payload: {
-      //       type: "success",
-      //       text: "disconnected " + this.status.ngrokUrl
-      //     },
-      //     retain: false
-      //   },
-      //   3000
-      // );
+      this.showRedNotify("success", `disconnected ${this.status.ngrokUrl}`, 3000);
       this.status.ngrokUrl = "";
       ipcMain.emit("menu:update");
     } catch (err) {
@@ -627,20 +599,8 @@ class BaseApplication {
     });
   }
 
-  private showSuccessDialog(message: string, timeout?: number) {
-    this.getBrowserWindow().webContents.send("red:notify", "success", message, timeout);
-  }
-
-  private showErrorDialog(message: string) {
-    this.getBrowserWindow().webContents.send("red:notify", "error", message);
-    // dialog.showMessageBox(this.getBrowserWindow(), {
-    //   title: title,
-    //   type: "error",
-    //   message: body,
-    //   detail: detail,
-    //   buttons: [i18n.__("dialog.ok")],
-    //   noLink: true
-    // });
+  private showRedNotify(type: "success" | "error" | "info", message: string, timeout?: number) {
+    this.getBrowserWindow().webContents.send("red:notify", type, message, timeout);   
   }
 
   private onToggleDevTools(item: MenuItem, focusedWindow: BrowserWindow) {
@@ -661,6 +621,7 @@ class BaseApplication {
     this.status.autoDownload = args.autoDownload;
     this.status.hideOnMinimize = args.hideOnMinimize;
     this.status.openLastFile = args.openLastFile;
+    this.status.httpNodeAuth = args.httpNodeAuth;
     this.saveConfig();
     app.relaunch();
     app.quit();
@@ -704,13 +665,16 @@ class BaseApplication {
       width: this.getBrowserWindow().getBounds().width * 0.5,
       height: 200,
       resizable: true,
-      title: "Install a node",
-      label: "npm install",
+      title: i18n.__("dialog.npmInstall"),
+      label: i18n.__("dialog.npmInstallDesc"),
       value: "",
       inputAttrs: {
         type: "text",
         required: true
-      }
+      },
+      useHtmlLabel: true,
+      minimizable: false,
+      maximizable: false
     }, this.getBrowserWindow());
     if (res) {
       this.loadingShade();

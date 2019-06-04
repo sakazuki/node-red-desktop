@@ -14,6 +14,8 @@ import fs from "fs-extra";
 import CustomStorage =  require("./custom-storage");
 const registry = require("@node-red/registry");
 import _ from "lodash";
+import bcryptjs from "bcryptjs";
+import basicAuth from "basic-auth";
 
 const IP_ALLOWS = ["127.0.0.1"];
 const HELP_WEB_URL = "https://sakazuki.github.io/node-red-desktop/";
@@ -77,6 +79,7 @@ export class NodeREDApp {
         origin: "*",
         methods: "GET,PUT,POST,DELETE"
       },
+      httpNodeAUth: undefined,
       functionGlobalContext: {
         get NGROK_URL(): string { return _this.status.ngrokUrl }
       },
@@ -134,6 +137,13 @@ export class NodeREDApp {
       }
     };
     if (this.status.projectsEnabled) delete config.storageModule;
+    if (this.status.httpNodeAuth.user.length > 0 && this.status.httpNodeAuth.pass.length) {
+      //@ts-ignore
+      config.httpNodeAuth = {
+        user: this.status.httpNodeAuth.user,
+        pass: bcryptjs.hashSync(this.status.httpNodeAuth.pass, 8)
+      }
+    }
     return config;
   }
 
@@ -166,10 +176,50 @@ export class NodeREDApp {
     return `http://${this.listenIp}:${this.listenPort}${this.uiPath}`
   }
 
+  // based on the code in node-red/red.js 
+  private basicAuthMiddleware(user: string, pass: string) {
+    let localCachedPassword: string;
+    const checkPassword = function(p: string) {
+      return bcryptjs.compareSync(p,pass);
+    }
+
+    const checkPasswordAndCache = function(p: string) {
+      if (localCachedPassword === p) {
+        return true;
+      }
+      var result = checkPassword(p);
+      if (result) {
+        localCachedPassword = p;
+      }
+      return result;
+    }
+
+    return function(req: express.Request, res: express.Response, next: express.NextFunction) {
+      if (req.method === 'OPTIONS') {
+        return next();
+      }
+      var requestUser = basicAuth(req);
+      if (!requestUser || requestUser.name !== user || !checkPasswordAndCache(requestUser.pass)) {
+        res.set('WWW-Authenticate', 'Basic realm="Authorization Required"');
+        return res.sendStatus(401);
+      }
+      next();
+    }
+  }
+
   private setupRED() {
     log.debug(">>> settings", this.settings);
     RED.init(this.server, this.settings);
     this.app.use(this.settings.httpAdminRoot, RED.httpAdmin);
+    if (this.settings.httpNodeAuth) {
+      this.app.use(
+        this.settings.httpNodeRoot,
+        this.basicAuthMiddleware(
+          this.settings.httpNodeAuth.user,
+          this.settings.httpNodeAuth.pass
+        )
+      );
+    }
     this.app.use(this.settings.httpNodeRoot, RED.httpNode);
   }
 
@@ -241,20 +291,17 @@ export class NodeREDApp {
         return;
       }
       if (err.code !== "MODULE_NOT_FOUND") throw err;
-      this.notify({
-        id: "not_node-red_module",
-        payload: {
-          type: "info",
-          text: `${pkgname} installed`
-        },
-        retain: false
-      }, 3000);
+      this.success(`${pkgname} installed`);
     }
+  }
+
+  private success(message: string, timeout = 3000) {
+    ipcMain.emit("dialog:show", "success", message, timeout);
   }
 
   private error(err: any, message: string) {
     log.info(err, message);
-    ipcMain.emit("dialog:error", JSON.stringify([message, err]));
+    ipcMain.emit("dialog:show", "error", JSON.stringify([message, err]));
   }
 
   public async execNpmLink(dir: string) {
@@ -301,23 +348,22 @@ export class NodeREDApp {
     }
   }
 
-  public notify(data: {id: string, payload: {type: string, text: string}, retain: boolean}, timeout: number) {
-    RED.runtime.events.emit("runtime-event", data);
-    function closeNotify() {
-      RED.runtime.events.emit("runtime-event", {
-        id: data.id,
-        payload: {},
-        retain: false
-      });
-    }
-    setTimeout(closeNotify, timeout);
-  }
+  // public notify(data: {id: string, payload: {type: string, text: string}, retain: boolean}, timeout: number) {
+  //   RED.runtime.events.emit("runtime-event", data);
+  //   function closeNotify() {
+  //     RED.runtime.events.emit("runtime-event", {
+  //       id: data.id,
+  //       payload: {},
+  //       retain: false
+  //     });
+  //   }
+  //   setTimeout(closeNotify, timeout);
+  // }
 
   public info() {
     return `Node-RED version: ${RED.version()}
             Node.js  version: ${process.version}
-            Electron version: ${process.versions.electron}
-            Chrome   version: ${process.versions.chrome}`;
+            Electron version: ${process.versions.electron}`;
   }
 
 }

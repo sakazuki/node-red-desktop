@@ -25,7 +25,10 @@ function initLang() {
   $("#label-hideonminimize").text(_i18n.__("settings.hideonminimize"));
   $("#label-autocheckupdate").text(_i18n.__("settings.autocheckupdate"));
   $("#label-allowprerelease").text(_i18n.__("settings.allowprerelease"));
-  $("#label-openlastfile").text(_i18n.__("settings.openlastfile"))
+  $("#label-openlastfile").text(_i18n.__("settings.openlastfile"));
+  $("#label-httpnodeauth").text(_i18n.__("settings.httpnodeauth"));
+  $("#label-httpnodeauthuser").text(_i18n.__("settings.httpnodeauthuser"));
+  $("#label-httpnodeauthpass").text(_i18n.__("settings.httpnodeauthpass"));
 }
 
 $(document).on("dragover", event => event.preventDefault());
@@ -42,6 +45,8 @@ ipc.on("settings:set", (event, settings) => {
   $("#userdir").val(settings.userDir);
   $("#credentialsecret").val(settings.credentialSecret);
   $("#nodesexcludes").val(settings.nodesExcludes.join("\n"));
+  $("#httpnodeauthuser").val(settings.httpNodeAuth.user);
+  $("#httpnodeauthpass").val(settings.httpNodeAuth.pass);
   $("#projects").prop("checked", settings.projectsEnabled);
   $("#hideonminimize").prop("checked", settings.hideOnMinimize);
   $("#autocheckupdate").prop("checked", settings.autoCheckUpdate);
@@ -58,7 +63,11 @@ $("#button-submit").on("click", function(event) {
     hideOnMinimize: $("#hideonminimize").prop("checked"),
     autoCheckUpdate: $("#autocheckupdate").prop("checked"),
     allowPrerelease: $("#allowprerelease").prop("checked"),
-    openLastFile: $("#openlastfile").prop("checked")
+    openLastFile: $("#openlastfile").prop("checked"),
+    httpNodeAuth: {
+      user: $("#httpnodeauthuser").val(),
+      pass: $("#httpnodeauthpass").val()
+    }
   }
   ipc.send("settings:update", data);
 });
