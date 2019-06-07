@@ -1,3 +1,5 @@
+import patchRequire from "./require-rebuild";
+patchRequire();
 import {
   app,
   App,
@@ -127,6 +129,7 @@ class BaseApplication {
     );
     ipcMain.on("browser:closed", this.onClosed.bind(this));
     ipcMain.on("browser:restart", this.onRestart.bind(this));
+    ipcMain.on("browser:relaunch", this.onRelaunch.bind(this));
     ipcMain.on("browser:message", (text: string) => this.onMessage(text));
     ipcMain.on("browser:loading", this.onLoading.bind(this));
     ipcMain.on("browser:go", (url: string) => this.go(url));
@@ -346,6 +349,12 @@ class BaseApplication {
   private onRestart() {
     this.onBeforeClose();
     this.customAutoUpdater!.quitAndInstall();
+    app.quit();
+  }
+
+  private onRelaunch() {
+    this.onBeforeClose();
+    app.relaunch();
     app.quit();
   }
 

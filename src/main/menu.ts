@@ -84,14 +84,19 @@ export class AppMenu {
           click() { ipcMain.emit("file:open-logfile"); }
         },
         { type: "separator"},
+        {
+          label: i18n.__("menu.relaunch"),
+          enabled: this.editorUsable(),
+          click() { ipcMain.emit("browser:relaunch"); }
+        },
         { label: i18n.__("menu.quit"), role: "quit" }
       ]
     };
     if (macOS) {
       //@ts-ignore
-      file.submenu.splice(-2);
+      file.submenu.splice(-3);
       //@ts-ignore
-      file.submenu.splice(-4, 2);
+      file.submenu.splice(-5, 2);
     };
 
     const edit: MenuItemConstructorOptions = {
@@ -159,12 +164,12 @@ export class AppMenu {
           enabled: this.enabled,
           click() { ipcMain.emit("node:addRemote"); }
         },
-        { type: "separator"},
-        {
-          label: i18n.__("menu.rebuild") + "...",
-          enabled: this.enabled && this.status.nodeCommandEnabled,
-          click() { ipcMain.emit("node:rebuild"); }
-        }
+        // { type: "separator"},
+        // {
+        //   label: i18n.__("menu.rebuild") + "...",
+        //   enabled: this.enabled && this.status.nodeCommandEnabled,
+        //   click() { ipcMain.emit("node:rebuild"); }
+        // }
       ]
     };
   
@@ -291,6 +296,10 @@ export class AppMenu {
         { label: i18n.__('menu.hideothers'), role: 'hideothers'},
         { label: i18n.__('menu.unhide'), role: 'unhide'},
         { type: 'separator'},
+        {
+          label: i18n.__("menu.relaunch"),
+          click() { ipcMain.emit("browser:relaunch"); }
+        },
         { label: i18n.__('menu.quit'), role: 'quit' }
       ]
     };

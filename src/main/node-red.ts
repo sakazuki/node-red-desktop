@@ -16,6 +16,7 @@ const registry = require("@node-red/registry");
 import _ from "lodash";
 import bcryptjs from "bcryptjs";
 import basicAuth from "basic-auth";
+import rebuild from "@node-red-desktop/electron-rebuild";
 
 const IP_ALLOWS = ["127.0.0.1"];
 const HELP_WEB_URL = "https://sakazuki.github.io/node-red-desktop/";
@@ -336,10 +337,7 @@ export class NodeREDApp {
 
   public async rebuildForElectron() {
     try {
-      const userModulePath = path.join(this.status.userDir, "node_modules");
-      if (module.paths.indexOf(userModulePath) < 0) module.paths.push(userModulePath);
-      const rebuild = require("electron-rebuild");
-      await rebuild.rebuild({
+      await rebuild({
         buildPath: this.status.userDir,
         electronVersion: process.versions.electron
       });
@@ -347,18 +345,6 @@ export class NodeREDApp {
       this.error(err, "fail to rebuild. check detail in log.");
     }
   }
-
-  // public notify(data: {id: string, payload: {type: string, text: string}, retain: boolean}, timeout: number) {
-  //   RED.runtime.events.emit("runtime-event", data);
-  //   function closeNotify() {
-  //     RED.runtime.events.emit("runtime-event", {
-  //       id: data.id,
-  //       payload: {},
-  //       retain: false
-  //     });
-  //   }
-  //   setTimeout(closeNotify, timeout);
-  // }
 
   public info() {
     return `Node-RED version: ${RED.version()}

@@ -16,6 +16,7 @@
         "addRemoteNode": "リモートのノードを追加",
         "rebuild": "リビルド",
         "login": "ログインする",
+        "relaunch": "再起動する",
         "quit": "終了",
         "edit": "編集",
         "undo": "元に戻す",
