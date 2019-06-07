@@ -7,17 +7,19 @@ directories:
 asar: true
 files:
 - "**/*"
-- "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme,test,__tests__,tests,powered-test,example,examples,*.d.ts}"
+- "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+- "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
+- "!**/node_modules/*.d.ts"
 - "!**/node_modules/.bin"
 - "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}"
-- "!**/._*"
 - "!.editorconfig"
-- "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,__pycache__,thumbs.db,.gitignore,.gitattributes,.flowconfig,.yarn-metadata.json,.idea,.vs,appveyor.yml,.travis.yml,circle.yml,npm-debug.log,.nyc_output,yarn.lock,.yarn-integrity}"
-- "!{.config,.sessions}.json"
-- "!{flows,flows_cred}.json"
-- "!.*"
+- "!**/._*"
+- "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}"
+- "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}"
+- "!**/{appveyor.yml,.travis.yml,circle.yml}"
+- "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+- "!{.config,.sessions,flows,flows_cred}.json"
 - "!log.txt"
-- "!objuscator/**/*"
 - "!*.jsop"
 win:
   target:
