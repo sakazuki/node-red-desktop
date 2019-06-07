@@ -89,12 +89,13 @@ export class AppMenu {
           enabled: this.editorUsable(),
           click() { ipcMain.emit("browser:relaunch"); }
         },
+        { type: "separator"},
         { label: i18n.__("menu.quit"), role: "quit" }
       ]
     };
     if (macOS) {
       //@ts-ignore
-      file.submenu.splice(-3);
+      file.submenu.splice(-4);
       //@ts-ignore
       file.submenu.splice(-5, 2);
     };

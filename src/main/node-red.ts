@@ -16,9 +16,11 @@ const registry = require("@node-red/registry");
 import _ from "lodash";
 import bcryptjs from "bcryptjs";
 import basicAuth from "basic-auth";
-import rebuild from "@node-red-desktop/electron-rebuild";
 
 const IP_ALLOWS = ["127.0.0.1"];
+if (process.env.NRD_IP_ALLOWS) {
+  IP_ALLOWS.push(...process.env.NRD_IP_ALLOWS.split(/,/))
+}
 const HELP_WEB_URL = "https://sakazuki.github.io/node-red-desktop/";
 
 export const DEFAULT_NODES_EXCLUDES = [
@@ -333,17 +335,6 @@ export class NodeREDApp {
     } catch(err) {
       this.error(err, "fail to npm install. check detail in log.");
     };
-  }
-
-  public async rebuildForElectron() {
-    try {
-      await rebuild({
-        buildPath: this.status.userDir,
-        electronVersion: process.versions.electron
-      });
-    } catch(err) {
-      this.error(err, "fail to rebuild. check detail in log.");
-    }
   }
 
   public info() {

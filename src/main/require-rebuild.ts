@@ -3,14 +3,14 @@
 
 import log from "./log";
 import Module from "module";
-import { sync } from "resolve";
-import { dirname, sep } from "path";
+import * as resolve from "resolve";
+import * as path from "path";
 import rebuild from "@node-red-desktop/electron-rebuild";
-import fs from "fs-extra";
-import path from "path";
 
 const mismatchRe = /was compiled against a different Node.js version using/;
 const winRe = /A dynamic link library \(DLL\) initialization routine failed/;
+
+let rebuilding = false;
 
 function patch() {
   //@ts-ignore
@@ -22,45 +22,40 @@ function patch() {
       ret = load.call(Module, request, parent);
       return ret;
     } catch (err) {
+      if (process.env.NRD_AUTO_REBUILD && process.env.NRD_AUTO_REBUILD.match(/false/i)) throw err;
       if (!mismatchRe.test(err.message) && !winRe.test(err.message)) throw err;
-      console.info(err)
-      const resolved = sync(request, {
-        basedir: dirname(parent.id),
+      if (rebuilding) {
+        log.info(`Rebuilding..., Skip to rebuild ${request}`)
+        return;
+      }
+      rebuilding = true;
+      log.info(err)
+      const resolved = resolve.sync(request, {
+        basedir: path.dirname(parent.id),
         //@ts-ignore
         extenstions: [".js", ".json", ".node"]
       });
 
-      const segs = resolved.split(sep);
-      let modulePath = "";
-      for (let i = segs.indexOf("node_modules") + 2; i < segs.length - 1; i++) {
-        const pkginfo = path.join(...segs.slice(0, i));
-        if (
-          fs.existsSync(path.join(pkginfo, "package.json"))
-          && fs.existsSync(path.join(pkginfo, "node_modules"))
-        ) {
-          modulePath = pkginfo;
-          break;
-        }
-      }
-      if (modulePath === "")
-        modulePath = segs.slice(0, segs.indexOf("node_modules")).join(sep);
+      const segs = resolved.split(path.sep);
+      const modulePath = segs.slice(0, segs.indexOf("node_modules")).join(path.sep);
 
-      log.info("Recompiling %s...", modulePath);
+      log.info("Rebuilding %s...", modulePath);
       try {
         rebuild({
           buildPath: modulePath,
           electronVersion: process.versions.electron
         }).then(async () => {
           log.info("Rebuild Successful");
-          // await new Promise(r => setTimeout(r, 1000));
+          rebuilding = false;
           return load.call(Module, request, parent);
         }).catch(err => {
-          log.error("Rebuild failed. Building modules didn't work!");
-          log.error(err);
+          log.error("Rebuild failed. Building modules didn't work!", err);
+          rebuilding = false;
           throw err;
         });
       } catch(err) {
         log.error(err);
+        rebuilding = false;
         throw err;
       }
     }

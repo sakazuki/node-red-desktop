@@ -28,6 +28,7 @@ import fs from "fs-extra";
 import fileUrl from "file-url";
 import prompt from "electron-prompt";
 import semver from "semver";
+import rebuild from "@node-red-desktop/electron-rebuild";
 
 const macOS = process.platform === "darwin";
 
@@ -697,10 +698,14 @@ class BaseApplication {
     this.showShade();
     try {
       this.loadingShade();
-      await this.red.rebuildForElectron();
+      await rebuild({
+        buildPath: this.status.userDir,
+        electronVersion: process.versions.electron
+      });
       log.info(">>> Rebuild success");
     } catch(err) {
       log.error(">>> Rebuild failed", err);
+      this.showRedNotify("error", JSON.stringify(err));
     }
     this.hideShade();
   }

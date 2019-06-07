@@ -1,8 +1,14 @@
 ## v0.9.0
-- add: Npm link
-- add: Npm install
-- add: electron-rebuild
-- add: Ngrok start option. **NRD_NGROK_START_ARGS**
-- add: Open Last File
-- add: HTTP Auth Node
-- change: rename **LISTEN_IP**, **LISTEN_PORT** to **NRD_LISTEN_IP**, **NRD_LISTEN_PORT**
+- add: menu to install a local node (Npm link)
+- add: menu to install a remote node (Npm install)
+- add: menu to relaunch #7
+- add: auto rebuild when the error "was compiled against a different Node.js version using" is found.
+- add: env **NRD_AUTO_REBUILD=false** to disable auto rebuilding.
+- add: env **NRD_NGROK_START_ARGS** to pass Ngrok start args
+- add: env **NRD_IP_ALLOWS** to access admin page from specific ip addresses. (ex: 118.123.45.67,2001:db8:85a3:1:0:8a2e:370:7334)
+- add: settings of Open Last File
+- add: settings of HTTP Auth Node
+- change: rename env **LISTEN_IP**, **LISTEN_PORT** to **NRD_LISTEN_IP**, **NRD_LISTEN_PORT**
+- change: mac menu interface #6
+- change: win hide zoom menu
+- fix: Mac can't move window #4
