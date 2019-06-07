@@ -5,7 +5,8 @@ import log from "./log";
 import Module from "module";
 import * as resolve from "resolve";
 import * as path from "path";
-import rebuild from "@node-red-desktop/electron-rebuild";
+// import rebuild from "@node-red-desktop/electron-rebuild";
+import child_process from "child_process";
 
 const mismatchRe = /was compiled against a different Node.js version using/;
 const winRe = /A dynamic link library \(DLL\) initialization routine failed/;
@@ -40,19 +41,33 @@ function patch() {
       const modulePath = segs.slice(0, segs.indexOf("node_modules")).join(path.sep);
 
       log.info("Rebuilding %s...", modulePath);
+
       try {
-        rebuild({
-          buildPath: modulePath,
-          electronVersion: process.versions.electron
-        }).then(async () => {
-          log.info("Rebuild Successful");
-          rebuilding = false;
-          return load.call(Module, request, parent);
-        }).catch(err => {
-          log.error("Rebuild failed. Building modules didn't work!", err);
-          rebuilding = false;
-          throw err;
+        const rebuildCommand = path.join(__dirname, "../node_modules/@node-red-desktop/electron-rebuild/lib/src/cli.js");
+        const ps = child_process.spawnSync("node", [
+          rebuildCommand,
+          `--version ${process.versions.electron}`,
+          `--module-dir ${modulePath}`
+        ], {
+          cwd: modulePath,
+          stdio: "inherit"
         });
+        if (ps.error) throw ps.error;
+        log.info("Rebuild Successful");
+        rebuilding = false;
+        return load.call(Module, request, parent);
+        // rebuild({
+        //   buildPath: modulePath,
+        //   electronVersion: process.versions.electron
+        // }).then(async () => {
+        //   log.info("Rebuild Successful");
+        //   rebuilding = false;
+        //   return load.call(Module, request, parent);
+        // }).catch(err => {
+        //   log.error("Rebuild failed. Building modules didn't work!", err);
+        //   rebuilding = false;
+        //   throw err;
+        // });
       } catch(err) {
         log.error(err);
         rebuilding = false;
