@@ -7,6 +7,7 @@ import * as resolve from "resolve";
 import * as path from "path";
 // import rebuild from "@node-red-desktop/electron-rebuild";
 import child_process from "child_process";
+import fork from "./fork";
 
 const mismatchRe = /was compiled against a different Node.js version using/;
 const winRe = /A dynamic link library \(DLL\) initialization routine failed/;
@@ -44,18 +45,33 @@ function patch() {
 
       try {
         const rebuildCommand = path.join(__dirname, "../node_modules/@node-red-desktop/electron-rebuild/lib/src/cli.js");
-        const ps = child_process.spawnSync("node", [
-          rebuildCommand,
+        // const ps = child_process.spawnSync("node", [
+        //   rebuildCommand,
+        //   `--version ${process.versions.electron}`,
+        //   `--module-dir ${modulePath}`
+        // ], {
+        //   cwd: modulePath,
+        //   stdio: "inherit"
+        // });
+        // if (ps.error) throw ps.error;
+        // log.info("Rebuild Successful");
+        // rebuilding = false;
+        // return load.call(Module, request, parent);
+        fork(rebuildCommand, [
           `--version ${process.versions.electron}`,
           `--module-dir ${modulePath}`
         ], {
-          cwd: modulePath,
-          stdio: "inherit"
+          cwd: modulePath
+        }).then(async (res) => {
+          if (res.code !== 0) throw res; 
+          log.info("Rebuild Successful", res);
+          rebuilding = false;
+          return load.call(Module, request, parent);
+        }).catch(err => {
+          log.error("Rebuild failed. Building modules didn't work!", err);
+          rebuilding = false;
+          throw err;
         });
-        if (ps.error) throw ps.error;
-        log.info("Rebuild Successful");
-        rebuilding = false;
-        return load.call(Module, request, parent);
         // rebuild({
         //   buildPath: modulePath,
         //   electronVersion: process.versions.electron
