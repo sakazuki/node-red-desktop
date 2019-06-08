@@ -43,7 +43,7 @@ export class ConfigManager {
   constructor(name: string) {
     this.name = name;
     this.data = this.load();
-    log.debug(">>>>config loaded", this.data);
+    log.debug(">>> config loaded", this.data);
   }
 
   public getName(): string {
@@ -70,7 +70,7 @@ export class ConfigManager {
 
   public save(): boolean {
     const res = storage.set(this.getName(), this.data);
-    log.debug(">>>>config saved", res);
+    log.debug(">>> config saved", res);
     if (res.status) {
       return true;
     } else {
