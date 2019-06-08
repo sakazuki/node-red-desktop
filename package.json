@@ -47,7 +47,6 @@
     "electron-json-storage-sync": "^1.1.1",
     "electron-log": "^3.0.6",
     "electron-prompt": "git+https://github.com/sakazuki/electron-prompt.git#pass_options",
-    "@node-red-desktop/electron-rebuild": "git+https://github.com/sakazuki/electron-rebuild.git#node-red-desktop-bundle",
     "electron-updater": "^4.0.6",
     "express": "^4.17.1",
     "express-ipfilter": "^1.0.1",
