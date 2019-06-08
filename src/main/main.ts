@@ -28,7 +28,7 @@ import fs from "fs-extra";
 import fileUrl from "file-url";
 import prompt from "electron-prompt";
 import semver from "semver";
-import rebuild from "@node-red-desktop/electron-rebuild";
+// import rebuild from "@node-red-desktop/electron-rebuild";
 
 const macOS = process.platform === "darwin";
 
@@ -194,7 +194,7 @@ class BaseApplication {
     ipcMain.on("settings:cancel", this.onSettingsCancel.bind(this));
     ipcMain.on("node:addLocal", this.onNodeAddLocal.bind(this));
     ipcMain.on("node:addRemote", this.onNodeAddRemote.bind(this));
-    ipcMain.on("node:rebuild", this.onNodeRebuild.bind(this));
+    // ipcMain.on("node:rebuild", this.onNodeRebuild.bind(this));
     ipcMain.on("dialog:show", (type: "success" | "error" | "info", message: string, timeout?: number) =>
       this.showRedNotify(type, message, timeout)
     );
@@ -693,22 +693,22 @@ class BaseApplication {
     this.hideShade();
   }
 
-  private async onNodeRebuild() {
-    log.info(">>> Rebuild Start")
-    this.showShade();
-    try {
-      this.loadingShade();
-      await rebuild({
-        buildPath: this.status.userDir,
-        electronVersion: process.versions.electron
-      });
-      log.info(">>> Rebuild success");
-    } catch(err) {
-      log.error(">>> Rebuild failed", err);
-      this.showRedNotify("error", JSON.stringify(err));
-    }
-    this.hideShade();
-  }
+  // private async onNodeRebuild() {
+  //   log.info(">>> Rebuild Start")
+  //   this.showShade();
+  //   try {
+  //     this.loadingShade();
+  //     await rebuild({
+  //       buildPath: this.status.userDir,
+  //       electronVersion: process.versions.electron
+  //     });
+  //     log.info(">>> Rebuild success");
+  //   } catch(err) {
+  //     log.error(">>> Rebuild failed", err);
+  //     this.showRedNotify("error", JSON.stringify(err));
+  //   }
+  //   this.hideShade();
+  // }
 }
 
 const main: BaseApplication = new BaseApplication(app);

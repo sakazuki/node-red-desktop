@@ -301,6 +301,7 @@ export class AppMenu {
           label: i18n.__("menu.relaunch"),
           click() { ipcMain.emit("browser:relaunch"); }
         },
+        { type: "separator"},
         { label: i18n.__('menu.quit'), role: 'quit' }
       ]
     };
