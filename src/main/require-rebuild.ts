@@ -46,13 +46,13 @@ function patch() {
         const rebuildCommand = path.join(__dirname, "../node_modules/@node-red-desktop/electron-rebuild/lib/src/cli.js");
         const ps = child_process.spawnSync("node", [
           rebuildCommand,
-          `--version ${process.versions.electron}`,
-          `--module-dir ${modulePath}`
+          "--version", process.versions.electron,
+          "--module-dir", modulePath
         ], {
           cwd: modulePath,
           stdio: "inherit"
         });
-        if (ps.error) throw ps.error;
+        if (ps.status !== 0) throw ps;
         log.info("Rebuild Successful");
         rebuilding = false;
         return load.call(Module, request, parent);
