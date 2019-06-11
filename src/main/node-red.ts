@@ -22,6 +22,7 @@ if (process.env.NRD_IP_ALLOWS) {
   IP_ALLOWS.push(...process.env.NRD_IP_ALLOWS.split(/,/))
 }
 const HELP_WEB_URL = "https://sakazuki.github.io/node-red-desktop/";
+export const NPM_COMMAND = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
 export const DEFAULT_NODES_EXCLUDES = [
   "10-mqtt.js",
@@ -236,7 +237,7 @@ export class NodeREDApp {
   }
 
   private patchRuntimeExec() {
-    newExec.init(RED.runtime._);
+    newExec.init(RED.runtime._, this.status);
     runtime._.nodes.paletteEditorEnabled = () => { return true };
   }
 
@@ -311,7 +312,7 @@ export class NodeREDApp {
     try {
       const pkginfo = this.loadPackageInfo(path.join(dir, "package.json"));
       if (!pkginfo.hasOwnProperty("node-red")) throw new Error("This module does not have a node-red property");
-      const res = await this.exec.run("npm", ["link", dir], {cwd: this.status.userDir}, true);
+      const res = await this.exec.run(NPM_COMMAND, ["link", dir], {cwd: this.status.userDir}, true);
       if (res.code !== 0) throw res;
       this.addModule(pkginfo.name);
     } catch(err) {
@@ -322,7 +323,7 @@ export class NodeREDApp {
   public async execNpmInstall(args: string) {
     try {
       const before = this.loadPackageInfo(path.join(this.status.userDir, "package.json"));
-      const res = await this.exec.run("npm", ["install", args], {cwd: this.status.userDir}, true);
+      const res = await this.exec.run(NPM_COMMAND, ["install", args], {cwd: this.status.userDir}, true);
       if (res.code !== 0) throw res;
       const after = this.loadPackageInfo(path.join(this.status.userDir, "package.json"));
       const newPkgs = _.difference(Object.keys(after.dependencies), Object.keys(before.dependencies));

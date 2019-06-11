@@ -22,7 +22,7 @@ import { FileManager } from "./file-manager";
 import { ConfigManager } from "./config-manager";
 import { CustomTray } from "./tray";
 import ngrok from "ngrok";
-import { NodeREDApp } from "./node-red";
+import { NodeREDApp, NPM_COMMAND } from "./node-red";
 import log from "./log";
 import fs from "fs-extra";
 import fileUrl from "file-url";
@@ -56,6 +56,7 @@ export interface AppStatus {
   hideOnMinimize: boolean;
   openLastFile: boolean;
   nodeCommandEnabled: boolean;
+  npmCommandEnabled: boolean;
   httpNodeAuth: {user: string, pass: string}
 }
 
@@ -116,6 +117,7 @@ class BaseApplication {
       hideOnMinimize: this.config.data.hideOnMinimize,
       openLastFile: this.config.data.openLastFile,
       nodeCommandEnabled: false,
+      npmCommandEnabled: false,
       httpNodeAuth: this.config.data.httpNodeAuth
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
@@ -411,9 +413,21 @@ class BaseApplication {
     return false;
   }
 
+  private async checkNpmVersion() {
+    try {
+      const res: execResult = await this.red.exec._run(NPM_COMMAND, ["-v"], {}, false);
+      log.info(">>> Check npm version", res);
+      return (res.code === 0);
+    } catch (err) {
+      log.error(err);
+    }
+    return false;
+  }
+
   private async onEditorStarted(event: Electron.Event, args: any) {
     this.status.editorEnabled = true;
     this.status.nodeCommandEnabled = await this.checkNodeVersion();
+    this.status.npmCommandEnabled = await this.checkNpmVersion();
     ipcMain.emit("menu:update");
   }
 

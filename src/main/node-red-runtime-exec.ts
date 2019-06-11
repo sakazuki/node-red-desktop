@@ -1,4 +1,5 @@
 import { EventEmitter } from "events";
+import { AppStatus } from "./main";
 
 // based on @node-red/runtime/lib/exec.js
 
@@ -13,21 +14,26 @@ type RuntimeExec = {
 
 let events: EventEmitter;
 let origExec: RuntimeExec;
+let status: AppStatus;
 
 function logLines(id: string, type: string, data: string): void {
     events.emit("event-log", {id:id,payload:{ts: Date.now(),data:data,type:type}});
 }
 
 const newExec = {
-    init: function(_runtime: {events: any, exec: any}) {
+    init: function(_runtime: {events: any, exec: any}, _status: AppStatus) {
         events = _runtime.events;
+        status = _status;
         if (!origExec) {
             origExec = _runtime.exec;
             _runtime.exec = this;
         }
     },
+    _run: function(command: string, args: string[], options: any, emit: boolean): Promise<execResult> {
+        return origExec.run(command,args,options,emit);
+    }, 
     run: function(command: string, args: string[], options: any, emit: boolean): Promise<execResult> {
-        if (path.parse(command).name !== "npm") {
+        if (status.npmCommandEnabled || (path.parse(command).name !== "npm")) {
             return origExec.run(command,args,options,emit);
         }
         var invocationId = util.generateId();
