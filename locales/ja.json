@@ -14,7 +14,6 @@
         "tools": "ツール",
         "addLocalNode": "ローカルのノードを追加",
         "addRemoteNode": "リモートのノードを追加",
-        "rebuild": "リビルド",
         "login": "ログインする",
         "relaunch": "再起動する",
         "quit": "終了",

@@ -14,7 +14,6 @@
         "tools": "Tools",
         "addLocalNode": "Add a local node",
         "addRemoteNode": "Add a remote node",
-        "rebuild": "Rebuild",
         "login": "Login",
         "relaunch": "Relaunch",
         "quit": "Quit",
