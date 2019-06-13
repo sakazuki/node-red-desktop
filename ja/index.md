@@ -1,97 +1,73 @@
 # Node-RED Desktop
 
-This is a desktop applicaiton of Node-RED
+Node-REDのデスクトップ版です
 
 ![screen](https://raw.githubusercontent.com/sakazuki/node-red-desktop/doc/screenshot.png)
 
-## Download
+## ダウンロード
 
-Download the binary file from [download page](https://github.com/sakazuki/node-red-desktop/releases)
+
+[リリースページ](https://github.com/sakazuki/node-red-desktop/releases)から、実行ファイルをダウンロードしてください。
 
 - Windows: [**Node-RED-Desktop_Setup_X.X.X.exe**](https://github.com/sakazuki/node-red-desktop/releases)
 - Mac: [**Node-RED-Desktop-X.X.X.dmg**](https://github.com/sakazuki/node-red-desktop/releases)
 
-## Your benefits
+## メリット
+- Node-REDを簡単に使い始めることができます
+- フロー作成の試行錯誤がすばやくできます
+- クラウドサービスとのAPI連携が簡単にできます
+  - Twilio, Alexa, Google home など
+- プライベートノードの追加が簡単にできます
 
-You can 
-- easily setup Node-RED on your desktop.
-- quickly create and discard a flow many times.
-- easily integrate with cloud services with the public HTTP endpoint.
-  - twilio, alexa, google home etc...
+これらに加えて、
+Node-REDの便利な機能の殆どを使うことができます。
 
-And also,
+  - [公式ライブラリ](https://flows.nodered.org/) からのノート追加
+  - [プロジェクト機能](https://nodered.org/docs/user-guide/projects/)
+  - など
 
-You can use almost all powerful and useful Node-RED features
-  - install nodes from the [public Library](https://flows.nodered.org/) or else.
-  - [projects](https://nodered.org/docs/user-guide/projects/)
-  - etc.
-
-## Node-RED-Desktop features
+## 特徴
 
 - [Node-RED](https://nodered.org/) v0.20.5
-- [ngrok](https://ngrok.com/) integrated
-- [Node generator](https://www.npmjs.com/package/node-red-nodegen) integrated
-- npm integrated
-- multi language
+- [ngrok](https://ngrok.com/) 組み込み済み
+- [Node generator](https://www.npmjs.com/package/node-red-nodegen)  組み込み済み
+- npm 組み込み済み
+- 多言語UI
   - english
   - japanese
-- auto updater
+- 自動更新
 
-## How to install Node-RED-Desktop
+## Node-RED-Desktopのインストール方法
 
-1. Download the installer from [release page](https://github.com/sakazuki/node-red-desktop/releases).
-1. Run the installer.
+1. [リリースページ](https://github.com/sakazuki/node-red-desktop/releases)からインストーラーをダウンロードします
+1. インストーラーを実行します
 
-## How to use Node-RED
+## Node-REDの使い方
 
-1. the same way as Node-RED usage
-1. If you are a newbee, see [Node-RED document](https://nodered.org/docs/).
+1. 普通のNode-RED の使い方と同じです
+1. 初心者の方は、[Node-RED document](https://nodered.org/docs/)　を参照してください
 
-## How to publish the HTTP endpoint
+## HTTPエンドポイントの公開方法
 
-1. create a flow using **"http in"** and **"http response"** nodes and deploy it.
-1. click **[Endpoint]-[Connect ngrok]**
-1. you will get the domain such as https://1234xxxx.ngrok.com.
-1. access to the above public url.
-- **CAVEAT** Anyone can access to this endpoint, if you don't configure httpNodeAuth in **[File|Applicetion]-[Settings...]**
+1. **"http in"** と **"http response"** ノードを使ったフローを作成してデプロイします。
+1. **[エンドポイント]-[ngrokに接続]**をクリックします
+1. https://1234xxxx.ngrok.com　のようなURLが発行されます
+1. このURLにアクセスします
+- **注意事項** **[File|Applicetion]-[Settings...]**でHTTPアクセス認証設定をしないと、誰でもこのURLにアクセスできます。
 
-## How to enable Node-RED projects feature
+## Node-RED プロジェクト機能を使う
 
-- Requirement:
-  - you can use git command on the shell (win:Command Prompt or mac:bash)
+- 前提条件:
+  - gitコマンドがインストール済みで使える状態であること (win:Command Prompt or mac:bash)
   - refs: [git](https://git-scm.com/downloads)
 
 1. go **[File]-[Settings...]**
 1. checked **[Projects enabled]**
 1. click **[Restart to apply]**
 
-## How to install additional nodes
+## 追加ノードをインストールする
 
-### from Public library
 1. click **[Manage pallete]-[install]**
-
-### from Unofficial site
-1. click **[Tools]-[Add a remote node]**
-1. input URL. (example: https://github.com/sakazuki/node-red-contrib-lambda-io.git)
-
-- info: This menu executes
-
-    ```
-    npm install [url]
-    ```
-
-### from local disk
-1. click **[Tools]-[Add a local node]**
-1. select a node directory that includes package.json
-
-- info: This menu executes
-
-    ```
-    npm link [dir]
-    ```
-
-## If additional nodes does not work....
-
 
 - This function uses Node-RED Destktop builtin npm.  
 Some npm modules need to be compiled from node binary or C/C++ when installing.  
