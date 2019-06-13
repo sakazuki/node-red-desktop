@@ -167,8 +167,9 @@ export class AppMenu {
         },
         { type: "separator"},
         {
+          id: "tools.nodegen",
           label: i18n.__("menu.nodegen"),
-          enabled: this.enabled,
+          enabled: false,
           click() { ipcMain.emit("node:nodegen"); }
         }
       ]
@@ -373,5 +374,10 @@ export class AppMenu {
         )
       )
     }
+  }
+
+  public setMenuItemEnabled(id: string, enabled: boolean){
+    const menu = Menu.getApplicationMenu()!.getMenuItemById(id);
+    if (menu) menu.enabled = enabled;
   }
 }

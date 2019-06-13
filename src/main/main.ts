@@ -445,6 +445,12 @@ class BaseApplication {
 
   private onSelectionChanged(event: Electron.Event, selection: {nodes: any[]}){
     this.status.selection = selection;
+    this.appMenu!.setMenuItemEnabled("tools.nodegen",
+      selection && 
+      selection.nodes && 
+      selection.nodes[0] &&
+      selection.nodes[0].type === "function" &&
+      !!this.red.getNode(selection.nodes[0].id))
   }
 
   private updateMenu() {
@@ -736,21 +742,6 @@ class BaseApplication {
   // }
 
   private async onNodeGenerator() {
-    if (
-      !(this.status.selection && 
-      this.status.selection.nodes && 
-      this.status.selection.nodes[0] &&
-      this.status.selection.nodes[0].type === "function")) {
-      dialog.showMessageBox(this.getBrowserWindow(), {
-        title: i18n.__("dialog.nodegen"),
-        type: "info",
-        message: app.getName(),
-        detail: i18n.__("dialog.noselected"),
-        buttons: [i18n.__("dialog.ok")],
-        noLink: true
-      });
-      return;
-    }
     const node = this.red.getNode(this.status.selection.nodes[0].id);
     if (!node){
       dialog.showMessageBox(this.getBrowserWindow(), {
