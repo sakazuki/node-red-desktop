@@ -1,6 +1,7 @@
 ## v0.9.0
 - add: menu to install a local node (Npm link)
 - add: menu to install a remote node (Npm install)
+- add: menu to run [Node generator](https://github.com/node-red/node-red-nodegen)
 - add: menu to relaunch #7
 - add: auto rebuild when the error "was compiled against a different Node.js version using" is found.
 - add: env **NRD_AUTO_REBUILD=false** to disable auto rebuilding.

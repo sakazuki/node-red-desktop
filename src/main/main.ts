@@ -29,6 +29,7 @@ import fileUrl from "file-url";
 import prompt from "electron-prompt";
 import semver from "semver";
 // import rebuild from "@node-red-desktop/electron-rebuild";
+import nodegen from "node-red-nodegen";
 
 const macOS = process.platform === "darwin";
 
@@ -57,7 +58,8 @@ export interface AppStatus {
   openLastFile: boolean;
   nodeCommandEnabled: boolean;
   npmCommandEnabled: boolean;
-  httpNodeAuth: {user: string, pass: string}
+  httpNodeAuth: {user: string, pass: string};
+  selection: {nodes: any[]};
 }
 
 type UserSettings = {
@@ -118,7 +120,8 @@ class BaseApplication {
       openLastFile: this.config.data.openLastFile,
       nodeCommandEnabled: false,
       npmCommandEnabled: false,
-      httpNodeAuth: this.config.data.httpNodeAuth
+      httpNodeAuth: this.config.data.httpNodeAuth,
+      selection: {nodes: []}
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
     this.red = new NodeREDApp(this.status);
@@ -153,6 +156,9 @@ class BaseApplication {
     ipcMain.on("nodes:change", (event: Electron.Event, args: {dirty: boolean}) =>
       this.onNodesChange(event, args)
     );
+    ipcMain.on("view:selection-changed",(event: Electron.Event, selection: {nodes: any[]}) =>
+      this.onSelectionChanged(event, selection)
+    )
     ipcMain.on("file:new", this.onFileNew.bind(this));
     ipcMain.on("file:open", this.onFileOpen.bind(this));
     ipcMain.on("file:clear-recent", this.onFileClearHistory.bind(this));
@@ -197,6 +203,7 @@ class BaseApplication {
     ipcMain.on("node:addLocal", this.onNodeAddLocal.bind(this));
     ipcMain.on("node:addRemote", this.onNodeAddRemote.bind(this));
     // ipcMain.on("node:rebuild", this.onNodeRebuild.bind(this));
+    ipcMain.on("node:nodegen", this.onNodeGenerator.bind(this));
     ipcMain.on("dialog:show", (type: "success" | "error" | "info", message: string, timeout?: number) =>
       this.showRedNotify(type, message, timeout)
     );
@@ -434,6 +441,10 @@ class BaseApplication {
   private onNodesChange(event: Electron.Event, args: {dirty: boolean}) {
     this.status.modified = args.dirty;
     if (args.dirty) this.status.newfileChanged = true;
+  }
+
+  private onSelectionChanged(event: Electron.Event, selection: {nodes: any[]}){
+    this.status.selection = selection;
   }
 
   private updateMenu() {
@@ -723,6 +734,45 @@ class BaseApplication {
   //   }
   //   this.hideShade();
   // }
+
+  private async onNodeGenerator() {
+    const selected = this.status.selection.nodes[0];
+    if (selected && selected.type !== "function") {
+      dialog.showMessageBox(this.getBrowserWindow(), {
+        title: i18n.__("dialog.nodegen"),
+        type: "info",
+        message: app.getName(),
+        detail: i18n.__("dialog.noselected"),
+        buttons: [i18n.__("dialog.ok")],
+        noLink: true
+      });
+      return;
+    }
+    const node = this.red.getNode(selected.id);
+    const data = {
+      dst: this.status.userDir,
+      src: [
+        `// name: ${node.name || "no name"}`,
+        `// outputs: ${node.wires.length}`,
+        node.func, ""
+      ].join("\n")
+    };
+    const options = {};
+
+    log.info(">>> nodegen Start", data)
+    this.showShade();
+    try {
+      this.loadingShade();
+      const result = await nodegen.function2node(data, options)
+      log.info(">>> nodegen success", result);
+      this.openAny(fileUrl(result));
+      // await this.red.execNpmLink(result);
+    } catch(err) {
+      log.error(">>> nodegen failed", err);
+      this.showRedNotify("error", JSON.stringify(err));
+    }
+    this.hideShade();
+  }
 }
 
 const main: BaseApplication = new BaseApplication(app);

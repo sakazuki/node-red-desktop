@@ -312,8 +312,12 @@ export class NodeREDApp {
     try {
       const pkginfo = this.loadPackageInfo(path.join(dir, "package.json"));
       if (!pkginfo.hasOwnProperty("node-red")) throw new Error("This module does not have a node-red property");
-      const res = await this.exec.run(NPM_COMMAND, ["link", dir], {cwd: this.status.userDir}, true);
-      if (res.code !== 0) throw res;
+      // const res = await this.exec.run(NPM_COMMAND, ["link", dir], {cwd: this.status.userDir}, true);
+      // if (res.code !== 0) throw res;
+      const regist = await this.exec.run(NPM_COMMAND, ["link"], {cwd: dir}, true);
+      if (regist.code !== 0) throw regist;
+      const install = await this.exec.run(NPM_COMMAND, ["link", pkginfo.name], {cwd: this.status.userDir}, true);
+      if (install.code !== 0) throw install;
       this.addModule(pkginfo.name);
     } catch(err) {
       this.error(err, "fail to add a node. check detail in log.");
@@ -336,6 +340,10 @@ export class NodeREDApp {
     } catch(err) {
       this.error(err, "fail to npm install. check detail in log.");
     };
+  }
+
+  public getNode(id: string) {
+    return RED.nodes.getNode(id);
   }
 
   public info() {

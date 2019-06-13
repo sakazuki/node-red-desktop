@@ -165,12 +165,12 @@ export class AppMenu {
           enabled: this.enabled,
           click() { ipcMain.emit("node:addRemote"); }
         },
-        // { type: "separator"},
-        // {
-        //   label: i18n.__("menu.rebuild") + "...",
-        //   enabled: this.enabled && this.status.nodeCommandEnabled,
-        //   click() { ipcMain.emit("node:rebuild"); }
-        // }
+        { type: "separator"},
+        {
+          label: i18n.__("menu.nodegen"),
+          enabled: this.enabled,
+          click() { ipcMain.emit("node:nodegen"); }
+        }
       ]
     };
   

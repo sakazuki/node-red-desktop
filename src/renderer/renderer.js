@@ -9,6 +9,10 @@ RED.events.on("nodes:change",function(state) {
   ipc.send("nodes:change", state);
 });
 
+RED.events.on("view:selection-changed", function(selection) {
+  ipc.send("view:selection-changed", selection);
+})
+
 ipc.on("force:reload", function() {
   window.onbeforeunload = null;
   $("#btn-deploy").addClass("disabled");
