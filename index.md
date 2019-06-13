@@ -1,5 +1,7 @@
 # Node-RED Desktop
 
+[Japanese](ja/)
+
 This is a desktop applicaiton of Node-RED
 
 ![screen](https://raw.githubusercontent.com/sakazuki/node-red-desktop/doc/screenshot.png)
@@ -11,7 +13,7 @@ Download the binary file from [download page](https://github.com/sakazuki/node-r
 - Windows: [**Node-RED-Desktop_Setup_X.X.X.exe**](https://github.com/sakazuki/node-red-desktop/releases)
 - Mac: [**Node-RED-Desktop-X.X.X.dmg**](https://github.com/sakazuki/node-red-desktop/releases)
 
-## Your benefits
+## Benefits
 
 You can 
 - easily setup Node-RED on your desktop.

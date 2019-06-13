@@ -1,6 +1,8 @@
-# Node-RED Desktop
+# Node-RED デスクトップ
 
-Node-REDのデスクトップ版です
+[English](../)
+
+Node-REDのデスクトップ版です。
 
 ![screen](https://raw.githubusercontent.com/sakazuki/node-red-desktop/doc/screenshot.png)
 
@@ -13,14 +15,15 @@ Node-REDのデスクトップ版です
 - Mac: [**Node-RED-Desktop-X.X.X.dmg**](https://github.com/sakazuki/node-red-desktop/releases)
 
 ## メリット
-- Node-REDを簡単に使い始めることができます
-- フロー作成の試行錯誤がすばやくできます
+
+- バイナリファイル１つでNode-REDを簡単に使い始めることができます
+- フロー作成のトライ＆エラーがすばやくできます
 - クラウドサービスとのAPI連携が簡単にできます
   - Twilio, Alexa, Google home など
-- プライベートノードの追加が簡単にできます
+- 公式ライブラリ以外からのノード追加が簡単にできます
 
-これらに加えて、
-Node-REDの便利な機能の殆どを使うことができます。
+加えて、
+Node-REDの便利な機能のほとんどを使うことができます。
 
   - [公式ライブラリ](https://flows.nodered.org/) からのノート追加
   - [プロジェクト機能](https://nodered.org/docs/user-guide/projects/)
@@ -33,8 +36,8 @@ Node-REDの便利な機能の殆どを使うことができます。
 - [Node generator](https://www.npmjs.com/package/node-red-nodegen)  組み込み済み
 - npm 組み込み済み
 - 多言語UI
-  - english
-  - japanese
+  - 英語
+  - 日本語
 - 自動更新
 
 ## Node-RED-Desktopのインストール方法
@@ -61,26 +64,60 @@ Node-REDの便利な機能の殆どを使うことができます。
   - gitコマンドがインストール済みで使える状態であること (win:Command Prompt or mac:bash)
   - refs: [git](https://git-scm.com/downloads)
 
-1. go **[File]-[Settings...]**
-1. checked **[Projects enabled]**
-1. click **[Restart to apply]**
+1. **[ファイル]-[設定...]** 
+1. **[プロジェクトを使う]** をチェック
+1. **[アプリを再起動して適用する]** をクリック
 
-## 追加ノードをインストールする
+- Node-REDのファイル管理との競合を避けるため、ファイルメニューのいくつかが無効になります。
 
-1. click **[Manage pallete]-[install]**
+## ノードを追加インストールする
 
-- This function uses Node-RED Destktop builtin npm.  
-Some npm modules need to be compiled from node binary or C/C++ when installing.  
-In such cases, you need to install node.js before.  
-If so, please install node v12.x.x from [Node.js official site](https://nodejs.org/) and retry to install them.
-  
-  You can test to use `node` command with this flow.
+### 公式ライブラリから
+1. Node-REDメニューの **[パレットの管理]-[ノードを追加]** から追加します
+
+### 公式ライブラリ以外から
+1. **[ツール]-[リモートのノードを追加]** をクリック
+1. URLを入力します (example: https://github.com/sakazuki/node-red-contrib-lambda-io.git)
+
+- 情報: Node-RED-Desktop内部で以下のコマンドが実行されます
+
+    ```
+    npm install [url]
+    ```
+
+### ローカルディスクから
+1. **[ツール]-[ローカルのノードを追加]** をクリック
+1. package.json ファイルがあるディレクトリを選択します
+
+- 情報: Node-RED-Desktop内部で以下のコマンドが実行されます
+
+    ```
+    npm link [dir]
+    ```
+
+## ノードの追加に失敗するときは・・・
+
+- Node-RED Desktopは、`node`や`npm`コマンドが実行できない時は  
+  ビルトインされた`npm`を使います。 
+  しかし、いくつかの NPMモジュールはインストール時に  
+  `node`コマンドやC/C++を使ったコンパイルを必要とします。
+
+- このような場合、事前に `node`や必要なコマンドをインストールする必要があります。  
+  [Node.js official site](https://nodejs.org/) から  
+  `node v12.x.x` をインストールしてからリトライしてみてください。
+
+- Node-RED-Desktopから `node` コマンドが実行できるかどうかは  
+  以下のフローでも確認できます。
 
   ```
   [{"id":"7a4efcce.89b8c4","type":"inject","z":"c37c6de7.10798","name":"","topic":"","payload":"","payloadType":"date","repeat":"","crontab":"","once":false,"onceDelay":0.1,"x":140,"y":60,"wires":[["d1acddb8.e8361"]]},{"id":"d1acddb8.e8361","type":"exec","z":"c37c6de7.10798","command":"node -v","addpay":false,"append":"","useSpawn":"false","timer":"","oldrc":false,"name":"","x":320,"y":60,"wires":[["9483c8bb.2c7d58"],["9483c8bb.2c7d58"],["9483c8bb.2c7d58"]]},{"id":"9483c8bb.2c7d58","type":"debug","z":"c37c6de7.10798","name":"","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","x":490,"y":60,"wires":[]}]
   ```
 
-- In some cases, the error like **NODE_MODULE_VERSION** mismatch occures.
+## **NODE_MODULE_VERSION** 不整合エラー
+
+- 以下のエラーがでる場合があります。  
+  これは、追加したノードに含まれるバイナリファイルと、  
+  Node-RED-Desktopに同梱されているNodeバージョンが一致していない場合に発生します。
 
   ```
   [2019-05-24 19:38:00.395] [warn] [node-red-node-serialport/serialport] Error: The module '\\?\C:\Users\abc\.Node-RED-Desktop\node_modules\@serialport\bindings\build\Release\bindings.node'
@@ -89,7 +126,10 @@ If so, please install node v12.x.x from [Node.js official site](https://nodejs.o
   NODE_MODULE_VERSION 70. Please try re-compiling or re-installing
   ```
   
-  Then you need some step.
+- [electron-rebuild](https://www.npmjs.com/package/electron-rebuild) コマンドが  
+  Node-RED-Desktopから利用できる場合、Node-RED-Desktopが自動でこのエラー修正します。
+
+- 手動で修正する場合は、以下のコマンドを実行します
 
   ```
   ## Windows
@@ -103,12 +143,12 @@ If so, please install node v12.x.x from [Node.js official site](https://nodejs.o
   $ electron-rebuild --version 5.0.0
   ```
 
-## How to use excluded standard nodes
+## MQTT、TCP、UDPなどの表示されない標準ノードを有効にする方法
 
-- You can activate them at **[Nodes exclude]** form in **[File]-[Settings...]**.  
-When you activate the MQTT node, Delete `10-mqtt.js` from **[Node exclude]**.
+- **[ファイル]-[設定...]** の、**読み込まないノード** を編集します。  
+  MQTTノードを有効にしたい時は、`10-mqtt.js` を削除します。
 
-- Default **[Nodes exclude]** is below
+- デフォルトの **読み込まないノード** は次の通りです
   ```
   10-mqtt.js
   16-range.js
@@ -121,10 +161,11 @@ When you activate the MQTT node, Delete `10-mqtt.js` from **[Node exclude]**.
   node-red-node-rbe
   ```
 
-- I have selected default **[Nodes exclude]** to simple the first look for beginners.  
-There is not technical reason.
+- Node-REDがはじめての方に、見た目がシンプルに映るよう **読み込まないノード** を選択しています。  
+  技術的な理由によるものではありません。
 
 
-## More information
+## 追加情報
 
-- Check also [Wiki page](https://github.com/sakazuki/node-red-desktop/wiki)
+- [Wiki page](https://github.com/sakazuki/node-red-desktop/wiki)　もチェックしてください
+
