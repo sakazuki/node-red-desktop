@@ -452,7 +452,7 @@ class BaseApplication {
   }
 
   private openAny(url: string) {
-    shell.openExternal(url);
+    shell.openExternalSync(url);
   }
 
   private onNewWindow(url: string) {
@@ -736,8 +736,11 @@ class BaseApplication {
   // }
 
   private async onNodeGenerator() {
-    const selected = this.status.selection.nodes[0];
-    if (selected && selected.type !== "function") {
+    if (
+      !(this.status.selection && 
+      this.status.selection.nodes && 
+      this.status.selection.nodes[0] &&
+      this.status.selection.nodes[0].type === "function")) {
       dialog.showMessageBox(this.getBrowserWindow(), {
         title: i18n.__("dialog.nodegen"),
         type: "info",
@@ -748,7 +751,18 @@ class BaseApplication {
       });
       return;
     }
-    const node = this.red.getNode(selected.id);
+    const node = this.red.getNode(this.status.selection.nodes[0].id);
+    if (!node){
+      dialog.showMessageBox(this.getBrowserWindow(), {
+        title: i18n.__("dialog.nodegen"),
+        type: "info",
+        message: app.getName(),
+        detail: i18n.__("dialog.nodenotfound"),
+        buttons: [i18n.__("dialog.ok")],
+        noLink: true
+      });
+      return;
+    }
     const data = {
       dst: this.status.userDir,
       src: [

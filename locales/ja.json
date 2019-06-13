@@ -14,7 +14,7 @@
         "tools": "ツール",
         "addLocalNode": "ローカルのノードを追加",
         "addRemoteNode": "リモートのノードを追加",
-        "nodegen": "ノードジェネレータを実行",
+        "nodegen": "カスタムノードを作成",
         "login": "ログインする",
         "relaunch": "再起動する",
         "quit": "終了",
@@ -85,7 +85,8 @@
         "npmInstall": "リモートのノードを追加します",
         "npmInstallDesc": "モジュール名またはURLを指定してください",
         "nodegen": "ノードジェネレータ",
-        "noselected": "Functionノードを１つ選択している必要があります"
+        "noselected": "Functionノードを１つ選択している必要があります",
+        "nodenotfound": "ノードが見つかりません。デプロイされていない可能性があります。"
     },
     "settings": {
         "userdir": "ユーザディレクトリ",

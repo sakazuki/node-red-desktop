@@ -14,7 +14,7 @@
         "tools": "Tools",
         "addLocalNode": "Add a local node",
         "addRemoteNode": "Add a remote node",
-        "nodegen": "Run Node generator",
+        "nodegen": "Generate a custom node",
         "login": "Login",
         "relaunch": "Relaunch",
         "quit": "Quit",
@@ -85,7 +85,8 @@
         "npmInstall": "Add a node from remote",
         "npmInstallDesc": "Input module name or URL",
         "nodegen": "Node generator",
-        "noselected": "You need to select one function node."
+        "noselected": "You need to select one function node.",
+        "nodenotfound": "Node not found. Maybe not deploied."
     },
     "settings": {
         "userdir": "User directory",
