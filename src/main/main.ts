@@ -31,6 +31,7 @@ import semver from "semver";
 // import rebuild from "@node-red-desktop/electron-rebuild";
 import nodegen from "node-red-nodegen";
 
+process.env.NODE_ENV = "production";
 const macOS = process.platform === "darwin";
 
 const FILE_HISTORY_SIZE = 10;

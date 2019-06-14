@@ -1,3 +1,6 @@
+## v0.9.1
+- improve: speed up npm or external command by NODE_ENV=production
+
 ## v0.9.0
 - add: menu to install a local node (Npm link)
 - add: menu to install a remote node (Npm install)
