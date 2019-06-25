@@ -1,3 +1,7 @@
+## v0.9.2
+- update: Node-RED 0.20.5 -> 0.20.6
+- update: electron 5.0.2 -> 5.0.5
+
 ## v0.9.1
 - improve: speed up npm or external command by NODE_ENV=production
 
