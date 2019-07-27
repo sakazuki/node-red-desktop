@@ -36,7 +36,6 @@ portable:
   artifactName: "${productName}_${version}_portable.${ext}"
 mac:
   category: "public.app-category.developer-tools"
-  identity: null
   target:
   - zip
   - dmg
