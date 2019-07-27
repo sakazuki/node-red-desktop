@@ -53,7 +53,7 @@ export class NodeREDApp {
     this.uiPath = "/";
     this.settings = this.setupSettings();
     this.server = this.setupServer();
-    this.listenIp = process.env.LISTEN_IP || "127.0.0.1";
+    this.listenIp = process.env.NRD_LISTEN_IP || process.env.LISTEN_IP || "127.0.0.1";
     this.listenPort = this.defineListenPort();
     this.patchInstaller();
     this.patchRuntimeExec();
@@ -61,7 +61,7 @@ export class NodeREDApp {
   }
 
   private defineListenPort(): number {
-    return parseInt(process.env.LISTEN_PORT || String(Math.random() * 16383 + 49152))
+    return parseInt(process.env.NRD_LISTEN_PORT || process.env.LISTEN_PORT || String(Math.random() * 16383 + 49152))
   }
 
   public windowTitle() {
