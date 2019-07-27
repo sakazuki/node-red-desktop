@@ -33,7 +33,7 @@ export class CustomAutoUpdater {
   }
 
   private onCheckingForUpdate() {
-    this.sendStatusToWindow("Checking for update...");
+    // this.sendStatusToWindow("Checking for update...");
   }
 
   private onUpdateAvailable(info: UpdateCheckResult) {

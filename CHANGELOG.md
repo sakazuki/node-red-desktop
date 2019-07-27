@@ -1,3 +1,8 @@
+## v0.9.3
+- update: Node-RED 0.20.6 -> 0.20.7
+- update: electron 5.0.5 -> 5.0.8
+- change: hide the message of check update #9
+
 ## v0.9.2
 - update: Node-RED 0.20.5 -> 0.20.6
 - update: electron 5.0.2 -> 5.0.5
