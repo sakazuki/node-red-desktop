@@ -1,3 +1,6 @@
+## v0.9.4
+- add: first load ${userDir}/settings.js, and override it with NRD settings #11
+
 ## v0.9.3
 - update: Node-RED 0.20.6 -> 0.20.7
 - update: electron 5.0.5 -> 5.0.8
