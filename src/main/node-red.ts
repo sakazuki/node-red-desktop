@@ -69,8 +69,21 @@ export class NodeREDApp {
     return `${filePath.base} - ${app.getName()}`;
   }
 
+  private loadUserSettings(){
+    const SETTINGS_FILE = "settings.js"
+    if (!this.status.userDir) return {}
+    if (!fs.existsSync(path.join(this.status.userDir, SETTINGS_FILE))) return {}
+    try {
+      return require(path.join(this.status.userDir, SETTINGS_FILE))
+    } catch(err) {
+      log.error(err)
+      return {}  
+    }
+  }
+
   private setupSettings() {
     const _this = this;
+    const userSettings = this.loadUserSettings();
     const config = {
       verbose: true,
       httpAdminRoot: this.adminPath,
@@ -148,7 +161,7 @@ export class NodeREDApp {
         pass: bcryptjs.hashSync(this.status.httpNodeAuth.pass, 8)
       }
     }
-    return config;
+    return Object.assign({}, userSettings, config);
   }
 
   private setupServer() {
