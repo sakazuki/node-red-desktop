@@ -1,3 +1,6 @@
+## v0.9.5
+- update: electron 5.0.8 -> 6.0.0
+
 ## v0.9.4
 - add: first load ${userDir}/settings.js, and override it with NRD settings #11
 

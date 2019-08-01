@@ -1,7 +1,7 @@
 {
   "name": "node-red-desktop",
   "productName": "Node-RED-Desktop",
-  "version": "0.9.4",
+  "version": "0.9.5-beta",
   "description": "Node-RED Desktop",
   "main": "main/main.js",
   "scripts": {
@@ -32,7 +32,7 @@
     "bulma": "^0.7.5",
     "bulma-switch": "^2.0.0",
     "commander": "^2.20.0",
-    "electron": "^5.0.8",
+    "electron": "^6.0.0",
     "eslint": "^6.1.0",
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-prettier": "^3.1.0",
@@ -45,7 +45,7 @@
     "basic-auth": "^2.0.1",
     "bcryptjs": "^2.4.3",
     "electron-json-storage-sync": "^1.1.1",
-    "electron-log": "^3.0.6",
+    "electron-log": "^3.0.7",
     "electron-prompt": "git+https://github.com/sakazuki/electron-prompt.git#pass_options",
     "electron-updater": "^4.1.2",
     "express": "^4.17.1",

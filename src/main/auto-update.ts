@@ -57,9 +57,9 @@ export class CustomAutoUpdater {
     ipcMain.emit("browser:progress", progressObj.percent / 100);
   }
 
-  private onUpdateDownloaded(info: UpdateCheckResult) {
+  private async onUpdateDownloaded(info: UpdateCheckResult) {
     this.sendStatusToWindow("Update downloaded", true);
-    this.installUpdate(info);
+    await this.installUpdate(info);
   }
 
   private sendStatusToWindow(text: string, silent: boolean = false) {
@@ -67,14 +67,14 @@ export class CustomAutoUpdater {
     if (!silent) ipcMain.emit("browser:message", text);
   }
 
-  private installUpdate(info: any) {
-    const res = dialog.showMessageBox(this.window, {
+  private async installUpdate(info: any) {
+    const res = await dialog.showMessageBox(this.window, {
       type: "info",
       title: `${app.getName()} v${info.version} ${i18n.__("update.downloaded")}`,
       message: i18n.__("update.message"),
       buttons: [i18n.__("update.restart"), i18n.__("update.later")]
     });
-    if (res === 0) {
+    if (res.response === 0) {
       ipcMain.emit("browser:restart");
     }
   }
@@ -84,14 +84,14 @@ export class CustomAutoUpdater {
   }
 
   private async onUpdateFound(result: UpdateCheckResult) {
-    const res = dialog.showMessageBox(this.window, {
+    const res = await dialog.showMessageBox(this.window, {
       title: app.getName() + " " + i18n.__("menu.checkversion"),
       type: "info",
       message:
         `v${result.updateInfo.version}(${result.updateInfo.releaseDate}) ${i18n.__("update.available")}`,
       buttons: [i18n.__("update.download"), i18n.__("update.donothing")]
     });
-    if (res === 0) {
+    if (res.response === 0) {
       await autoUpdater.checkForUpdates();
       await autoUpdater.downloadUpdate();
     }

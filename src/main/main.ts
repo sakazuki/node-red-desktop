@@ -131,19 +131,23 @@ class BaseApplication {
     ipcMain.on("browser:minimize", (event: Electron.Event) =>
       this.onMinimize(event)
     );
-    ipcMain.on("browser:before-close", (event: Electron.Event) =>
-      this.onBeforeClose(event)
+    ipcMain.on("browser:before-close", async (event: Electron.Event) =>
+      await this.onBeforeClose(event)
     );
     ipcMain.on("browser:closed", this.onClosed.bind(this));
     ipcMain.on("browser:restart", this.onRestart.bind(this));
     ipcMain.on("browser:relaunch", this.onRelaunch.bind(this));
+    // @ts-ignore
     ipcMain.on("browser:message", (text: string) => this.onMessage(text));
     ipcMain.on("browser:loading", this.onLoading.bind(this));
+    // @ts-ignore
     ipcMain.on("browser:go", (url: string) => this.go(url));
     ipcMain.on("browser:update-title", this.setTitle.bind(this));
+    // @ts-ignore
     ipcMain.on("browser:progress", (progress: number) => this.setProgress(progress));
     ipcMain.on("history:update", this.updateMenu.bind(this));
     ipcMain.on("menu:update", this.updateMenu.bind(this));
+    // @ts-ignore
     ipcMain.on("window:new", (url: string) => this.onNewWindow(url));
     ipcMain.on("auth:signin", (event: Electron.Event, args: any) =>
       this.onSignIn(event, args)
@@ -161,6 +165,7 @@ class BaseApplication {
       this.onSelectionChanged(event, selection)
     )
     ipcMain.on("file:new", this.onFileNew.bind(this));
+    // @ts-ignore
     ipcMain.on("file:open", this.onFileOpen.bind(this));
     ipcMain.on("file:clear-recent", this.onFileClearHistory.bind(this));
     ipcMain.on("file:save", this.onFileSave.bind(this));
@@ -174,11 +179,13 @@ class BaseApplication {
     ipcMain.on("ngrok:connect", this.onNgrokConnect.bind(this));
     ipcMain.on("ngrok:disconnect", this.onNgrokDisconnect.bind(this));
     ipcMain.on("ngrok:inspect", this.onNgrokInspect.bind(this));
+    // @ts-ignore
     ipcMain.on("view:reload", (item: MenuItem, focusedWindow: BrowserWindow) =>
       this.onViewReload(item, focusedWindow)
     );
     ipcMain.on(
       "view:set-locale",
+      // @ts-ignore
       (item: MenuItem, focusedWindow: BrowserWindow) =>
         this.onSetLocale(item, focusedWindow)
     );
@@ -193,6 +200,7 @@ class BaseApplication {
     });
     ipcMain.on("help:check-updates", this.onHelpCheckUpdates.bind(this));
     ipcMain.on("help:version", this.onHelpVersion.bind(this));
+    // @ts-ignore
     ipcMain.on("dev:tools", (item: MenuItem, focusedWindow: BrowserWindow) =>
       this.onToggleDevTools(item, focusedWindow)
     );
@@ -205,6 +213,7 @@ class BaseApplication {
     ipcMain.on("node:addRemote", this.onNodeAddRemote.bind(this));
     // ipcMain.on("node:rebuild", this.onNodeRebuild.bind(this));
     ipcMain.on("node:nodegen", this.onNodeGenerator.bind(this));
+    // @ts-ignore
     ipcMain.on("dialog:show", (type: "success" | "error" | "info", message: string, timeout?: number) =>
       this.showRedNotify(type, message, timeout)
     );
@@ -265,10 +274,10 @@ class BaseApplication {
     this.red.startRED();
   }
 
-  private onActivated() {
+  private async onActivated() {
     if (this.mainWindow === null) {
       this.create();
-      this.go(this.red.getAdminUrl());
+      await this.go(this.red.getAdminUrl());
     }
   }
 
@@ -305,9 +314,9 @@ class BaseApplication {
     }
   }
 
-  private leavable(): boolean {
+  private async leavable(): Promise<boolean> {
     if (!this.checkEphemeralFile()) return true;
-    const res = dialog.showMessageBox(this.getBrowserWindow(), {
+    const res = await dialog.showMessageBox(this.getBrowserWindow(), {
       type: "question",
       title: i18n.__("dialog.confirm"),
       message: i18n.__("dialog.closeMsg"),
@@ -317,13 +326,13 @@ class BaseApplication {
         i18n.__("dialog.cancel")
       ]
     });
-    if (res === 0) {
+    if (res.response === 0) {
       if (!this.status.projectsEnabled && this.usingTmpFile()) {
         return this.onFileSaveAs();
       } else {
         return this.onFileSave();
       }
-    } else if (res === 1) {
+    } else if (res.response === 1) {
       return true;
     } else {
       return false;
@@ -336,11 +345,11 @@ class BaseApplication {
     this.getBrowserWindow().hide();
   }
 
-  private onBeforeClose(event?: Electron.Event) {
+  private async onBeforeClose(event?: Electron.Event) {
     const url = path.parse(this.getBrowserWindow().webContents.getURL());
     if (url.base === path.parse(this.settingsURL).base) {
       this.unsetBeforeUnload();
-    } else if (this.leavable()) {
+    } else if (await this.leavable()) {
       this.unsetBeforeUnload();
       this.saveConfig();
     } else {
@@ -357,14 +366,14 @@ class BaseApplication {
     this.mainWindow = null;
   }
 
-  private onRestart() {
-    this.onBeforeClose();
+  private async onRestart() {
+    await this.onBeforeClose();
     this.customAutoUpdater!.quitAndInstall();
     app.quit();
   }
 
-  private onRelaunch() {
-    this.onBeforeClose();
+  private async onRelaunch() {
+    await this.onBeforeClose();
     app.relaunch();
     app.quit();
   }
@@ -388,6 +397,7 @@ class BaseApplication {
   }
 
   private async go(url: string) {
+    if (!url) throw new Error("no url")
     await this.getBrowserWindow().loadURL(this.setLangUrl(url));
     this.setTitle();
   }
@@ -475,14 +485,15 @@ class BaseApplication {
   private getBrowserWindow() {
     if (this.mainWindow === null) {
       this.create();
+      //TODO: await
       this.go(this.red.getAdminUrl());
     }
     return this.mainWindow!.getBrowserWindow()!;
   }
 
-  private onFileOpen(file: string = "") {
+  private async onFileOpen(file: string = "") {
     if (!file) {
-      const files = dialog.showOpenDialog(this.getBrowserWindow(), {
+      const files = await dialog.showOpenDialog(this.getBrowserWindow(), {
         title: i18n.__("dialog.openFlowFile"),
         properties: ["openFile"],
         defaultPath: path.dirname(this.status.currentFile),
@@ -491,7 +502,7 @@ class BaseApplication {
           { name: "ALL", extensions: ["*"] }
         ]
       });
-      if (files) file = files[0];
+      if (files.filePaths) file = files.filePaths[0];
     }
     if (file) {
       this.fileHistory.add(file);
@@ -504,8 +515,8 @@ class BaseApplication {
     return true;
   }
 
-  private onFileSaveAs(): boolean {
-    const savefile = dialog.showSaveDialog(this.getBrowserWindow(), {
+  private async onFileSaveAs(): Promise<boolean> {
+    const savefile = await dialog.showSaveDialog(this.getBrowserWindow(), {
       title: i18n.__("dialog.saveFlowFile"),
       defaultPath: path.dirname(this.status.currentFile),
       filters: [
@@ -513,15 +524,15 @@ class BaseApplication {
         { name: "ALL", extensions: ["*"] }
       ]
     });
-    if (!savefile) return false;
+    if (!savefile.filePath) return false;
     const oldfile = this.status.currentFile;
-    this.red.setFlowFile(savefile);
+    this.red.setFlowFile(savefile.filePath);
     if (this.status.modified) {
       this.onFileSave();
     } else {
-      this.fileManager.saveAs(oldfile, savefile);
+      this.fileManager.saveAs(oldfile, savefile.filePath);
     }
-    this.fileHistory.add(savefile);
+    this.fileHistory.add(savefile.filePath);
     return true;
   }
 
@@ -529,8 +540,8 @@ class BaseApplication {
     this.fileHistory.clear();
   }
 
-  private setFlowFileAndRestart(file: string) {
-    if (!this.leavable()) return;
+  private async setFlowFileAndRestart(file: string) {
+    if (!await this.leavable()) return;
     this.unsetBeforeUnload();
     this.red.setFlowFileAndRestart(file);
   }
@@ -622,7 +633,7 @@ class BaseApplication {
     this.customAutoUpdater!.checkUpdates(true);
   }
 
-  private onHelpVersion() {
+  private async onHelpVersion() {
     const body = `
       Name: ${app.getName()} 
       ${i18n.__("version.version")}: ${app.getVersion()}
@@ -631,7 +642,7 @@ class BaseApplication {
       ${this.fileManager.info()}
     `.replace(/^\s*/gm, "");
 
-    dialog.showMessageBox(this.getBrowserWindow(), {
+    await dialog.showMessageBox(this.getBrowserWindow(), {
       title: i18n.__("menu.version"),
       type: "info",
       message: app.getName(),
@@ -669,8 +680,8 @@ class BaseApplication {
     app.quit();
   }
 
-  private onSettingsCancel() {
-    this.go(this.red.getAdminUrl());
+  private async onSettingsCancel() {
+    await this.go(this.red.getAdminUrl());
   }
 
   private showShade() {
@@ -689,14 +700,14 @@ class BaseApplication {
 
   private async onNodeAddLocal() {
     this.showShade();
-    const dirs = dialog.showOpenDialog(this.getBrowserWindow(), {
+    const dirs = await dialog.showOpenDialog(this.getBrowserWindow(), {
       title: i18n.__("dialog.openNodeDir"),
       properties: ["openDirectory"],
       defaultPath: this.status.userDir
     });
-    if (dirs) {
+    if (dirs.filePaths) {
       this.loadingShade();
-      await this.red.execNpmLink(dirs[0]);
+      await this.red.execNpmLink(dirs.filePaths[0]);
     }
     this.hideShade();
   }
