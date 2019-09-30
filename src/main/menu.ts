@@ -112,7 +112,7 @@ export class AppMenu {
         { label: i18n.__("menu.pasteandmatchstyle"), role: "pasteandmatchstyle" },
         { label: i18n.__("menu.delete"), role: "delete" },
         { label: i18n.__("menu.selectall"), role: "selectall" }
-      ]
+      ] as MenuItemConstructorOptions[]
     };
   
     const endpoint: MenuItemConstructorOptions = {
@@ -304,7 +304,7 @@ export class AppMenu {
         },
         { type: "separator"},
         { label: i18n.__('menu.quit'), role: 'quit' }
-      ]
+      ] as MenuItemConstructorOptions[]
     };
   
     let template: MenuItemConstructorOptions[];
