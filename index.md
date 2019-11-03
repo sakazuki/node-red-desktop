@@ -30,7 +30,7 @@ You can use almost all powerful and useful Node-RED features
 
 ## Node-RED-Desktop features
 
-- [Node-RED](https://nodered.org/) v0.20.5
+- [Node-RED](https://nodered.org/) v1.0.2
 - [ngrok](https://ngrok.com/) integrated
 - [Node generator](https://www.npmjs.com/package/node-red-nodegen) integrated
 - npm integrated
@@ -140,9 +140,7 @@ When you activate the MQTT node, Delete `10-mqtt.js` from **[Node exclude]**.
   16-range.js
   31-tcpin.js
   32-udp.js
-  36-rpi-gpio.js
   89-trigger.js
-  node-red-node-tail
   node-red-node-sentiment
   node-red-node-rbe
   ```
