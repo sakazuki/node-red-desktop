@@ -41,7 +41,7 @@ export class CustomTray {
         label: i18n.__("menu.quit"), role: "quit"
       }
     ])
-    this.tray.setToolTip(`${app.getName()}(port:${this.red.listenPort})`);
+    this.tray.setToolTip(`${app.name}(port:${this.red.listenPort})`);
     this.tray.setContextMenu(contextMenu);
     this.tray.on("double-click", this.onShow.bind(this));
   }

@@ -277,7 +277,7 @@ export class AppMenu {
     }
   
     const darwin: MenuItemConstructorOptions = {
-      label: app.getName(),
+      label: app.name,
       submenu: [
         {
           label: i18n.__('menu.about'),
@@ -317,7 +317,7 @@ export class AppMenu {
       template = [file, endpoint, tools, view, help];
     }
   
-    if (new RegExp(`${app.getName()}-debug`).exec(process.env.NODE_DEBUG!)) {
+    if (new RegExp(`${app.name}-debug`).exec(process.env.NODE_DEBUG!)) {
       template.push(dev);
     };
   

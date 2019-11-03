@@ -4,7 +4,7 @@ import { AppStatus } from "./main";
 // based on @node-red/runtime/lib/exec.js
 
 const child_process = require('child_process');
-const { util } = require('@node-red/util');
+const { util } = require('node-red/packages/node_modules/@node-red/util');
 const path = require('path');
 
 type RuntimeExec = {

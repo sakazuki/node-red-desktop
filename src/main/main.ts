@@ -99,7 +99,7 @@ class BaseApplication {
     this.app.on("ready", this.onReady.bind(this));
     this.app.on("activate", this.onActivated.bind(this));
     this.app.on("window-all-closed", this.onWindowAllClosed.bind(this));
-    this.config = new ConfigManager(app.getName());
+    this.config = new ConfigManager(app.name);
     this.fileManager = new FileManager(this.config);
     this.fileHistory = new FileHistory(FILE_HISTORY_SIZE, ipcMain);
     this.status = {
@@ -231,7 +231,7 @@ class BaseApplication {
           monospace: "MS Gothic"
         }
       },
-      title: app.getName(),
+      title: app.name,
       fullscreenable: true,
       width: 1280,
       height: 960,
@@ -405,7 +405,7 @@ class BaseApplication {
   private onMessage(text: string) {
     // this.getBrowserWindow().webContents.send("message", text);
     const msg: Electron.NotificationConstructorOptions = {
-      title: app.getName(),
+      title: app.name,
       body: text,
       closeButtonText: i18n.__("dialog.ok")
     };
@@ -468,8 +468,8 @@ class BaseApplication {
     this.appMenu!.setup();
   }
 
-  private openAny(url: string) {
-    shell.openExternalSync(url);
+  private async openAny(url: string) {
+    await shell.openExternal(url);
   }
 
   private onNewWindow(url: string) {
@@ -502,7 +502,7 @@ class BaseApplication {
           { name: "ALL", extensions: ["*"] }
         ]
       });
-      if (files.filePaths) file = files.filePaths[0];
+      if (!files.canceled) file = files.filePaths[0];
     }
     if (file) {
       this.fileHistory.add(file);
@@ -524,7 +524,7 @@ class BaseApplication {
         { name: "ALL", extensions: ["*"] }
       ]
     });
-    if (!savefile.filePath) return false;
+    if (savefile.canceled || !savefile.filePath) return false;
     const oldfile = this.status.currentFile;
     this.red.setFlowFile(savefile.filePath);
     if (this.status.modified) {
@@ -635,7 +635,7 @@ class BaseApplication {
 
   private async onHelpVersion() {
     const body = `
-      Name: ${app.getName()} 
+      Name: ${app.name} 
       ${i18n.__("version.version")}: ${app.getVersion()}
       ${this.customAutoUpdater!.info()}
       ${this.red.info()}
@@ -645,7 +645,7 @@ class BaseApplication {
     await dialog.showMessageBox(this.getBrowserWindow(), {
       title: i18n.__("menu.version"),
       type: "info",
-      message: app.getName(),
+      message: app.name,
       detail: body,
       buttons: [i18n.__("dialog.ok")],
       noLink: true
@@ -705,7 +705,7 @@ class BaseApplication {
       properties: ["openDirectory"],
       defaultPath: this.status.userDir
     });
-    if (dirs.filePaths) {
+    if (!dirs.canceled) {
       this.loadingShade();
       await this.red.execNpmLink(dirs.filePaths[0]);
     }
@@ -759,7 +759,7 @@ class BaseApplication {
       dialog.showMessageBox(this.getBrowserWindow(), {
         title: i18n.__("dialog.nodegen"),
         type: "info",
-        message: app.getName(),
+        message: app.name,
         detail: i18n.__("dialog.nodenotfound"),
         buttons: [i18n.__("dialog.ok")],
         noLink: true

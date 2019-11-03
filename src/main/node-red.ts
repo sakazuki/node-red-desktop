@@ -1,8 +1,8 @@
 import express from "express";
 import {IpFilter, IpDeniedError} from "express-ipfilter";
 // must load before node-red
-const runtime = require("@node-red/runtime");
-const installer = require("@node-red/registry/lib/installer");
+const runtime = require("node-red/packages/node_modules/@node-red/runtime");
+const installer = require("node-red/packages/node_modules/@node-red/registry/lib/installer");
 import newExec from "./node-red-runtime-exec";
 import RED from "node-red";
 import http from "http";
@@ -66,7 +66,7 @@ export class NodeREDApp {
 
   public windowTitle() {
     const filePath = path.parse(this.status.currentFile);
-    return `${filePath.base} - ${app.getName()}`;
+    return `${filePath.base} - ${app.name}`;
   }
 
   private loadUserSettings(){
@@ -102,20 +102,20 @@ export class NodeREDApp {
       },
       editorTheme: {
         page: {
-          title: app.getName(),
+          title: app.name,
           favicon: path.join(__dirname, "..", "images", "favicon.ico"),
           scripts: path.join(__dirname, "..", "renderer/renderer.js"),
           css: path.join(__dirname, "..", "renderer/desktop.css")
         },
         header: {
-          title: app.getName()
+          title: app.name
         },
         palette: {
           editable: true
         },
         menu: { 
           "menu-item-help": {
-            label: app.getName(),
+            label: app.name,
             url: HELP_WEB_URL
           }
         },

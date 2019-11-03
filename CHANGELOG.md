@@ -1,5 +1,11 @@
+## v1.0.0
+- new: vertical view option
+- update: Node-RED 1.0.0 -> 1.0.2
+- update: electron 6.0.10 -> 7.0.1
+
 ## v0.9.5
-- update: electron 5.0.8 -> 6.0.0
+- update: electron 5.0.8 -> 6.0.10
+- update: Node-RED 0.20.7 -> 1.0.0
 
 ## v0.9.4
 - add: first load ${userDir}/settings.js, and override it with NRD settings #11
