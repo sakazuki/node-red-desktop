@@ -1,8 +1,8 @@
 import express from "express";
 import {IpFilter, IpDeniedError} from "express-ipfilter";
 // must load before node-red
-const runtime = require("node-red/packages/node_modules/@node-red/runtime");
-const installer = require("node-red/packages/node_modules/@node-red/registry/lib/installer");
+const runtime = require("@node-red/runtime");
+const installer = require("@node-red/registry/lib/installer");
 import newExec from "./node-red-runtime-exec";
 import RED from "node-red";
 import http from "http";
