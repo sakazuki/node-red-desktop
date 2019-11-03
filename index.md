@@ -6,6 +6,10 @@ This is a desktop applicaiton of Node-RED
 
 ![screen](https://raw.githubusercontent.com/sakazuki/node-red-desktop/doc/screenshot.png)
 
+## Announce
+
+- 2019-11-03  **1.0.0-beta.2** release (Node-RED v1.0.2 with [vertical view](https://discourse.nodered.org/t/vertical-flow-view/5487))
+
 ## Download
 
 Download the binary file from [download page](https://github.com/sakazuki/node-red-desktop/releases)
