@@ -16,9 +16,9 @@ Node-REDのデスクトップ版です。
 
 ## メリット
 
-- バイナリファイル１つでNode-REDを簡単に使い始めることができます
+- バイナリファイル１つでNode-REDを使い始めることができます
 - フロー作成のトライ＆エラーがすばやくできます
-- クラウドサービスとのAPI連携が簡単にできます
+- 追加アプリ無しでクラウドサービスとのAPI連携ができます
   - Twilio, Alexa, Google home など
 - 公式ライブラリ以外からのノード追加が簡単にできます
 
@@ -31,7 +31,7 @@ Node-REDの便利な機能のほとんどを使うことができます。
 
 ## 特徴
 
-- [Node-RED](https://nodered.org/) v0.20.5
+- [Node-RED](https://nodered.org/) v1.0.2
 - [ngrok](https://ngrok.com/) 組み込み済み
 - [Node generator](https://www.npmjs.com/package/node-red-nodegen)  組み込み済み
 - npm 組み込み済み
@@ -155,9 +155,7 @@ Node-REDの便利な機能のほとんどを使うことができます。
   16-range.js
   31-tcpin.js
   32-udp.js
-  36-rpi-gpio.js
   89-trigger.js
-  node-red-node-tail
   node-red-node-sentiment
   node-red-node-rbe
   ```
