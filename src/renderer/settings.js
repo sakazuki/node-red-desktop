@@ -29,6 +29,8 @@ function initLang() {
   $("#label-httpnodeauth").text(_i18n.__("settings.httpnodeauth"));
   $("#label-httpnodeauthuser").text(_i18n.__("settings.httpnodeauthuser"));
   $("#label-httpnodeauthpass").text(_i18n.__("settings.httpnodeauthpass"));
+  $("#label-listenport").text(_i18n.__("settings.listenport"));
+  $("#listenport").attr("placeholder", _i18n.__("settings.listenportPlaceholder"));
 }
 
 $(document).on("dragover", event => event.preventDefault());
@@ -52,6 +54,7 @@ ipc.on("settings:set", (event, settings) => {
   $("#autocheckupdate").prop("checked", settings.autoCheckUpdate);
   $("#allowprerelease").prop("checked", settings.allowPrerelease);
   $("#openlastfile").prop("checked", settings.openLastFile);
+  $("#listenport").val(settings.listenPort);
 })
 
 $("#button-submit").on("click", function(event) {
@@ -67,7 +70,8 @@ $("#button-submit").on("click", function(event) {
     httpNodeAuth: {
       user: $("#httpnodeauthuser").val(),
       pass: $("#httpnodeauthpass").val()
-    }
+    },
+    listenPort: $("#listenport").val()
   }
   ipc.send("settings:update", data);
 });

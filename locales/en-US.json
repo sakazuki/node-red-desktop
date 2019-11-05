@@ -101,6 +101,8 @@
         "openlastfile": "Open a last file on startup",
         "httpnodeauth": "HTTP Node Authentication",
         "httpnodeauthuser": "Username",
-        "httpnodeauthpass": "Password"
+        "httpnodeauthpass": "Password",
+        "listenport": "Listen port",
+        "listenportPlaceholder": "when empty,use random port"
     }
 }

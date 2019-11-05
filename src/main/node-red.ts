@@ -61,7 +61,7 @@ export class NodeREDApp {
   }
 
   private defineListenPort(): number {
-    return parseInt(process.env.NRD_LISTEN_PORT || process.env.LISTEN_PORT || String(Math.random() * 16383 + 49152))
+    return parseInt(process.env.NRD_LISTEN_PORT || process.env.LISTEN_PORT || this.status.listenPort || String(Math.random() * 16383 + 49152))
   }
 
   public windowTitle() {

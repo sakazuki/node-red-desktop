@@ -61,6 +61,7 @@ export interface AppStatus {
   npmCommandEnabled: boolean;
   httpNodeAuth: {user: string, pass: string};
   selection: {nodes: any[]};
+  listenPort: string;
 }
 
 type UserSettings = {
@@ -73,7 +74,8 @@ type UserSettings = {
   autoDownload: boolean;
   hideOnMinimize: boolean;
   openLastFile: boolean;
-  httpNodeAuth: {user: string, pass: string}
+  httpNodeAuth: {user: string, pass: string};
+  listenPort: string;
 }
 
 class BaseApplication {
@@ -122,7 +124,8 @@ class BaseApplication {
       nodeCommandEnabled: false,
       npmCommandEnabled: false,
       httpNodeAuth: this.config.data.httpNodeAuth,
-      selection: {nodes: []}
+      selection: {nodes: []},
+      listenPort: this.config.data.listenPort
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
     this.red = new NodeREDApp(this.status);
@@ -299,6 +302,7 @@ class BaseApplication {
     this.config.data.hideOnMinimize = this.status.hideOnMinimize;
     this.config.data.openLastFile = this.status.openLastFile;
     this.config.data.httpNodeAuth = this.status.httpNodeAuth;
+    this.config.data.listenPort = this.status.listenPort;
     this.config.save();
   }
 
@@ -675,6 +679,7 @@ class BaseApplication {
     this.status.hideOnMinimize = args.hideOnMinimize;
     this.status.openLastFile = args.openLastFile;
     this.status.httpNodeAuth = args.httpNodeAuth;
+    this.status.listenPort = args.listenPort;
     this.saveConfig();
     app.relaunch();
     app.quit();

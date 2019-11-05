@@ -101,6 +101,8 @@
         "openlastfile": "起動時に前回のファイルを開く",
         "httpnodeauth": "HTTPノードのアクセス認証",
         "httpnodeauthuser": "ユーザ名",
-        "httpnodeauthpass": "パスワード"
+        "httpnodeauthpass": "パスワード",
+        "listenport": "待ち受けポート",
+        "listenportPlaceholder": "空欄の時は、ランダムなポートが使われます"
     }
 }
