@@ -38,7 +38,7 @@ mac:
   category: "public.app-category.developer-tools"
   identity: null
   target:
-  - zip
+  # - zip
   - dmg
   icon: "images/node-red-icon.icns"
   publish:

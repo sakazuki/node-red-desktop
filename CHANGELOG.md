@@ -1,7 +1,7 @@
 ## v1.0.0
 - new: vertical view option
 - update: Node-RED 1.0.0 -> 1.0.2
-- update: electron 6.0.10 -> 7.0.1
+- update: electron 6.0.10 -> 7.1.1
 - add Listen Port property in settings
 - fix #4
 
