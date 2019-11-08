@@ -54,8 +54,8 @@ export class CustomBrowserWindow {
     this.window!.webContents.send("editor:start");
   }
 
-  private async onBeforeUnload(event: Electron.Event){
-    const choice = await dialog.showMessageBox(this.window!, {
+  private onBeforeUnload(event: Electron.Event){
+    const choice = dialog.showMessageBoxSync(this.window!, {
       type: "question",
       buttons: [i18n.__("dialog.yes"), i18n.__("dialog.no")],
       title: i18n.__("dialog.confirm"),
@@ -63,7 +63,7 @@ export class CustomBrowserWindow {
       defaultId: 1,
       cancelId: 1
     });
-    if (choice.response == 0) {
+    if (choice == 0) {
       event.preventDefault();
     }
   }

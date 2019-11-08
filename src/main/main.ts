@@ -134,8 +134,8 @@ class BaseApplication {
     ipcMain.on("browser:minimize", (event: Electron.Event) =>
       this.onMinimize(event)
     );
-    ipcMain.on("browser:before-close", async (event: Electron.Event) =>
-      await this.onBeforeClose(event)
+    ipcMain.on("browser:before-close", (event: Electron.Event) => 
+      this.onBeforeClose(event)
     );
     ipcMain.on("browser:closed", this.onClosed.bind(this));
     ipcMain.on("browser:restart", this.onRestart.bind(this));
@@ -277,10 +277,10 @@ class BaseApplication {
     this.red.startRED();
   }
 
-  private async onActivated() {
+  private onActivated() {
     if (this.mainWindow === null) {
       this.create();
-      await this.go(this.red.getAdminUrl());
+      this.go(this.red.getAdminUrl());
     }
   }
 
@@ -318,9 +318,9 @@ class BaseApplication {
     }
   }
 
-  private async leavable(): Promise<boolean> {
+  private leavable(): boolean {
     if (!this.checkEphemeralFile()) return true;
-    const res = await dialog.showMessageBox(this.getBrowserWindow(), {
+    const res = dialog.showMessageBoxSync(this.getBrowserWindow(), {
       type: "question",
       title: i18n.__("dialog.confirm"),
       message: i18n.__("dialog.closeMsg"),
@@ -330,13 +330,13 @@ class BaseApplication {
         i18n.__("dialog.cancel")
       ]
     });
-    if (res.response === 0) {
+    if (res === 0) {
       if (!this.status.projectsEnabled && this.usingTmpFile()) {
         return this.onFileSaveAs();
       } else {
         return this.onFileSave();
       }
-    } else if (res.response === 1) {
+    } else if (res === 1) {
       return true;
     } else {
       return false;
@@ -349,11 +349,15 @@ class BaseApplication {
     this.getBrowserWindow().hide();
   }
 
-  private async onBeforeClose(event?: Electron.Event) {
+  private isSettingsPage() {
     const url = path.parse(this.getBrowserWindow().webContents.getURL());
-    if (url.base === path.parse(this.settingsURL).base) {
+    return (url.base === path.parse(this.settingsURL).base)
+  }
+
+  private onBeforeClose(event?: Electron.Event) {
+    if (this.isSettingsPage()) {
       this.unsetBeforeUnload();
-    } else if (await this.leavable()) {
+    } else if (this.leavable()) {
       this.unsetBeforeUnload();
       this.saveConfig();
     } else {
@@ -370,14 +374,14 @@ class BaseApplication {
     this.mainWindow = null;
   }
 
-  private async onRestart() {
-    await this.onBeforeClose();
+  private onRestart() {
+    this.onBeforeClose();
     this.customAutoUpdater!.quitAndInstall();
     app.quit();
   }
 
-  private async onRelaunch() {
-    await this.onBeforeClose();
+  private onRelaunch() {
+    this.onBeforeClose();
     app.relaunch();
     app.quit();
   }
@@ -489,15 +493,14 @@ class BaseApplication {
   private getBrowserWindow() {
     if (this.mainWindow === null) {
       this.create();
-      //TODO: await
       this.go(this.red.getAdminUrl());
     }
     return this.mainWindow!.getBrowserWindow()!;
   }
 
-  private async onFileOpen(file: string = "") {
+  private onFileOpen(file: string = "") {
     if (!file) {
-      const files = await dialog.showOpenDialog(this.getBrowserWindow(), {
+      const files = dialog.showOpenDialogSync(this.getBrowserWindow(), {
         title: i18n.__("dialog.openFlowFile"),
         properties: ["openFile"],
         defaultPath: path.dirname(this.status.currentFile),
@@ -506,7 +509,7 @@ class BaseApplication {
           { name: "ALL", extensions: ["*"] }
         ]
       });
-      if (!files.canceled) file = files.filePaths[0];
+      if (files) file = files[0];
     }
     if (file) {
       this.fileHistory.add(file);
@@ -519,8 +522,8 @@ class BaseApplication {
     return true;
   }
 
-  private async onFileSaveAs(): Promise<boolean> {
-    const savefile = await dialog.showSaveDialog(this.getBrowserWindow(), {
+  private onFileSaveAs(): boolean {
+    const savefile = dialog.showSaveDialogSync(this.getBrowserWindow(), {
       title: i18n.__("dialog.saveFlowFile"),
       defaultPath: path.dirname(this.status.currentFile),
       filters: [
@@ -528,15 +531,15 @@ class BaseApplication {
         { name: "ALL", extensions: ["*"] }
       ]
     });
-    if (savefile.canceled || !savefile.filePath) return false;
+    if (!savefile) return false;
     const oldfile = this.status.currentFile;
-    this.red.setFlowFile(savefile.filePath);
+    this.red.setFlowFile(savefile);
     if (this.status.modified) {
       this.onFileSave();
     } else {
-      this.fileManager.saveAs(oldfile, savefile.filePath);
+      this.fileManager.saveAs(oldfile, savefile);
     }
-    this.fileHistory.add(savefile.filePath);
+    this.fileHistory.add(savefile);
     return true;
   }
 
@@ -544,8 +547,8 @@ class BaseApplication {
     this.fileHistory.clear();
   }
 
-  private async setFlowFileAndRestart(file: string) {
-    if (!await this.leavable()) return;
+  private setFlowFileAndRestart(file: string) {
+    if (!this.leavable()) return;
     this.unsetBeforeUnload();
     this.red.setFlowFileAndRestart(file);
   }
@@ -637,7 +640,7 @@ class BaseApplication {
     this.customAutoUpdater!.checkUpdates(true);
   }
 
-  private async onHelpVersion() {
+  private onHelpVersion() {
     const body = `
       Name: ${app.name} 
       ${i18n.__("version.version")}: ${app.getVersion()}
@@ -646,7 +649,7 @@ class BaseApplication {
       ${this.fileManager.info()}
     `.replace(/^\s*/gm, "");
 
-    await dialog.showMessageBox(this.getBrowserWindow(), {
+    dialog.showMessageBoxSync(this.getBrowserWindow(), {
       title: i18n.__("menu.version"),
       type: "info",
       message: app.name,
@@ -685,8 +688,8 @@ class BaseApplication {
     app.quit();
   }
 
-  private async onSettingsCancel() {
-    await this.go(this.red.getAdminUrl());
+  private onSettingsCancel() {
+    this.go(this.red.getAdminUrl());
   }
 
   private showShade() {
@@ -705,14 +708,14 @@ class BaseApplication {
 
   private async onNodeAddLocal() {
     this.showShade();
-    const dirs = await dialog.showOpenDialog(this.getBrowserWindow(), {
+    const dirs = dialog.showOpenDialogSync(this.getBrowserWindow(), {
       title: i18n.__("dialog.openNodeDir"),
       properties: ["openDirectory"],
       defaultPath: this.status.userDir
     });
-    if (!dirs.canceled) {
+    if (dirs) {
       this.loadingShade();
-      await this.red.execNpmLink(dirs.filePaths[0]);
+      await this.red.execNpmLink(dirs[0]);
     }
     this.hideShade();
   }
