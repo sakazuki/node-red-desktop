@@ -1,7 +1,7 @@
 {
   "name": "node-red-desktop",
   "productName": "Node-RED-Desktop",
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0-beta.5",
   "description": "Node-RED Desktop",
   "main": "main/main.js",
   "scripts": {
@@ -24,7 +24,7 @@
     "@types/file-url": "^3.0.2",
     "@types/fs-extra": "^8.0.1",
     "@types/i18n": "^0.8.6",
-    "@types/lodash": "^4.14.145",
+    "@types/lodash": "^4.14.146",
     "@types/resolve": "0.0.8",
     "@types/semver": "^6.2.0",
     "@types/tmp": "^0.1.0",
@@ -39,7 +39,7 @@
     "eslint-plugin-prettier": "^3.1.1",
     "jquery": "^3.4.1",
     "npm-check-updates": "^3.2.1",
-    "prettier": "^1.18.2",
+    "prettier": "^1.19.1",
     "typescript": "^3.7.2"
   },
   "dependencies": {
