@@ -50,7 +50,7 @@ export class CustomBrowserWindow {
 
   private onBeforeInput(event: Electron.Event, input: Electron.Input) {
     // console.log(">>>", input)
-    this.ctrlKey = input.control && (input.type === 'keyDown');
+    this.ctrlKey = (input.control || input.meta) && (input.type === 'keyDown');
   }
 
   private onNewWindow(event: Electron.Event, url: string, frameName: string, disposition: string, options: any) {
