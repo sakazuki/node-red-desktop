@@ -52,7 +52,9 @@
         "about": "About",
         "hide": "Hide",
         "hideothers": "Hide Others",
-        "unhide": "Unhide"
+        "unhide": "Unhide",
+        "extend": "Extend",
+        "debugOut": "Debug out"
     },
     "version": {
         "version": "Current Version",

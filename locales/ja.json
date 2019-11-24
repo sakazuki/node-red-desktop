@@ -52,7 +52,9 @@
         "about": "このアプリについて",
         "hide": "隠す",
         "hideothers": "他を隠す",
-        "unhide": "表示する"
+        "unhide": "表示する",
+        "extend": "拡張",
+        "debugOut": "デバッグ出力"
     },
     "version": {
         "version": "現在バージョン",

@@ -62,6 +62,7 @@ export interface AppStatus {
   httpNodeAuth: {user: string, pass: string};
   selection: {nodes: any[]};
   listenPort: string;
+  debugOut: boolean;
 }
 
 type UserSettings = {
@@ -76,6 +77,7 @@ type UserSettings = {
   openLastFile: boolean;
   httpNodeAuth: {user: string, pass: string};
   listenPort: string;
+  debugOut: boolean;
 }
 
 class BaseApplication {
@@ -125,7 +127,8 @@ class BaseApplication {
       npmCommandEnabled: false,
       httpNodeAuth: this.config.data.httpNodeAuth,
       selection: {nodes: []},
-      listenPort: this.config.data.listenPort
+      listenPort: this.config.data.listenPort,
+      debugOut: this.config.data.debugOut
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
     this.red = new NodeREDApp(this.status);
@@ -220,6 +223,7 @@ class BaseApplication {
     ipcMain.on("dialog:show", (type: "success" | "error" | "info", message: string, timeout?: number) =>
       this.showRedNotify(type, message, timeout)
     );
+    ipcMain.on("ext:debugOut", this.onDebugOut.bind(this))
   }
 
   private create() {
@@ -303,6 +307,7 @@ class BaseApplication {
     this.config.data.openLastFile = this.status.openLastFile;
     this.config.data.httpNodeAuth = this.status.httpNodeAuth;
     this.config.data.listenPort = this.status.listenPort;
+    this.config.data.debugOut = this.status.debugOut;
     this.config.save();
   }
 
@@ -797,6 +802,11 @@ class BaseApplication {
       this.showRedNotify("error", JSON.stringify(err));
     }
     this.hideShade();
+  }
+
+  private onDebugOut() {
+    this.status.debugOut = !this.status.debugOut
+    console.log(this.status)
   }
 }
 

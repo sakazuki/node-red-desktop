@@ -3,6 +3,7 @@ import {IpFilter, IpDeniedError} from "express-ipfilter";
 // must load before node-red
 const runtime = require("@node-red/runtime");
 const installer = require("@node-red/registry/lib/installer");
+const Node = require("@node-red/runtime/lib/nodes/Node")
 import newExec from "./node-red-runtime-exec";
 import RED from "node-red";
 import http from "http";
@@ -224,9 +225,33 @@ export class NodeREDApp {
     }
   }
 
+  private setupDebugOut() {
+    Node.prototype._send = Node.prototype.send
+    const me = this
+    Node.prototype.send = function(msg: any) {
+      Node.prototype._send.call(this, msg)
+      if (!me.status.debugOut) return
+      const _data = {
+        id: this.id,
+        z: this.z,
+        name: this.name,
+        topic: msg.topic,
+        msg: msg,
+        _path: msg._path
+      }
+      const data = RED.runtime.util.encodeObject(_data);
+      RED.runtime.events.emit("comms", {
+        topic: "debug",
+        data: data,
+        retain: false
+      })
+    }
+  }
+
   private setupRED() {
     log.debug(">>> settings", this.settings);
     RED.init(this.server, this.settings);
+    this.setupDebugOut()
     this.app.use(this.settings.httpAdminRoot, RED.httpAdmin);
     if (this.settings.httpNodeAuth) {
       this.app.use(

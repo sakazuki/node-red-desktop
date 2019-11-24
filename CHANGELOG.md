@@ -2,8 +2,8 @@
 - new: vertical view option
 - new: open a new window in the app with ctrl+click(mac: command+click) #3
 - add: Listen Port property in settings
-- update: Node-RED 1.0.0 -> 1.0.2
-- update: electron 6.0.10 -> 7.1.1
+- update: Node-RED 1.0.0 -> 1.0.3
+- update: electron 6.0.10 -> 7.1.2
 - fix #4
 
 ## v0.9.5

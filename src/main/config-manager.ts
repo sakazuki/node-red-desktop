@@ -20,6 +20,7 @@ interface CONFIG {
   hideOnMinimize: boolean;
   httpNodeAuth: {user: string, pass: string};
   listenPort: string;
+  debugOut: boolean;
 };
 
 const DEFAULT_CONFIG: CONFIG = {
@@ -36,7 +37,8 @@ const DEFAULT_CONFIG: CONFIG = {
   autoDownload: false,
   hideOnMinimize: false,
   httpNodeAuth: {user: "", pass: ""},
-  listenPort: ""
+  listenPort: "",
+  debugOut: false
 };
 
 export class ConfigManager {
