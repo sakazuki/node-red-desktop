@@ -132,6 +132,7 @@ class BaseApplication {
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
     this.red = new NodeREDApp(this.status);
+    ipcMain.on("browser:focus", this.setTitle.bind(this));
     ipcMain.on("browser:show", () => this.getBrowserWindow().show());
     ipcMain.on("browser:hide", () => this.getBrowserWindow().hide());
     ipcMain.on("browser:minimize", (event: Electron.Event) =>

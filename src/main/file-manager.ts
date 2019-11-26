@@ -62,28 +62,43 @@ export class FileManager {
   }
 
   private remove(file: string) {
-    const fliePath = path.parse(file);
-    if (fs.existsSync(file)) fs.removeSync(file);
-    const cred = path.join(fliePath.dir, `${fliePath.name}_cred${fliePath.ext}`);
-    if (fs.existsSync(cred)) fs.removeSync(cred);
+    try {
+      const fliePath = path.parse(file);
+      if (fs.existsSync(file)) fs.removeSync(file);
+      const cred = path.join(fliePath.dir, `${fliePath.name}_cred${fliePath.ext}`);
+      if (fs.existsSync(cred)) fs.removeSync(cred);
+    } catch (e) {
+      console.log(e)
+      throw new Error(`fail to remove ${file}`)
+    }
   }
 
   private move(src: string, dest: string){
-    fs.moveSync(src, dest);
-    const srcPath = path.parse(src);
-    const credSrc = path.join(srcPath.dir, `${srcPath.name}_cred${srcPath.ext}`);
-    const destPath = path.parse(dest);
-    const credDst = path.join(destPath.dir, `${destPath.name}_cred${destPath.ext}`);
-    if (fs.existsSync(credSrc)) fs.moveSync(credSrc, credDst);
+    try {
+      fs.moveSync(src, dest);
+      const srcPath = path.parse(src);
+      const credSrc = path.join(srcPath.dir, `${srcPath.name}_cred${srcPath.ext}`);
+      const destPath = path.parse(dest);
+      const credDst = path.join(destPath.dir, `${destPath.name}_cred${destPath.ext}`);
+      if (fs.existsSync(credSrc)) fs.moveSync(credSrc, credDst);
+    } catch (e) {
+      console.log(e)
+      throw new Error(`fail to move ${src} to ${dest}`)
+    }
   }
 
   private copy(src: string, dest: string){
-    fs.copySync(src, dest);
-    const srcPath = path.parse(src);
-    const credSrc = path.join(srcPath.dir, `${srcPath.name}_cred${srcPath.ext}`);
-    const destPath = path.parse(dest);
-    const credDst = path.join(destPath.dir, `${destPath.name}_cred${destPath.ext}`);
-    if (fs.existsSync(credSrc)) fs.copySync(credSrc, credDst);
+    try {
+      fs.copySync(src, dest);
+      const srcPath = path.parse(src);
+      const credSrc = path.join(srcPath.dir, `${srcPath.name}_cred${srcPath.ext}`);
+      const destPath = path.parse(dest);
+      const credDst = path.join(destPath.dir, `${destPath.name}_cred${destPath.ext}`);
+      if (fs.existsSync(credSrc)) fs.copySync(credSrc, credDst);
+    } catch (e) {
+      console.log(e)
+      throw new Error(`fail to copy ${src} to ${dest}`)
+    }
   }
 
   public saveAs(src: string, dest: string){

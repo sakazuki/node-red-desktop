@@ -12,6 +12,7 @@ export class CustomBrowserWindow {
     this.window.on("closed", () => { this.onClosed(); });
     // @ts-ignore
     this.window.on("minimize", (event) => { this.onMinimize(event); })
+    this.window.on("focus", () => { this.onFocus() })
     this.setupSessionHandler();
     this.window.webContents.on("before-input-event", (event, input) => this.onBeforeInput(event, input));
     this.window.webContents.on("new-window", (event, url, frameName, disposition, options) => this.onNewWindow(event, url, frameName, disposition, options));
@@ -23,6 +24,10 @@ export class CustomBrowserWindow {
 
   public getBrowserWindow() {
     return this.window;
+  }
+
+  private onFocus() {
+    ipcMain.emit("browser:focus");
   }
 
   private onClose(event: Electron.Event) {

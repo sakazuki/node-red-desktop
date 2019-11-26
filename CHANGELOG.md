@@ -1,8 +1,9 @@
 ## v1.0.0
-- new: vertical view option
+- new: debug out on all nodes
+- new: vertical flow option
 - new: open a new window in the app with ctrl+click(mac: command+click) #3
 - add: Listen Port property in settings
-- update: Node-RED 1.0.0 -> 1.0.3
+- update: Node-RED 1.0.0 -> 1.0.3+v-flow
 - update: electron 6.0.10 -> 7.1.2
 - fix #4
 
