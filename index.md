@@ -8,6 +8,7 @@ This is a desktop applicaiton of Node-RED
 
 ## Announce
 
+- 2019-11-29  **1.0.0** release (Node-RED v1.0.3 with v-flow)
 - 2019-11-03  **1.0.0-beta.2** release (Node-RED v1.0.2 with [vertical view](https://discourse.nodered.org/t/vertical-flow-view/5487))
 
 ## Download
