@@ -7,7 +7,7 @@ Node-REDのデスクトップ版です。
 ![screen](https://raw.githubusercontent.com/sakazuki/node-red-desktop/doc/screenshot.png)
 
 ## お知らせ
-- 2019-11-29 **1.0.0** リリース (Node-RED v1.0.3 + v-flow))
+- 2019-11-29 **1.0.0** リリース (Node-RED v1.0.3 + v-flow)
 - 2019-11-03 **1.0.0-beta.2** リリース (Node-RED v1.0.2 + [縦フロー](https://discourse.nodered.org/t/vertical-flow-view/5487))
 
 
