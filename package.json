@@ -58,7 +58,7 @@
     "ngrok": "git+https://github.com/sakazuki/ngrok.git#startArgs",
     "node-red": "^1.0.3",
     "node-red-nodegen": "0.0.4",
-    "npm": "^6.13.1",
+    "npm": "^6.13.4",
     "tmp": "^0.1.0"
   }
 }
