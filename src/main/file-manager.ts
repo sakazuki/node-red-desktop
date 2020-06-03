@@ -16,7 +16,7 @@ export class FileManager {
   }
 
   public createTmp() {
-    const tmpfile = tmp.fileSync({dir: this.userDir, prefix: this.prefix, postfix: '.tmp', discardDescriptor: true});
+    const tmpfile = tmp.fileSync({tmpdir: this.userDir, prefix: this.prefix, postfix: '.tmp', discardDescriptor: true});
     this.tmpBuffer.push(tmpfile);
     fs.writeFileSync(tmpfile.name, "");
     return tmpfile.name;
