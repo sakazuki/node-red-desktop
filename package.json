@@ -32,7 +32,7 @@
     "bulma": "^0.8.0",
     "bulma-switch": "^2.0.0",
     "commander": "^4.0.1",
-    "electron": "^7.1.2",
+    "electron": "^7.2.4",
     "electron-builder": "^22.1.0",
     "eslint": "^6.7.1",
     "eslint-config-prettier": "^6.7.0",
