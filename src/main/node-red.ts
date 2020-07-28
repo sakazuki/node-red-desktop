@@ -17,6 +17,7 @@ const registry = require("@node-red/registry");
 import _ from "lodash";
 import bcryptjs from "bcryptjs";
 import basicAuth from "basic-auth";
+import merge from "deepmerge";
 
 const IP_ALLOWS = ["127.0.0.1"];
 if (process.env.NRD_IP_ALLOWS) {
@@ -162,7 +163,7 @@ export class NodeREDApp {
         pass: bcryptjs.hashSync(this.status.httpNodeAuth.pass, 8)
       }
     }
-    return Object.assign({}, userSettings, config);
+    return merge(userSettings, config);
   }
 
   private setupServer() {
