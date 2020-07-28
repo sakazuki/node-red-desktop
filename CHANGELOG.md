@@ -1,3 +1,7 @@
+## v1.1.0
+- udpate: Node-RED 1.0.3+v-flow -> 1.1.2
+- update: electron 7.1.2 -> 9.1.1
+
 ## v1.0.0
 - new: debug out on all nodes
 - new: vertical flow option
