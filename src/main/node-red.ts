@@ -155,6 +155,7 @@ export class NodeREDApp {
         }
       }
     };
+    // @ts-ignore
     if (this.status.projectsEnabled) delete config.storageModule;
     if (this.status.httpNodeAuth.user.length > 0 && this.status.httpNodeAuth.pass.length) {
       //@ts-ignore

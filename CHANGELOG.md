@@ -1,6 +1,9 @@
 ## v1.1.0
-- udpate: Node-RED 1.0.3+v-flow -> 1.1.2
-- update: electron 7.1.2 -> 9.1.1
+- udpate: Node-RED 1.0.3+v-flow -> 1.1.2 -> 1.1.3
+- update: electron 7.1.2 -> 9.1.1 -> 10.1.2
+- add: validation in settings #17
+- add: deepmerge user settings #23
+- update: settings page with Node-RED style
 
 ## v1.0.0
 - new: debug out on all nodes

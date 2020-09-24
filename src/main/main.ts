@@ -30,6 +30,7 @@ import prompt from "electron-prompt";
 import semver from "semver";
 // import rebuild from "@node-red-desktop/electron-rebuild";
 import nodegen from "node-red-nodegen";
+import "./debug";
 
 process.env.NODE_ENV = "production";
 const macOS = process.platform === "darwin";

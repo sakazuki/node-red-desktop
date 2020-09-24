@@ -1,132 +1,139 @@
-<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Node-RED-Desktop</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="./bulma.min.css">
-    <link rel="stylesheet" href="./bulma-switch.min.css">
-    <script src="./jquery.slim.min.js"></script>
-    <style>
-      #tab-content div.container {
-        display: none;
-      }
-
-      #tab-content div.container.is-active {
-        display: block;
-      }
-    </style>
-  </head>
-  <body>
-    <section class="section">
-      <div id="tabs" class="tabs">
-        <ul>
-          <li data-tab="1" class="is-active"><a>Node-RED</a></li>
-          <li data-tab="2"><a>Other</a></li>
-        </ul>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+<title>Node-RED-Desktop</title>
+<link rel="icon" type="image/png" href="file:./node_modules/@node-red/editor-client/public/favicon.ico">
+<link rel="mask-icon" href="file:./node_modules/@node-red/editor-client/public/red/images/node-red-icon-black.svg" color="#8f0000">
+<link rel="stylesheet" href="file:./node_modules/@node-red/editor-client/public/vendor/jquery/css/base/jquery-ui.min.css">
+<link rel="stylesheet" href="file:./node_modules/@node-red/editor-client/public/vendor/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="file:./node_modules/@node-red/editor-client/public/red/style.min.css">
+<style>
+.red-ui-tray {
+  position: unset;
+  right: unset;
+  width: 100%;
+  border-bottom: unset;
+}
+.red-ui-tray-body {
+  height: 100%;
+}
+.red-ui-tabs.red-ui-tabs-vertical ul {
+  height: 2em;
+}
+.red-ui-settings-tab {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  padding: 8px 20px 20px;
+  overflow-y: scroll;
+}
+.red-ui-settings-tabs-content input[type='number'] {
+  width: unset;
+}
+.error {
+  color: red;
+}
+</style>
+</head>
+<body>
+<div class="red-ui-editor">
+  <div class="red-ui-tray ui-draggable">
+    <form id="configForm">
+      <div class="red-ui-tray-header editor-tray-header">
+        <div class="red-ui-tray-titlebar">
+          <ul class="red-ui-tray-breadcrumbs">
+            <li>Settings</li>
+          </ul>
+        </div>
+        <div class="red-ui-tray-toolbar">
+          <button class="ui-button ui-corner-all ui-widget" id="button-cancel">Cancel</button>
+          <button class="ui-button ui-corner-all ui-widget primary" id="button-submit">Submit</button>
+        </div>
       </div>
-      <div id="tab-content">
-        <div data-content="1" class="container is-active">
-          <div class="field">
-            <label id="label-userdir" class="label">Userdir</label>
-            <div class="control">
-              <input id="userdir" class="input" type="text" placeholder="">
-            </div>
-          </div>
-
-          <div class="field">
-            <label id="label-credentialsecret" class="label">Credential secret</label>
-            <div class="control">
-              <input id="credentialsecret" class="input" type="text" placeholder="">
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="field">
-              <label id="label-nodesexcludes" class="label">Nodes blacklist</label>
-              <textarea id="nodesexcludes" class="textarea" placeholder="Do not load these nodes on startup" rows="10"></textarea>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="control">
-              <input id="projects" type="checkbox" name="projects" class="switch is-rtl">
-              <label id="label-projects" class="label" for="projects">Projects Enabled</label>
-            </div>
-          </div>
-
-          <div class="field">
-            <label id="label-httpnodeauth" class="label">HTTP Node Auth</label>
-            <div class="level">
-              <div class="level-item"></div>
-              <label id="label-httpnodeauthuser" class="label level-item">username</label>
-              <div class="control level-item">
-                <input id="httpnodeauthuser" class="input" type="text" placeholder="">
-              </div>
-              <label id="label-httpnodeauthpass" class="label level-item">password</label>
-              <div class="control level-item">
-                <input id="httpnodeauthpass" class="input" type="text" placeholder="">
-              </div>
-            </div>
-          </div>
-
-          <div class="field">
-            <label id="label-listenport" class="label">Listen port</label>
-            <div class="control">
-              <input id="listenport" class="input" type="text" placeholder="when empty,use random port">
-            </div>
-          </div>
-
-        </div>
-
-        <div data-content="2" class="container">
-          <div class="field">
-            <div class="control">
-              <input id="hideonminimize" type="checkbox" name="hideonminimize" class="switch is-rtl">
-              <label id="label-hideonminimize" class="label" for="hideonminimize">Hide app on miminize</label>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="control">
-              <input id="autocheckupdate" type="checkbox" name="autocheckupdate" class="switch is-rtl">
-              <label id="label-autocheckupdate" class="label" for="autocheckupdate">Check update on startup</label>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="control">
-              <input id="allowprerelease" type="checkbox" name="allowprerelease" class="switch is-rtl">
-              <label id="label-allowprerelease" class="label" for="allowprerelease">Allow usging prerelase</label>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="control">
-              <input id="openlastfile" type="checkbox" name="openlastfile" class="switch is-rtl">
-              <label id="label-openlastfile" class="label" for="openlastfile">Open a last file on startup</label>
-            </div>
-          </div>
-        </div>
-
-        <hr>
-        <div class="level">
-          <div class="level-left"></div>
-          <div class="level-right">
-            <div class="level-item">
-              <div class="field is-grouped">
-                <div class="control">
-                  <button id="button-submit" class="button is-link">Submit</button>
-                </div>
-                <div class="control">
-                  <button id="button-cancel" class="button is-text">Cancel</button>
+      <div class="red-ui-tray-body-wrapper">
+        <div class="red-ui-tray-body editor-tray-body">
+          <div>
+            <div class="red-ui-settings-tabs-container">
+              <div class="red-ui-tabs red-ui-tabs-vertical">
+                <div>
+                  <ul id="user-settings-tabs">
+                    <li class="red-ui-tab active" id="red-ui-tab-user-settings-nodered">
+                      <a href="#user-settings-nodered" class="red-ui-tab-label" title="Node-RED"><span class="red-ui-text-bidi-aware" dir="">Node-RED</span></a>
+                      <span class="red-ui-tabs-badges"></span>
+                    </li>
+                    <li class="red-ui-tab" id="red-ui-tab-user-settings-other">
+                      <a href="#user-settings-other" class="red-ui-tab-label" title="Other"><span class="red-ui-text-bidi-aware" dir="">Other</span></a>
+                      <span class="red-ui-tabs-badges"></span>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
+            <div class="red-ui-settings-tabs-content">
+              <div id="user-settings-nodered" class="red-ui-settings-tab">
+                <h3>Runtime Configuration</h3>
+                <div class="red-ui-settings-row form-row">
+                    <label id="label-userdir" for="userdir">Userdir</label>
+                    <input type="text" id="userdir" name="userdir" autocomplete="off" dir="" placeholder="Userdir">
+                </div>
+                <div class="red-ui-settings-row form-row">
+                    <label id="label-credentialsecret" for="credentialsecret">Credential secret</label>
+                    <input type="text" id="credentialsecret" name="credentialsecret" autocomplete="off" dir="" placeholder="Secret">
+                </div>
+                <div class="red-ui-settings-row">
+                  <label id="label-nodesexcludes" for="node-input-blacklist">Nodes blacklist</label>
+                  <textarea id="nodesexcludes" name="nodesexcludes" style="display: none;"></textarea>
+                  <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-blacklist"></div>
+                </div>
+                <div class="red-ui-settings-row">
+                    <label id="label-projects" for="projects">Enable Projects</label>
+                    <input type="checkbox" id="projects" name="projects">
+                </div>
+                <div class="red-ui-settings-row">
+                  <label id="label-listenport" for="listenport">Listen port</label>
+                  <input type="number" id="listenport" name="listenport" autocomplete="off" placeholder="">
+                </div>
+                <h4 id="label-httpnodeauth">HTTP Node Auth</h4>
+                <div class="red-ui-settings-row">
+                    <label id="label-httpnodeauthuser" for="httpnodeauthuser">Username</label>
+                    <input type="text" id="httpnodeauthuser" name="httpnodeauthuser" autocomplete="off" dir="" placeholder="Username">
+                    <label id="label-httpnodeauthpass" for="httpnodeauthpass">Password</label>
+                    <input type="text" id="httpnodeauthpass" name="httpnodeauthpass" autocomplete="off" dir="" placeholder="Password">
+                </div>
+              </div>
+      
+              <div id="user-settings-other" class="red-ui-settings-tab" style="display: none;">
+                <div class="red-ui-settings-row">
+                  <input type="checkbox" id="hideonminimize" name="hideonminimize">
+                  <label id="label-hideonminimize" for="hideonminimize">Hide app on miminize</label>
+                </div>
+                <div class="red-ui-settings-row">
+                  <input type="checkbox" id="autocheckupdate" name="autocheckupdate">
+                  <label id="label-autocheckupdate" for="autocheckupdate">Check update on startup</label>
+                </div>
+                <div class="red-ui-settings-row">
+                  <input type="checkbox" id="allowprerelease" name="allowprerelease">
+                  <label id="label-allowprerelease" for="allowprerelease">Allow usging prerelase</label>
+                </div>
+                <div class="red-ui-settings-row">
+                  <input type="checkbox" id="openlastfile" name="openlastfile">
+                  <label id="label-openlastfile" for="openlastfile">Open a last file on startup</label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </section>
-    <script src="renderer/settings.js"></script>
-  </body>
+    </form>
+  </div>
+</div>
+<script src="file:./node_modules/@node-red/editor-client/public/vendor/vendor.js"></script>
+<script src="file:./node_modules/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="file:./node_modules/jquery-validation/dist/additional-methods.min.js"></script>
+<script src="renderer/settings.js"></script>
+</body>
 </html>
