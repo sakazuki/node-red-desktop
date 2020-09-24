@@ -22,7 +22,7 @@ export class FileHistory {
   public load(data: string[]) {
     this.clear();
     if (data) {
-      data.reverse().forEach(v => {
+      data.reverse()?.forEach(v => {
         if (fs.existsSync(v)) this.add(v, false);
       });
     }

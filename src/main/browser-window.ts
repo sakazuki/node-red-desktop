@@ -4,6 +4,7 @@ import log from "./log";
 
 export class CustomBrowserWindow {
   private window: BrowserWindow | null = null;
+  private ctrlKey: boolean;
 
   constructor(options: Electron.BrowserWindowConstructorOptions, url: string) {
     this.window = new BrowserWindow(options);
@@ -11,15 +12,22 @@ export class CustomBrowserWindow {
     this.window.on("closed", () => { this.onClosed(); });
     // @ts-ignore
     this.window.on("minimize", (event) => { this.onMinimize(event); })
+    this.window.on("focus", () => { this.onFocus() })
     this.setupSessionHandler();
-    this.window.webContents.on("new-window", (event, url) => this.onNewWindow(event, url));
+    this.window.webContents.on("before-input-event", (event, input) => this.onBeforeInput(event, input));
+    this.window.webContents.on("new-window", (event, url, frameName, disposition, options) => this.onNewWindow(event, url, frameName, disposition, options));
     this.window.webContents.on("dom-ready", event => this.onDomReady(event));
     this.window.webContents.on("will-prevent-unload", event => this.onBeforeUnload(event));
     this.window.loadURL(url);
+    this.ctrlKey = false;
   }
 
   public getBrowserWindow() {
     return this.window;
+  }
+
+  private onFocus() {
+    ipcMain.emit("browser:focus");
   }
 
   private onClose(event: Electron.Event) {
@@ -45,9 +53,36 @@ export class CustomBrowserWindow {
     })
   }
 
-  private onNewWindow(event: Electron.Event, url: string) {
-    ipcMain.emit("window:new", url);
+  private onBeforeInput(event: Electron.Event, input: Electron.Input) {
+    // console.log(">>>", input)
+    this.ctrlKey = (input.control || input.meta) && (input.type === 'keyDown');
+  }
+
+  private onNewWindow(event: Electron.Event, url: string, frameName: string, disposition: string, options: any) {
     event.preventDefault();
+    if (this.ctrlKey) {
+      const mw = this.window!.getBounds();
+      const win = new BrowserWindow({
+        //@ts-ignore
+        webContents: options.webContents,
+        x: mw.x,
+        y: mw.y,
+        width: mw.width,
+        height: mw.height,
+        show: false
+      });
+      win.once('ready-to-show', () => win.show())
+      if (!options.webContents) {
+        win.loadURL(url);
+      }
+      win.setMenu(null);
+      win.setMenuBarVisibility(false);
+      //@ts-ignore
+      event.newGuest = win;
+      this.ctrlKey = false;
+    } else {
+      ipcMain.emit("window:new", url);
+    }
   }
 
   private onDomReady(event: Electron.Event) {
@@ -55,7 +90,7 @@ export class CustomBrowserWindow {
   }
 
   private onBeforeUnload(event: Electron.Event){
-    const choice = dialog.showMessageBox(this.window!, {
+    const choice = dialog.showMessageBoxSync(this.window!, {
       type: "question",
       buttons: [i18n.__("dialog.yes"), i18n.__("dialog.no")],
       title: i18n.__("dialog.confirm"),

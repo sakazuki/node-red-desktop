@@ -1,3 +1,23 @@
+## v1.1.0
+- udpate: Node-RED 1.0.3+v-flow -> 1.1.2 -> 1.1.3
+- update: electron 7.1.2 -> 9.1.1 -> 10.1.2
+- add: validation in settings #17
+- add: deepmerge user settings #23
+- update: settings page with Node-RED style
+
+## v1.0.0
+- new: debug out on all nodes
+- new: vertical flow option
+- new: open a new window in the app with ctrl+click(mac: command+click) #3
+- add: Listen Port property in settings
+- update: Node-RED 1.0.0 -> 1.0.3+v-flow
+- update: electron 6.0.10 -> 7.1.2
+- fix #4
+
+## v0.9.5
+- update: electron 5.0.8 -> 6.0.10
+- update: Node-RED 0.20.7 -> 1.0.0
+
 ## v0.9.4
 - add: first load ${userDir}/settings.js, and override it with NRD settings #11
 

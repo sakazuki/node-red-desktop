@@ -7,6 +7,7 @@ declare module "electron-prompt" {
     selectOptions?: object;
     useHtmlLabel?: boolean;
     icon?: string;
+    menuBarVisible?: boolean;
   }
 
   export default function (options?: promptOptions, parentBrowserWindow?: Electron.BrowserWindow): Promise<string | undefined>;

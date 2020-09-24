@@ -52,7 +52,9 @@
         "about": "このアプリについて",
         "hide": "隠す",
         "hideothers": "他を隠す",
-        "unhide": "表示する"
+        "unhide": "表示する",
+        "extend": "拡張",
+        "debugOut": "デバッグ出力"
     },
     "version": {
         "version": "現在バージョン",
@@ -101,6 +103,8 @@
         "openlastfile": "起動時に前回のファイルを開く",
         "httpnodeauth": "HTTPノードのアクセス認証",
         "httpnodeauthuser": "ユーザ名",
-        "httpnodeauthpass": "パスワード"
+        "httpnodeauthpass": "パスワード",
+        "listenport": "待ち受けポート",
+        "listenportPlaceholder": "空欄の時は、ランダムなポートが使われます"
     }
 }

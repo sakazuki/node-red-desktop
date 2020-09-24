@@ -112,7 +112,7 @@ export class AppMenu {
         { label: i18n.__("menu.pasteandmatchstyle"), role: "pasteandmatchstyle" },
         { label: i18n.__("menu.delete"), role: "delete" },
         { label: i18n.__("menu.selectall"), role: "selectall" }
-      ]
+      ] as MenuItemConstructorOptions[]
     };
   
     const endpoint: MenuItemConstructorOptions = {
@@ -149,6 +149,19 @@ export class AppMenu {
           enabled: this.enabled && this.status.ngrokStarted,
           click() { ipcMain.emit("ngrok:inspect"); }
         } 
+      ]
+    };
+
+    const ext: MenuItemConstructorOptions = {
+      label: i18n.__("menu.extend"),
+      submenu: [
+        {
+          label: i18n.__("menu.debugOut"),
+          type: "checkbox",
+          enabled: this.enabled,
+          checked: this.status.debugOut,
+          click() { ipcMain.emit("ext:debugOut"); }
+        }
       ]
     };
 
@@ -277,7 +290,7 @@ export class AppMenu {
     }
   
     const darwin: MenuItemConstructorOptions = {
-      label: app.getName(),
+      label: app.name,
       submenu: [
         {
           label: i18n.__('menu.about'),
@@ -304,7 +317,7 @@ export class AppMenu {
         },
         { type: "separator"},
         { label: i18n.__('menu.quit'), role: 'quit' }
-      ]
+      ] as MenuItemConstructorOptions[]
     };
   
     let template: MenuItemConstructorOptions[];
@@ -312,22 +325,22 @@ export class AppMenu {
     let localesMenu: Menu | any;
   
     if (macOS) {
-      template = [darwin, file, edit, endpoint, tools, view, help];
+      template = [darwin, file, edit, endpoint, ext, tools, view, help];
     } else {
-      template = [file, endpoint, tools, view, help];
+      template = [file, endpoint, ext, tools, view, help];
     }
   
-    if (new RegExp(`${app.getName()}-debug`).exec(process.env.NODE_DEBUG!)) {
+    if (new RegExp(`${app.name}-debug`).exec(process.env.NODE_DEBUG!)) {
       template.push(dev);
     };
   
     const menu = Menu.buildFromTemplate(template);
     if (macOS) {
       openRecentMenu = (menu.items[1] as any).submenu.items[2];
-      localesMenu = (menu.items[5] as any).submenu.items[2];
+      localesMenu = (menu.items[6] as any).submenu.items[2];
     } else {
       openRecentMenu = (menu.items[0] as any).submenu.items[2];
-      localesMenu = (menu.items[3] as any).submenu.items[2];
+      localesMenu = (menu.items[4] as any).submenu.items[2];
     }
     this.setOpenRecentMenu(openRecentMenu.submenu);
     openRecentMenu.enabled = (openRecentMenu.submenu.items.length > 0);

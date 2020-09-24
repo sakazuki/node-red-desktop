@@ -3,28 +3,30 @@
 const electron = window.nodeRequire("electron");
 const ipc = electron.ipcRenderer;
 
-$("#full-shade").after('<div id="nrd-shade" class="hide"></div>');
+$(document).ready(function(){
+  $("#red-ui-full-shade").after('<div id="nrd-shade" class="hide"></div>');
 
-RED.events.on("nodes:change",function(state) {
-  ipc.send("nodes:change", state);
+  RED.events.on("nodes:change",function(state) {
+    ipc.send("nodes:change", state);
+  });
+
+  RED.events.on("view:selection-changed", function(selection) {
+    ipc.send("view:selection-changed", selection);
+  })
 });
-
-RED.events.on("view:selection-changed", function(selection) {
-  ipc.send("view:selection-changed", selection);
-})
 
 ipc.on("force:reload", function() {
   window.onbeforeunload = null;
-  $("#btn-deploy").addClass("disabled");
+  $("#red-ui-header-button-deploy").addClass("disabled");
 })
 
 ipc.on("editor:deploy",  (event, message) => {
-  $("#btn-deploy").click();
+  $("#red-ui-header-button-deploy").click();
 });
 
 ipc.on("editor:start", (event, message) => {
   var observer  = new MutationObserver((mutationRecords, observer) => {
-    var target = $("#red-ui-tab-debug a");
+    var target = $("#red-ui-tab-debug-link-button");
     if (target.length){
       observer.disconnect();
       target.click();

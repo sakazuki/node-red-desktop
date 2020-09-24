@@ -19,6 +19,8 @@ interface CONFIG {
   autoDownload: boolean;
   hideOnMinimize: boolean;
   httpNodeAuth: {user: string, pass: string};
+  listenPort: string;
+  debugOut: boolean;
 };
 
 const DEFAULT_CONFIG: CONFIG = {
@@ -26,15 +28,17 @@ const DEFAULT_CONFIG: CONFIG = {
   recentFiles: [],
   windowBounds: {} as Electron.Rectangle,
   locale: app.getLocale(),
-  userDir: path.join(os.homedir(), "." + app.getName()),
-  credentialSecret: app.getName(),
+  userDir: path.join(os.homedir(), "." + app.name),
+  credentialSecret: app.name,
   projectsEnabled: false,
   nodesExcludes: DEFAULT_NODES_EXCLUDES,
   autoCheckUpdate: true,
   allowPrerelease: false,
   autoDownload: false,
   hideOnMinimize: false,
-  httpNodeAuth: {user: "", pass: ""}
+  httpNodeAuth: {user: "", pass: ""},
+  listenPort: "",
+  debugOut: false
 };
 
 export class ConfigManager {

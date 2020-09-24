@@ -3,6 +3,7 @@ import {IpFilter, IpDeniedError} from "express-ipfilter";
 // must load before node-red
 const runtime = require("@node-red/runtime");
 const installer = require("@node-red/registry/lib/installer");
+const Node = require("@node-red/runtime/lib/nodes/Node")
 import newExec from "./node-red-runtime-exec";
 import RED from "node-red";
 import http from "http";
@@ -16,6 +17,7 @@ const registry = require("@node-red/registry");
 import _ from "lodash";
 import bcryptjs from "bcryptjs";
 import basicAuth from "basic-auth";
+import merge from "deepmerge";
 
 const IP_ALLOWS = ["127.0.0.1"];
 if (process.env.NRD_IP_ALLOWS) {
@@ -29,9 +31,9 @@ export const DEFAULT_NODES_EXCLUDES = [
   "16-range.js",
   "31-tcpin.js",
   "32-udp.js",
-  "36-rpi-gpio.js",
+  // "36-rpi-gpio.js", // not exist in 1.0.0
   "89-trigger.js",
-  "node-red-node-tail",
+  // "node-red-node-tail",
   "node-red-node-sentiment",
   "node-red-node-rbe"
 ];
@@ -61,12 +63,12 @@ export class NodeREDApp {
   }
 
   private defineListenPort(): number {
-    return parseInt(process.env.NRD_LISTEN_PORT || process.env.LISTEN_PORT || String(Math.random() * 16383 + 49152))
+    return parseInt(process.env.NRD_LISTEN_PORT || process.env.LISTEN_PORT || this.status.listenPort || String(Math.random() * 16383 + 49152))
   }
 
   public windowTitle() {
     const filePath = path.parse(this.status.currentFile);
-    return `${filePath.base} - ${app.getName()}`;
+    return `${filePath.base} - ${app.name}`;
   }
 
   private loadUserSettings(){
@@ -102,20 +104,20 @@ export class NodeREDApp {
       },
       editorTheme: {
         page: {
-          title: app.getName(),
+          title: app.name,
           favicon: path.join(__dirname, "..", "images", "favicon.ico"),
           scripts: path.join(__dirname, "..", "renderer/renderer.js"),
           css: path.join(__dirname, "..", "renderer/desktop.css")
         },
         header: {
-          title: app.getName()
+          title: app.name
         },
         palette: {
           editable: true
         },
         menu: { 
           "menu-item-help": {
-            label: app.getName(),
+            label: app.name,
             url: HELP_WEB_URL
           }
         },
@@ -153,6 +155,7 @@ export class NodeREDApp {
         }
       }
     };
+    // @ts-ignore
     if (this.status.projectsEnabled) delete config.storageModule;
     if (this.status.httpNodeAuth.user.length > 0 && this.status.httpNodeAuth.pass.length) {
       //@ts-ignore
@@ -161,7 +164,7 @@ export class NodeREDApp {
         pass: bcryptjs.hashSync(this.status.httpNodeAuth.pass, 8)
       }
     }
-    return Object.assign({}, userSettings, config);
+    return merge(userSettings, config);
   }
 
   private setupServer() {
@@ -224,9 +227,33 @@ export class NodeREDApp {
     }
   }
 
+  private setupDebugOut() {
+    Node.prototype._send = Node.prototype.send
+    const me = this
+    Node.prototype.send = function(msg: any) {
+      Node.prototype._send.call(this, msg)
+      if (!me.status.debugOut) return
+      const _data = {
+        id: this.id,
+        z: this.z,
+        name: this.name,
+        topic: msg.topic,
+        msg: msg,
+        _path: msg._path
+      }
+      const data = RED.runtime.util.encodeObject(_data);
+      RED.runtime.events.emit("comms", {
+        topic: "debug",
+        data: data,
+        retain: false
+      })
+    }
+  }
+
   private setupRED() {
     log.debug(">>> settings", this.settings);
     RED.init(this.server, this.settings);
+    this.setupDebugOut()
     this.app.use(this.settings.httpAdminRoot, RED.httpAdmin);
     if (this.settings.httpNodeAuth) {
       this.app.use(

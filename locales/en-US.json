@@ -52,7 +52,9 @@
         "about": "About",
         "hide": "Hide",
         "hideothers": "Hide Others",
-        "unhide": "Unhide"
+        "unhide": "Unhide",
+        "extend": "Extend",
+        "debugOut": "Debug out"
     },
     "version": {
         "version": "Current Version",
@@ -101,6 +103,8 @@
         "openlastfile": "Open a last file on startup",
         "httpnodeauth": "HTTP Node Authentication",
         "httpnodeauthuser": "Username",
-        "httpnodeauthpass": "Password"
+        "httpnodeauthpass": "Password",
+        "listenport": "Listen port",
+        "listenportPlaceholder": "when empty,use random port"
     }
 }

@@ -30,6 +30,7 @@ import prompt from "electron-prompt";
 import semver from "semver";
 // import rebuild from "@node-red-desktop/electron-rebuild";
 import nodegen from "node-red-nodegen";
+import "./debug";
 
 process.env.NODE_ENV = "production";
 const macOS = process.platform === "darwin";
@@ -61,6 +62,8 @@ export interface AppStatus {
   npmCommandEnabled: boolean;
   httpNodeAuth: {user: string, pass: string};
   selection: {nodes: any[]};
+  listenPort: string;
+  debugOut: boolean;
 }
 
 type UserSettings = {
@@ -73,7 +76,9 @@ type UserSettings = {
   autoDownload: boolean;
   hideOnMinimize: boolean;
   openLastFile: boolean;
-  httpNodeAuth: {user: string, pass: string}
+  httpNodeAuth: {user: string, pass: string};
+  listenPort: string;
+  debugOut: boolean;
 }
 
 class BaseApplication {
@@ -99,7 +104,7 @@ class BaseApplication {
     this.app.on("ready", this.onReady.bind(this));
     this.app.on("activate", this.onActivated.bind(this));
     this.app.on("window-all-closed", this.onWindowAllClosed.bind(this));
-    this.config = new ConfigManager(app.getName());
+    this.config = new ConfigManager(app.name);
     this.fileManager = new FileManager(this.config);
     this.fileHistory = new FileHistory(FILE_HISTORY_SIZE, ipcMain);
     this.status = {
@@ -122,28 +127,35 @@ class BaseApplication {
       nodeCommandEnabled: false,
       npmCommandEnabled: false,
       httpNodeAuth: this.config.data.httpNodeAuth,
-      selection: {nodes: []}
+      selection: {nodes: []},
+      listenPort: this.config.data.listenPort,
+      debugOut: this.config.data.debugOut
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
     this.red = new NodeREDApp(this.status);
+    ipcMain.on("browser:focus", this.setTitle.bind(this));
     ipcMain.on("browser:show", () => this.getBrowserWindow().show());
     ipcMain.on("browser:hide", () => this.getBrowserWindow().hide());
     ipcMain.on("browser:minimize", (event: Electron.Event) =>
       this.onMinimize(event)
     );
-    ipcMain.on("browser:before-close", (event: Electron.Event) =>
+    ipcMain.on("browser:before-close", (event: Electron.Event) => 
       this.onBeforeClose(event)
     );
     ipcMain.on("browser:closed", this.onClosed.bind(this));
     ipcMain.on("browser:restart", this.onRestart.bind(this));
     ipcMain.on("browser:relaunch", this.onRelaunch.bind(this));
+    // @ts-ignore
     ipcMain.on("browser:message", (text: string) => this.onMessage(text));
     ipcMain.on("browser:loading", this.onLoading.bind(this));
+    // @ts-ignore
     ipcMain.on("browser:go", (url: string) => this.go(url));
     ipcMain.on("browser:update-title", this.setTitle.bind(this));
+    // @ts-ignore
     ipcMain.on("browser:progress", (progress: number) => this.setProgress(progress));
     ipcMain.on("history:update", this.updateMenu.bind(this));
     ipcMain.on("menu:update", this.updateMenu.bind(this));
+    // @ts-ignore
     ipcMain.on("window:new", (url: string) => this.onNewWindow(url));
     ipcMain.on("auth:signin", (event: Electron.Event, args: any) =>
       this.onSignIn(event, args)
@@ -161,6 +173,7 @@ class BaseApplication {
       this.onSelectionChanged(event, selection)
     )
     ipcMain.on("file:new", this.onFileNew.bind(this));
+    // @ts-ignore
     ipcMain.on("file:open", this.onFileOpen.bind(this));
     ipcMain.on("file:clear-recent", this.onFileClearHistory.bind(this));
     ipcMain.on("file:save", this.onFileSave.bind(this));
@@ -174,11 +187,13 @@ class BaseApplication {
     ipcMain.on("ngrok:connect", this.onNgrokConnect.bind(this));
     ipcMain.on("ngrok:disconnect", this.onNgrokDisconnect.bind(this));
     ipcMain.on("ngrok:inspect", this.onNgrokInspect.bind(this));
+    // @ts-ignore
     ipcMain.on("view:reload", (item: MenuItem, focusedWindow: BrowserWindow) =>
       this.onViewReload(item, focusedWindow)
     );
     ipcMain.on(
       "view:set-locale",
+      // @ts-ignore
       (item: MenuItem, focusedWindow: BrowserWindow) =>
         this.onSetLocale(item, focusedWindow)
     );
@@ -193,6 +208,7 @@ class BaseApplication {
     });
     ipcMain.on("help:check-updates", this.onHelpCheckUpdates.bind(this));
     ipcMain.on("help:version", this.onHelpVersion.bind(this));
+    // @ts-ignore
     ipcMain.on("dev:tools", (item: MenuItem, focusedWindow: BrowserWindow) =>
       this.onToggleDevTools(item, focusedWindow)
     );
@@ -205,9 +221,11 @@ class BaseApplication {
     ipcMain.on("node:addRemote", this.onNodeAddRemote.bind(this));
     // ipcMain.on("node:rebuild", this.onNodeRebuild.bind(this));
     ipcMain.on("node:nodegen", this.onNodeGenerator.bind(this));
+    // @ts-ignore
     ipcMain.on("dialog:show", (type: "success" | "error" | "info", message: string, timeout?: number) =>
       this.showRedNotify(type, message, timeout)
     );
+    ipcMain.on("ext:debugOut", this.onDebugOut.bind(this))
   }
 
   private create() {
@@ -222,7 +240,7 @@ class BaseApplication {
           monospace: "MS Gothic"
         }
       },
-      title: app.getName(),
+      title: app.name,
       fullscreenable: true,
       width: 1280,
       height: 960,
@@ -290,6 +308,8 @@ class BaseApplication {
     this.config.data.hideOnMinimize = this.status.hideOnMinimize;
     this.config.data.openLastFile = this.status.openLastFile;
     this.config.data.httpNodeAuth = this.status.httpNodeAuth;
+    this.config.data.listenPort = this.status.listenPort;
+    this.config.data.debugOut = this.status.debugOut;
     this.config.save();
   }
 
@@ -307,7 +327,7 @@ class BaseApplication {
 
   private leavable(): boolean {
     if (!this.checkEphemeralFile()) return true;
-    const res = dialog.showMessageBox(this.getBrowserWindow(), {
+    const res = dialog.showMessageBoxSync(this.getBrowserWindow(), {
       type: "question",
       title: i18n.__("dialog.confirm"),
       message: i18n.__("dialog.closeMsg"),
@@ -336,9 +356,13 @@ class BaseApplication {
     this.getBrowserWindow().hide();
   }
 
-  private onBeforeClose(event?: Electron.Event) {
+  private isSettingsPage() {
     const url = path.parse(this.getBrowserWindow().webContents.getURL());
-    if (url.base === path.parse(this.settingsURL).base) {
+    return (url.base === path.parse(this.settingsURL).base)
+  }
+
+  private onBeforeClose(event?: Electron.Event) {
+    if (this.isSettingsPage()) {
       this.unsetBeforeUnload();
     } else if (this.leavable()) {
       this.unsetBeforeUnload();
@@ -388,6 +412,7 @@ class BaseApplication {
   }
 
   private async go(url: string) {
+    if (!url) throw new Error("no url")
     await this.getBrowserWindow().loadURL(this.setLangUrl(url));
     this.setTitle();
   }
@@ -395,7 +420,7 @@ class BaseApplication {
   private onMessage(text: string) {
     // this.getBrowserWindow().webContents.send("message", text);
     const msg: Electron.NotificationConstructorOptions = {
-      title: app.getName(),
+      title: app.name,
       body: text,
       closeButtonText: i18n.__("dialog.ok")
     };
@@ -458,8 +483,8 @@ class BaseApplication {
     this.appMenu!.setup();
   }
 
-  private openAny(url: string) {
-    shell.openExternalSync(url);
+  private async openAny(url: string) {
+    await shell.openExternal(url);
   }
 
   private onNewWindow(url: string) {
@@ -482,7 +507,7 @@ class BaseApplication {
 
   private onFileOpen(file: string = "") {
     if (!file) {
-      const files = dialog.showOpenDialog(this.getBrowserWindow(), {
+      const files = dialog.showOpenDialogSync(this.getBrowserWindow(), {
         title: i18n.__("dialog.openFlowFile"),
         properties: ["openFile"],
         defaultPath: path.dirname(this.status.currentFile),
@@ -505,7 +530,7 @@ class BaseApplication {
   }
 
   private onFileSaveAs(): boolean {
-    const savefile = dialog.showSaveDialog(this.getBrowserWindow(), {
+    const savefile = dialog.showSaveDialogSync(this.getBrowserWindow(), {
       title: i18n.__("dialog.saveFlowFile"),
       defaultPath: path.dirname(this.status.currentFile),
       filters: [
@@ -624,17 +649,17 @@ class BaseApplication {
 
   private onHelpVersion() {
     const body = `
-      Name: ${app.getName()} 
+      Name: ${app.name} 
       ${i18n.__("version.version")}: ${app.getVersion()}
       ${this.customAutoUpdater!.info()}
       ${this.red.info()}
       ${this.fileManager.info()}
     `.replace(/^\s*/gm, "");
 
-    dialog.showMessageBox(this.getBrowserWindow(), {
+    dialog.showMessageBoxSync(this.getBrowserWindow(), {
       title: i18n.__("menu.version"),
       type: "info",
-      message: app.getName(),
+      message: app.name,
       detail: body,
       buttons: [i18n.__("dialog.ok")],
       noLink: true
@@ -664,6 +689,7 @@ class BaseApplication {
     this.status.hideOnMinimize = args.hideOnMinimize;
     this.status.openLastFile = args.openLastFile;
     this.status.httpNodeAuth = args.httpNodeAuth;
+    this.status.listenPort = args.listenPort;
     this.saveConfig();
     app.relaunch();
     app.quit();
@@ -689,7 +715,7 @@ class BaseApplication {
 
   private async onNodeAddLocal() {
     this.showShade();
-    const dirs = dialog.showOpenDialog(this.getBrowserWindow(), {
+    const dirs = dialog.showOpenDialogSync(this.getBrowserWindow(), {
       title: i18n.__("dialog.openNodeDir"),
       properties: ["openDirectory"],
       defaultPath: this.status.userDir
@@ -748,7 +774,7 @@ class BaseApplication {
       dialog.showMessageBox(this.getBrowserWindow(), {
         title: i18n.__("dialog.nodegen"),
         type: "info",
-        message: app.getName(),
+        message: app.name,
         detail: i18n.__("dialog.nodenotfound"),
         buttons: [i18n.__("dialog.ok")],
         noLink: true
@@ -778,6 +804,11 @@ class BaseApplication {
       this.showRedNotify("error", JSON.stringify(err));
     }
     this.hideShade();
+  }
+
+  private onDebugOut() {
+    this.status.debugOut = !this.status.debugOut
+    console.log(this.status)
   }
 }
 

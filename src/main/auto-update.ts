@@ -68,9 +68,9 @@ export class CustomAutoUpdater {
   }
 
   private installUpdate(info: any) {
-    const res = dialog.showMessageBox(this.window, {
+    const res = dialog.showMessageBoxSync(this.window, {
       type: "info",
-      title: `${app.getName()} v${info.version} ${i18n.__("update.downloaded")}`,
+      title: `${app.name} v${info.version} ${i18n.__("update.downloaded")}`,
       message: i18n.__("update.message"),
       buttons: [i18n.__("update.restart"), i18n.__("update.later")]
     });
@@ -84,8 +84,8 @@ export class CustomAutoUpdater {
   }
 
   private async onUpdateFound(result: UpdateCheckResult) {
-    const res = dialog.showMessageBox(this.window, {
-      title: app.getName() + " " + i18n.__("menu.checkversion"),
+    const res = dialog.showMessageBoxSync(this.window, {
+      title: app.name + " " + i18n.__("menu.checkversion"),
       type: "info",
       message:
         `v${result.updateInfo.version}(${result.updateInfo.releaseDate}) ${i18n.__("update.available")}`,
@@ -99,7 +99,7 @@ export class CustomAutoUpdater {
 
   private onNoUpdate() {
     dialog.showMessageBox(this.window, {
-      title: app.getName() + " " + i18n.__("menu.checkversion"),
+      title: app.name + " " + i18n.__("menu.checkversion"),
       type: "info",
       message: `${i18n.__("update.noavailable")}`,
       buttons: [i18n.__("dialog.ok")],
