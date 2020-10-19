@@ -1,6 +1,14 @@
+## v1.2.0
+- udpate: Node-RED 1.1.3 -> 1.2.2
+- fix: examples directory is not packed
+
+## v1.1.1
+- update: electron 10.1.2 -> 10.1.3
+- update: ngrok
+
 ## v1.1.0
-- udpate: Node-RED 1.0.3+v-flow -> 1.1.2 -> 1.1.3
-- update: electron 7.1.2 -> 9.1.1 -> 10.1.2
+- udpate: Node-RED 1.0.3+v-flow -> 1.1.3
+- update: electron 7.1.2 -> 10.1.2
 - add: validation in settings #17
 - add: deepmerge user settings #23
 - update: settings page with Node-RED style

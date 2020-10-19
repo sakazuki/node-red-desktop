@@ -7,6 +7,8 @@ directories:
 asar: true
 files:
 - "**/*"
+- from: "node_modules/@node-red/nodes/examples"
+  to: "node_modules/@node-red/nodes/examples"
 - "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
 - "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
 - "!**/node_modules/*.d.ts"
