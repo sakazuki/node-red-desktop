@@ -1,5 +1,5 @@
 ## v1.2.0
-- udpate: Node-RED 1.1.3 -> 1.2.1
+- udpate: Node-RED 1.1.3 -> 1.2.2
 - fix: examples directory is not packed
 
 ## v1.1.1
