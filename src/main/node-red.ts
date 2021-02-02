@@ -270,7 +270,7 @@ export class NodeREDApp {
   private patchInstaller() {
     installer._checkPrereq = installer.checkPrereq;
     installer.checkPrereq = () => {
-      return new Promise(resolve => {
+      return new Promise<void>(resolve => {
         resolve();
       })
     }
