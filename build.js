@@ -32,7 +32,7 @@ program.option("-n --no-build").parse(process.argv);
     //   await fs.copy(src, path.join(__dirname, config.directories.app, base));
     // }
 
-    if (!program.build) return;
+    if (!program.opts().build) return;
     
     const platform = (process.platform === "darwin") ? Platform.MAC : Platform.WINDOWS;
     const res = await builder.build({

@@ -1,3 +1,11 @@
+## V1.2.2
+- udpate: Node-RED 1.2.2 -> 1.2.7
+- update: electron 10.1.3 -> 11.2.1
+
+## V1.2.1
+- udpate: Node-RED 1.2.2 -> 1.2.3
+- update: electron 10.1.3 -> 10.1.5
+
 ## v1.2.0
 - udpate: Node-RED 1.1.3 -> 1.2.2
 - fix: examples directory is not packed
