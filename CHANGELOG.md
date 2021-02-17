@@ -1,3 +1,7 @@
+## V1.2.3
+- udpate: Node-RED 1.2.7 -> 1.2.9
+- update: electron 11.2.1 -> 11.2.3
+
 ## V1.2.2
 - udpate: Node-RED 1.2.2 -> 1.2.7
 - update: electron 10.1.3 -> 11.2.1
