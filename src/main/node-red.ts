@@ -279,7 +279,7 @@ export class NodeREDApp {
 
   private patchRuntimeExec() {
     newExec.init(RED.runtime._, this.status);
-    runtime._.nodes.paletteEditorEnabled = () => { return true };
+    runtime._.nodes.installerEnabled = () => { return true };
   }
 
   get exec() {
