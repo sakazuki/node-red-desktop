@@ -48,4 +48,7 @@ export class CustomTray {
   private onShow() {
     ipcMain.emit("browser:show");
   }
+  public destroy() {
+    this.tray.destroy();
+  }
 }

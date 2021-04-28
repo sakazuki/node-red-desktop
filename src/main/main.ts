@@ -380,6 +380,7 @@ class BaseApplication {
 
   private onClosed() {
     this.fileManager.clearTmp();
+    this.tray?.destroy();
     this.mainWindow = null;
   }
 
