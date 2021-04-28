@@ -25,7 +25,7 @@ import ngrok from "ngrok";
 import { NodeREDApp, NPM_COMMAND } from "./node-red";
 import log from "./log";
 import fs from "fs-extra";
-import fileUrl from "file-url";
+import { pathToFileURL } from "url";
 import prompt from "electron-prompt";
 import semver from "semver";
 // import rebuild from "@node-red-desktop/electron-rebuild";
@@ -87,12 +87,12 @@ class BaseApplication {
   private appMenu: AppMenu | null = null;
   private tray: CustomTray | null = null;
   private app: App;
-  private loadingURL: string = fileUrl(
+  private loadingURL: string = pathToFileURL(
     path.join(__dirname, "..", "loading.html")
-  );
-  private settingsURL: string = fileUrl(
+  ).href;
+  private settingsURL: string = pathToFileURL(
     path.join(__dirname, "..", "settings.html")
-  );
+  ).href;
   private config: ConfigManager;
   private fileManager: FileManager;
   private fileHistory: FileHistory;
@@ -232,6 +232,8 @@ class BaseApplication {
     const options: BrowserWindowConstructorOptions = {
       webPreferences: {
         nodeIntegration: false,
+        contextIsolation: true,
+        worldSafeExecuteJavaScript: true,
         preload: path.join(__dirname, "preload.js"),
         defaultFontFamily: {
           standard: "Meiryo UI",
@@ -561,11 +563,11 @@ class BaseApplication {
   }
 
   private onUserdirOpen() {
-    this.openAny(fileUrl(this.status.userDir));
+    this.openAny(pathToFileURL(this.status.userDir).href);
   }
 
   private onLogfileOpen() {
-    this.openAny(fileUrl(log.transports.file.file!));
+    this.openAny(pathToFileURL(log.transports.file.file!).href);
   }
 
   private onSettings() {
@@ -797,7 +799,7 @@ class BaseApplication {
       this.loadingShade();
       const result = await nodegen.function2node(data, options)
       log.info(">>> nodegen success", result);
-      this.openAny(fileUrl(result));
+      this.openAny(pathToFileURL(result).href);
       // await this.red.execNpmLink(result);
     } catch(err) {
       log.error(">>> nodegen failed", err);

@@ -82,4 +82,4 @@ const newExec = {
     }
 }
 
-export = newExec;
+export default newExec;

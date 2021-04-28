@@ -12,7 +12,7 @@ import path from "path";
 import log from "./log";
 import { AppStatus } from "./main";
 import fs from "fs-extra";
-import CustomStorage =  require("./custom-storage");
+const CustomStorage = require("./custom-storage");
 const registry = require("@node-red/registry");
 import _ from "lodash";
 import bcryptjs from "bcryptjs";
@@ -102,6 +102,7 @@ export class NodeREDApp {
       functionGlobalContext: {
         get NGROK_URL(): string { return _this.status.ngrokUrl }
       },
+      functionExternalModules: true,
       editorTheme: {
         page: {
           title: app.name,
