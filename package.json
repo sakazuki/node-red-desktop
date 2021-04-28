@@ -42,7 +42,7 @@
     "style-loader": "^2.0.0",
     "ts-loader": "^9.1.1",
     "typescript": "^4.2.4",
-    "webpack": "^5.36.0",
+    "webpack": "^5.36.1",
     "webpack-cli": "^4.6.0"
   },
   "dependencies": {
@@ -51,7 +51,7 @@
     "deepmerge": "^4.2.2",
     "electron-json-storage-sync": "^1.2.0",
     "electron-log": "^4.3.4",
-    "electron-prompt": "git+https://github.com/sakazuki/electron-prompt.git#pass_options",
+    "electron-prompt": "1.6.2",
     "electron-updater": "^4.3.8",
     "express": "^4.17.1",
     "express-ipfilter": "^1.2.0",
