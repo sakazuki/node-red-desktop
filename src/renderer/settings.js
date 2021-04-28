@@ -1,11 +1,9 @@
 // @ts-nocheck
-const electron = window.nodeRequire("electron");
-const ipc = electron.ipcRenderer;
 var session;
 
 function initApp() {
   console.log("initApp");
-  ipc.send("settings:loaded");
+  window.NRDApi.sendSettingsLoaded();
   var editor = ace.edit("node-input-blacklist");
   // editor.setTheme("ace/theme/tomorrow")
   session = editor.getSession();
@@ -30,22 +28,22 @@ function initApp() {
 }
 
 function initLang() {
-  window.document.title = _i18n.__("menu.settings");
-  $("#label-userdir").text(_i18n.__("settings.userdir"));
-  $("#label-credentialsecret").text(_i18n.__("settings.credentialsecret"));
-  $("#label-nodesexcludes").text(_i18n.__("settings.nodesexcludes"));
-  $("#label-projects").text(_i18n.__("settings.projects"));
-  $("#button-submit").text(_i18n.__("settings.submit"));
-  $("#button-cancel").text(_i18n.__("settings.cancel"));
-  $("#label-hideonminimize").text(_i18n.__("settings.hideonminimize"));
-  $("#label-autocheckupdate").text(_i18n.__("settings.autocheckupdate"));
-  $("#label-allowprerelease").text(_i18n.__("settings.allowprerelease"));
-  $("#label-openlastfile").text(_i18n.__("settings.openlastfile"));
-  $("#label-httpnodeauth").text(_i18n.__("settings.httpnodeauth"));
-  $("#label-httpnodeauthuser").text(_i18n.__("settings.httpnodeauthuser"));
-  $("#label-httpnodeauthpass").text(_i18n.__("settings.httpnodeauthpass"));
-  $("#label-listenport").text(_i18n.__("settings.listenport"));
-  $("#listenport").attr("placeholder", _i18n.__("settings.listenportPlaceholder"));
+  window.document.title = window.NRDApi.t("menu.settings");
+  $("#label-userdir").text(window.NRDApi.t("settings.userdir"));
+  $("#label-credentialsecret").text(window.NRDApi.t("settings.credentialsecret"));
+  $("#label-nodesexcludes").text(window.NRDApi.t("settings.nodesexcludes"));
+  $("#label-projects").text(window.NRDApi.t("settings.projects"));
+  $("#button-submit").text(window.NRDApi.t("settings.submit"));
+  $("#button-cancel").text(window.NRDApi.t("settings.cancel"));
+  $("#label-hideonminimize").text(window.NRDApi.t("settings.hideonminimize"));
+  $("#label-autocheckupdate").text(window.NRDApi.t("settings.autocheckupdate"));
+  $("#label-allowprerelease").text(window.NRDApi.t("settings.allowprerelease"));
+  $("#label-openlastfile").text(window.NRDApi.t("settings.openlastfile"));
+  $("#label-httpnodeauth").text(window.NRDApi.t("settings.httpnodeauth"));
+  $("#label-httpnodeauthuser").text(window.NRDApi.t("settings.httpnodeauthuser"));
+  $("#label-httpnodeauthpass").text(window.NRDApi.t("settings.httpnodeauthpass"));
+  $("#label-listenport").text(window.NRDApi.t("settings.listenport"));
+  $("#listenport").attr("placeholder", window.NRDApi.t("settings.listenportPlaceholder"));
 }
 
 $(document).on("dragover", event => event.preventDefault());
@@ -55,9 +53,9 @@ $(document).ready(function(){
   initApp();
 });
 
-ipc.on("settings:set", (event, settings) => {
+window.NRDApi.onSettingsSet((event, settings) => {
   console.log("received", settings);
-  _i18n.setLocale(settings.locale);
+  window.NRDApi.setLocale(settings.locale);
   initLang();
   $("#userdir").val(settings.userDir);
   $("#credentialsecret").val(settings.credentialSecret);
@@ -90,12 +88,11 @@ $("#button-submit").on("click", function(event) {
     },
     listenPort: $("#listenport").val()
   }
-  ipc.send("settings:update", data);
-  return false;
+  window.NRDApi.sendSettingsUpdate(data);
 });
 
 $("#button-cancel").on("click", function(event) {
-  ipc.send("settings:cancel");
+  window.NRDApi.sendSettingsCancel();
   return false;
 });
 

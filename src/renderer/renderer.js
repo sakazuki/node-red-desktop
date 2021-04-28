@@ -1,59 +1,56 @@
 // @ts-nocheck
 
-const electron = window.nodeRequire("electron");
-const ipc = electron.ipcRenderer;
-
 $(document).ready(function(){
   $("#red-ui-full-shade").after('<div id="nrd-shade" class="hide"></div>');
 
   RED.events.on("nodes:change",function(state) {
-    ipc.send("nodes:change", state);
+    window.NRDApi.sendNodesChange(state);
   });
 
   RED.events.on("view:selection-changed", function(selection) {
-    ipc.send("view:selection-changed", selection);
+    window.NRDApi.sendViewSelectionChanged(selection);
   })
 });
 
-ipc.on("force:reload", function() {
+window.NRDApi.onForceReload(function() {
   window.onbeforeunload = null;
   $("#red-ui-header-button-deploy").addClass("disabled");
 })
 
-ipc.on("editor:deploy",  (event, message) => {
+window.NRDApi.onEditorDeploy((event, message) => {
   $("#red-ui-header-button-deploy").click();
 });
 
-ipc.on("editor:start", (event, message) => {
+window.NRDApi.onEditorStart((event, message) => {
   var observer  = new MutationObserver((mutationRecords, observer) => {
     var target = $("#red-ui-tab-debug-link-button");
     if (target.length){
       observer.disconnect();
       target.click();
-      ipc.send("editor:started");
+      window.NRDApi.sendEditorStarted();
     }
   });
   observer.observe(document, {childList:true, subtree: true});
 });
 
-ipc.on("shade:show", (event, message) => {
+window.NRDApi.onShadeShow((event, message) => {
   $("#nrd-shade").show();
 });
 
-ipc.on("shade:start", (event, message) => {
+window.NRDApi.onShadeStart((event, message) => {
   $("#nrd-shade").css("background-image", "url(red/images/spin.svg)");
 });
 
-ipc.on("shade:end", (event, message) => {
+window.NRDApi.onShadeEnd((event, message) => {
   $("#nrd-shade").css("background-image", "none");
 });
 
-ipc.on("shade:hide", (event, message) => {
+window.NRDApi.onShadeHide((event, message) => {
   $("#nrd-shade").css("background-image", "none");
   $("#nrd-shade").hide();
 });
 
-ipc.on("red:notify", (event, type, message, timeout) => {
+window.NRDApi.onRedNotify((event, type, message, timeout) => {
   var options = {
     type: type,
     modal: true,
