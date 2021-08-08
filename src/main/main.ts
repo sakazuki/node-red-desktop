@@ -441,7 +441,8 @@ class BaseApplication {
       log.info(">>> Check node.js version", res);
       if (res.code === 0) {
         const range = semver.validRange(process.version.split(".")[0]);
-        return semver.satisfies(res.stdout.trim(), range)
+        if (!range) throw new Error('Invalid version');
+        return semver.satisfies(res.stdout.trim(), range);
       }
     } catch (err) {
       log.error(err);
