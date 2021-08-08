@@ -9,6 +9,8 @@ on:
 jobs:
   build_on_mac:
     runs-on: macos-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js 14.x
@@ -34,6 +36,8 @@ jobs:
 
   build_on_win:
     runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js 14.x
