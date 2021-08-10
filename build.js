@@ -2,7 +2,7 @@ const builder = require("electron-builder");
 const yaml = require("js-yaml");
 const fs = require("fs-extra");
 const path = require("path");
-const config = yaml.safeLoad(fs.readFileSync("./electron-builder.yml"));
+const config = yaml.load(fs.readFileSync("./electron-builder.yml"));
 const Platform = builder.Platform;
 const program = require("commander");
 
