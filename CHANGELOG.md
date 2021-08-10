@@ -1,7 +1,8 @@
-## v2.2.0
+## v2.0.0
 - update: Node-RED 2.0.5
-- update: electron 13.1.7
+- update: electron 13.1.9
 - build with Github Actions
+- patch: #49
 
 ## V1.3.0
 - update: Node-RED 1.3.3

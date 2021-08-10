@@ -23,14 +23,8 @@ program.option("-n --no-build").parse(process.argv);
       await fs.copy(file, path.join(__dirname, config.directories.app, file.replace("src/", "")));
     }
 
-    // const styles = [
-    //   "jquery-validation/dist/jquery.validate.min.js"
-    // ];
-    // for (let file of styles) {
-    //   const src = path.join(__dirname, "node_modules", file);
-    //   const base = path.parse(file).base
-    //   await fs.copy(src, path.join(__dirname, config.directories.app, base));
-    // }
+    // issue#49 https://github.com/sakazuki/node-red-desktop/issues/49
+    await fs.copy('patch/i18n.js', path.join(__dirname, config.directories.app, "node_modules/@node-red/util/lib/i18n.js"));
 
     if (!program.opts().build) return;
     

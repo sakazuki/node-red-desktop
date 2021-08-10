@@ -24,7 +24,7 @@ import { CustomTray } from "./tray";
 import ngrok from "ngrok";
 import { NodeREDApp, NPM_COMMAND } from "./node-red";
 import log from "./log";
-import fs from "fs-extra";
+import fs from "fs";
 import { pathToFileURL } from "url";
 import prompt from "electron-prompt";
 import semver from "semver";

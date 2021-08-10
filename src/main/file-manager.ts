@@ -1,5 +1,5 @@
 import path from "path";
-import fs from "fs-extra";
+import fs from "fs";
 import tmp from "tmp";
 import os from "os";
 import { ConfigManager } from "./config-manager";
@@ -24,11 +24,11 @@ export class FileManager {
 
   private setupUserDir(config: ConfigManager) {
     try {
-      fs.ensureDirSync(config.data.userDir);
+      if (!fs.existsSync(config.data.userDir)) fs.mkdirSync(config.data.userDir);
       return config.data.userDir;
     } catch (err) {
       const destdir = path.join(os.homedir(), "." + config.getName());
-      fs.ensureDirSync(destdir);
+      if (!fs.existsSync(destdir)) fs.mkdirSync(destdir);
       return destdir;
     }
   }
@@ -44,13 +44,13 @@ export class FileManager {
   private clearBackup(file: tmp.FileResult) {
     const filePath = path.parse(file.name);
     const backup = path.join(filePath.dir, `.${filePath.base}.backup`);
-    if (fs.existsSync(backup)) fs.removeSync(backup);
+    if (fs.existsSync(backup)) fs.unlinkSync(backup);
   }
 
   private clearCredential(file: tmp.FileResult) {
     const filePath = path.parse(file.name);
     const backup = path.join(filePath.dir, `.${filePath.name}_cred${filePath.ext}.backup`);
-    if (fs.existsSync(backup)) fs.removeSync(backup);
+    if (fs.existsSync(backup)) fs.unlinkSync(backup);
   }
 
   public clearTmp(){
@@ -64,9 +64,9 @@ export class FileManager {
   private remove(file: string) {
     try {
       const fliePath = path.parse(file);
-      if (fs.existsSync(file)) fs.removeSync(file);
+      if (fs.existsSync(file)) fs.unlinkSync(file);
       const cred = path.join(fliePath.dir, `${fliePath.name}_cred${fliePath.ext}`);
-      if (fs.existsSync(cred)) fs.removeSync(cred);
+      if (fs.existsSync(cred)) fs.unlinkSync(cred);
     } catch (e) {
       console.log(e)
       throw new Error(`fail to remove ${file}`)
@@ -75,12 +75,12 @@ export class FileManager {
 
   private move(src: string, dest: string){
     try {
-      fs.moveSync(src, dest);
+      fs.renameSync(src, dest);
       const srcPath = path.parse(src);
       const credSrc = path.join(srcPath.dir, `${srcPath.name}_cred${srcPath.ext}`);
       const destPath = path.parse(dest);
       const credDst = path.join(destPath.dir, `${destPath.name}_cred${destPath.ext}`);
-      if (fs.existsSync(credSrc)) fs.moveSync(credSrc, credDst);
+      if (fs.existsSync(credSrc)) fs.renameSync(credSrc, credDst);
     } catch (e) {
       console.log(e)
       throw new Error(`fail to move ${src} to ${dest}`)
@@ -89,12 +89,12 @@ export class FileManager {
 
   private copy(src: string, dest: string){
     try {
-      fs.copySync(src, dest);
+      fs.copyFileSync(src, dest);
       const srcPath = path.parse(src);
       const credSrc = path.join(srcPath.dir, `${srcPath.name}_cred${srcPath.ext}`);
       const destPath = path.parse(dest);
       const credDst = path.join(destPath.dir, `${destPath.name}_cred${destPath.ext}`);
-      if (fs.existsSync(credSrc)) fs.copySync(credSrc, credDst);
+      if (fs.existsSync(credSrc)) fs.copyFileSync(credSrc, credDst);
     } catch (e) {
       console.log(e)
       throw new Error(`fail to copy ${src} to ${dest}`)

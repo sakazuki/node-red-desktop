@@ -11,7 +11,7 @@ import { ipcMain, app, ipcRenderer } from "electron";
 import path from "path";
 import log from "./log";
 import { AppStatus } from "./main";
-import fs from "fs-extra";
+import fs from "fs";
 const CustomStorage = require("./custom-storage");
 const registry = require("@node-red/registry");
 import _ from "lodash";
