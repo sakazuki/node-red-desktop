@@ -16,8 +16,10 @@ jobs:
         node-version: 14.x
     - name: npm install
       run: npm install
-    - run: node build -n
-    - run: npm install
+    - name: put build.js in ./dist
+      run: node build -n
+    - name: npm install in ./dist
+      run: npm install
       working-directory: ./dist
     - name: build application
       run: npm run build
