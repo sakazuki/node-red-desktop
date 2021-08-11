@@ -13,7 +13,8 @@ async function copyFiles() {
     "settings.html",
     "images",
     "locales",
-    "src/renderer/desktop.css"
+    "src/renderer/desktop.css",
+    "node_modules"
   ];
   for (let file of files) {
     await fs.copy(file, path.join(__dirname, config.directories.app, file.replace("src/", "")));
@@ -23,10 +24,9 @@ async function copyFiles() {
 
 async function patchFiles() {
   await fs.copy('patch/underscore-package.json', path.join(__dirname, "node_modules/nomnom/node_modules/underscore/package.json"));
-  await fs.copy('patch/underscore-package.json', path.join(__dirname, config.directories.app, "node_modules/nomnom/node_modules/underscore/package.json"));
   // issue#49 https://github.com/sakazuki/node-red-desktop/issues/49
-  await fs.copy('patch/i18n.js', path.join(__dirname, config.directories.app, "node_modules/@node-red/util/lib/i18n.js"));
-  return
+  await fs.copy('patch/i18n.js', path.join(__dirname, "node_modules/@node-red/util/lib/i18n.js"));
+  return ['nomnom/*/underscore/package.json', '@node-red/util/lib/i18.js'];
 }
 
 async function build() {
@@ -43,14 +43,15 @@ async function main() {
     .option("-b --build")
     .parse(process.argv);
   const opts = program.opts();
+  const noopts = !(opts.setup || opts.build)
   try {
-    if (opts.setup) {
+    if (noopts || opts.setup) {
+      const patched = await patchFiles();
+      console.log(`Patched ${patched}.`);
       const copied = await copyFiles();
       console.log(`Copy ${copied} to dist/*`);
     }
-    if (opts.build) {
-      await patchFiles();
-      console.log(`Replaced nomnom/node_modules/underscore/package.json, @node-red/util/lib/i18n.js`);
+    if (noopts || opts.build) {
       const res = await build();
       console.log(res);
     }
