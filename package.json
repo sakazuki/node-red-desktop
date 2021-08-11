@@ -5,7 +5,7 @@
   "description": "Node-RED Desktop",
   "main": "main/main.js",
   "scripts": {
-    "build": "tsc && node build.js",
+    "build": "node build.js -s && cd ./dist && npm install && cd .. && tsc && node build.js -b",
     "watch": "tsc -w",
     "lint": "eslint -c .eslintrc.yml src/main/main.ts",
     "start": "electron dist/main/main.js"

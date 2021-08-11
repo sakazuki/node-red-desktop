@@ -16,8 +16,6 @@ jobs:
         node-version: 14.x
     - name: npm install
       run: npm install
-    - name: put package.json in ./dist
-      run: node ./build.js -n
     - name: npm install in ./dist
       run: npm install
       working-directory: ./dist
@@ -48,8 +46,6 @@ jobs:
         node-version: 14.x
     - name: npm install
       run: npm install
-    - name: put package.json in ./dist
-      run: node ./build.js -n
     - name: npm install in ./dist
       run: npm install
       working-directory: ./dist
