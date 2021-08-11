@@ -16,9 +16,6 @@ jobs:
         node-version: 14.x
     - name: npm install
       run: npm install
-    - name: npm install in ./dist
-      run: npm install
-      working-directory: ./dist
     - name: build application
       run: npm run build
       env:
@@ -46,9 +43,6 @@ jobs:
         node-version: 14.x
     - name: npm install
       run: npm install
-    - name: npm install in ./dist
-      run: npm install
-      working-directory: ./dist
     - name: build application
       run: npm run build
       env:
