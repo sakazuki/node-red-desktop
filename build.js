@@ -48,8 +48,8 @@ async function main() {
       console.log(`Copy ${copied} to dist/*`);
     }
     if (opts.build) {
-      //await patchFiles();
-      //console.log(`Replaced @node-red/util/lib/i18n.js`);
+      await patchFiles();
+      console.log(`Replaced nomnom/node_modules/underscore/package.json, @node-red/util/lib/i18n.js`);
       const res = await build();
       console.log(res);
     }
