@@ -8,7 +8,7 @@ This is a desktop applicaiton of Node-RED
 
 ## Announce
 
-- 2021-08-12  **2.0.0-beta.19** preview release (Node-RED v2.0.5)
+- 2021-08-22  **2.0.0** release (Node-RED v2.0.5)
 - 2021-04-29  **1.3.0** release (Node-RED v1.3.3)
 - 2021-02-17  **1.2.3** release (Node-RED v1.2.9)
 - 2021-02-02  **1.2.2** release (Node-RED v1.2.7)
@@ -40,7 +40,9 @@ You can use almost all powerful and useful Node-RED features
 
 ## Node-RED-Desktop features
 
-- [Node-RED](https://nodered.org/) v1.0.2
+- [Node-RED](https://nodered.org/) v2.X
+- [Node-RED Flow debugger](https://github.com/node-red/node-red-debugger)
+- [Node-RED Flow Linter](https://github.com/node-red/nrlint)
 - [ngrok](https://ngrok.com/) integrated
 - [Node generator](https://www.npmjs.com/package/node-red-nodegen) integrated
 - npm integrated
@@ -151,8 +153,6 @@ When you activate the MQTT node, Delete `10-mqtt.js` from **[Node exclude]**.
   31-tcpin.js
   32-udp.js
   89-trigger.js
-  node-red-node-sentiment
-  node-red-node-rbe
   ```
 
 - I have selected default **[Nodes exclude]** to simple the first look for beginners.  
