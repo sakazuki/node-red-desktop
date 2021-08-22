@@ -11,7 +11,7 @@ import { ipcMain, app, ipcRenderer } from "electron";
 import path from "path";
 import log from "./log";
 import { AppStatus } from "./main";
-import fs from "fs-extra";
+import fs from "fs";
 const CustomStorage = require("./custom-storage");
 const registry = require("@node-red/registry");
 import _ from "lodash";
@@ -31,11 +31,7 @@ export const DEFAULT_NODES_EXCLUDES = [
   "16-range.js",
   "31-tcpin.js",
   "32-udp.js",
-  // "36-rpi-gpio.js", // not exist in 1.0.0
-  "89-trigger.js",
-  // "node-red-node-tail",
-  "node-red-node-sentiment",
-  "node-red-node-rbe"
+  "89-trigger.js"
 ];
 
 export class NodeREDApp {
