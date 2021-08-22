@@ -7,7 +7,7 @@ Node-REDのデスクトップ版です。
 ![screen](https://raw.githubusercontent.com/sakazuki/node-red-desktop/doc/screenshot.png)
 
 ## お知らせ
-- 2021-08-12  **2.0.0-beta.19** プレリリース (Node-RED v2.0.5)
+- 2021-08-22 **2.0.0** リリース (Node-RED v2.0.5)
 - 2021-04-29 **1.3.0** リリース (Node-RED v1.3.3)
 - 2021-02-17 **1.2.3** リリース (Node-RED v1.2.9)
 - 2021-02-02 **1.2.2** リリース (Node-RED v1.2.7)
@@ -40,7 +40,9 @@ Node-REDの便利な機能のほとんどを使うことができます。
 
 ## 特徴
 
-- [Node-RED](https://nodered.org/) v1.0.2
+- [Node-RED](https://nodered.org/) v2.X
+- [Node-RED Flow debugger](https://github.com/node-red/node-red-debugger)
+- [Node-RED Flow Linter](https://github.com/node-red/nrlint)
 - [ngrok](https://ngrok.com/) 組み込み済み
 - [Node generator](https://www.npmjs.com/package/node-red-nodegen)  組み込み済み
 - npm 組み込み済み
@@ -165,8 +167,6 @@ Node-REDの便利な機能のほとんどを使うことができます。
   31-tcpin.js
   32-udp.js
   89-trigger.js
-  node-red-node-sentiment
-  node-red-node-rbe
   ```
 
 - Node-REDがはじめての方に、見た目がシンプルに映るよう **読み込まないノード** を選択しています。  
