@@ -1,8 +1,11 @@
 ## v2.0.0
 - update: Node-RED 2.0.5
-- update: electron 13.1.9
+- update: electron 13.2.1
 - build with Github Actions
 - patch: #49
+- remove: debugOut
+- add: node-debugger, nrlint
+- update: DEFAULT_NODES_EXCLUDES
 
 ## V1.3.0
 - update: Node-RED 1.3.3

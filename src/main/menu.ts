@@ -152,19 +152,6 @@ export class AppMenu {
       ]
     };
 
-    const ext: MenuItemConstructorOptions = {
-      label: i18n.__("menu.extend"),
-      submenu: [
-        {
-          label: i18n.__("menu.debugOut"),
-          type: "checkbox",
-          enabled: this.enabled,
-          checked: this.status.debugOut,
-          click() { ipcMain.emit("ext:debugOut"); }
-        }
-      ]
-    };
-
     const tools: MenuItemConstructorOptions = {
       label: i18n.__("menu.tools"),
       submenu: [
@@ -325,9 +312,9 @@ export class AppMenu {
     let localesMenu: Menu | any;
   
     if (macOS) {
-      template = [darwin, file, edit, endpoint, ext, tools, view, help];
+      template = [darwin, file, edit, endpoint, tools, view, help];
     } else {
-      template = [file, endpoint, ext, tools, view, help];
+      template = [file, endpoint, tools, view, help];
     }
   
     if (new RegExp(`${app.name}-debug`).exec(process.env.NODE_DEBUG!)) {
@@ -337,10 +324,10 @@ export class AppMenu {
     const menu = Menu.buildFromTemplate(template);
     if (macOS) {
       openRecentMenu = (menu.items[1] as any).submenu.items[2];
-      localesMenu = (menu.items[6] as any).submenu.items[2];
+      localesMenu = (menu.items[5] as any).submenu.items[2];
     } else {
       openRecentMenu = (menu.items[0] as any).submenu.items[2];
-      localesMenu = (menu.items[4] as any).submenu.items[2];
+      localesMenu = (menu.items[3] as any).submenu.items[2];
     }
     this.setOpenRecentMenu(openRecentMenu.submenu);
     openRecentMenu.enabled = (openRecentMenu.submenu.items.length > 0);
