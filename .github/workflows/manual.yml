@@ -1,0 +1,47 @@
+name: Action Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Test scenario tags'  
+
+jobs:
+  build_on_mac:
+    runs-on: macos-latest
+    steps:
+    - run: |
+        echo "Tags: ${{ github.event.inputs.tags }}" 
+    - uses: actions/checkout@v2
+    - name: Checkout inputed tag
+      run: |
+        git fetch --prune --unshallow
+        git checkout ${{ github.event.inputs.tags }}
+    - name: Use Node.js 14.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 14.x
+    - name: npm install
+      run: npm install
+    - name: build application
+      run: npm run build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: show files
+      run: find ./release -ls
+    - name: test launch
+      run: npm test
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: create release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        draft: true
+        files: |
+          release/*.dmg
+          release/*.dmg.blockmap
+          release/*.zip
+          release/latest-mac.yml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
