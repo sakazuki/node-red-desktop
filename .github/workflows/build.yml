@@ -32,6 +32,10 @@ jobs:
           release/latest-mac.yml
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: test launch
+      run: npm test
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build_on_win:
     runs-on: windows-latest
@@ -56,5 +60,9 @@ jobs:
           release/*.exe
           release/*.exe.blockmap
           release/latest.yml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: test launch
+      run: npm test
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
