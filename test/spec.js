@@ -1,14 +1,12 @@
 const Application = require('spectron').Application
 const assert = require('assert')
-const electronPath = require('electron')
-
 
 describe('Application launch', function() {
   this.timeout(60000)
   beforeEach(() => {
+    const _path = (process.platform === "darwin") ? './release/mac/Node-RED-Desktop.app' : './release/win-unpacked/Node-RED-Desktop.exe'
     this.app = new Application({
-      path: electronPath,
-      args: ['./dist']
+      path: _path,
     })
     return this.app.start()
   })
