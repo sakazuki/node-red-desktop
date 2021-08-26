@@ -4,7 +4,7 @@ const assert = require('assert')
 describe('Application launch', function() {
   this.timeout(60000)
   beforeEach(() => {
-    const _path = (process.platform === "darwin") ? './release/mac/Node-RED-Desktop.app' : './release/win-unpacked/Node-RED-Desktop.exe'
+    const _path = (process.platform === "darwin") ? './release/mac/Node-RED-Desktop.app/Contents/MacOS/Node-RED-Desktop' : './release/win-unpacked/Node-RED-Desktop.exe'
     this.app = new Application({
       path: _path,
     })
