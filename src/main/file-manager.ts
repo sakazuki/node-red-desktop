@@ -5,7 +5,7 @@ import os from "os";
 import { ConfigManager } from "./config-manager";
 
 export class FileManager {
-  private tmpBuffer: tmp.FileResult[] = [];
+  private tmpBuffer: tmp.FileResultNoFd[] = [];
   private userDir: string;
   private prefix: string;
 
@@ -41,13 +41,13 @@ export class FileManager {
     return new RegExp(`${this.prefix}(.+)\\.tmp`).exec(path.basename(file));
   }
 
-  private clearBackup(file: tmp.FileResult) {
+  private clearBackup(file: tmp.FileResultNoFd) {
     const filePath = path.parse(file.name);
     const backup = path.join(filePath.dir, `.${filePath.base}.backup`);
     if (fs.existsSync(backup)) fs.unlinkSync(backup);
   }
 
-  private clearCredential(file: tmp.FileResult) {
+  private clearCredential(file: tmp.FileResultNoFd) {
     const filePath = path.parse(file.name);
     const backup = path.join(filePath.dir, `.${filePath.name}_cred${filePath.ext}.backup`);
     if (fs.existsSync(backup)) fs.unlinkSync(backup);
