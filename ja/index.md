@@ -7,6 +7,7 @@ Node-REDのデスクトップ版です。
 ![screen](https://raw.githubusercontent.com/sakazuki/node-red-desktop/doc/screenshot.png)
 
 ## お知らせ
+- 2021-10-26 **2.1.0** リリース (Node-RED v2.1.2)
 - 2021-08-22 **2.0.0** リリース (Node-RED v2.0.5)
 - 2021-04-29 **1.3.0** リリース (Node-RED v1.3.3)
 - 2021-02-17 **1.2.3** リリース (Node-RED v1.2.9)
