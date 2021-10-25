@@ -21,7 +21,7 @@ function patch() {
     try {
       ret = load.call(Module, request, parent);
       return ret;
-    } catch (err) {
+    } catch (err: any) {
       if (process.env.NRD_AUTO_REBUILD && process.env.NRD_AUTO_REBUILD.match(/false/i)) throw err;
       if (!mismatchRe.test(err.message) && !winRe.test(err.message)) throw err;
       if (rebuilding) {

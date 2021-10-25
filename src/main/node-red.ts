@@ -326,7 +326,7 @@ export class NodeREDApp {
         payload: info.nodes,
         retain: false
       });
-    } catch (err) {
+    } catch (err: any) {
       if (err.code === "module_already_loaded") {
         this.error(err, `${pkgname} already loaded`);
         return;
