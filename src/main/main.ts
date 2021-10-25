@@ -232,8 +232,8 @@ class BaseApplication {
     const options: BrowserWindowConstructorOptions = {
       webPreferences: {
         nodeIntegration: false,
+        nativeWindowOpen: true,
         contextIsolation: true,
-        worldSafeExecuteJavaScript: true,
         preload: path.join(__dirname, "preload.js"),
         defaultFontFamily: {
           standard: "Meiryo UI",
@@ -249,7 +249,8 @@ class BaseApplication {
       minWidth: 500,
       minHeight: 200,
       acceptFirstMouse: true,
-      titleBarStyle: "hidden",
+      autoHideMenuBar: true,
+      // titleBarStyle: "hidden",
       icon: path.join(__dirname, "..", "images", "favicon.ico")
     };
     const savedOption = this.config.data.windowBounds || {};

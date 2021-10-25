@@ -46,8 +46,8 @@ async function main() {
   const noopts = !(opts.setup || opts.build)
   try {
     if (noopts || opts.setup) {
-      const patched = await patchFiles();
-      console.log(`Patched ${patched}.`);
+      // const patched = await patchFiles();
+      // console.log(`Patched ${patched}.`);
       const copied = await copyFiles();
       console.log(`Copy ${copied} to dist/*`);
     }

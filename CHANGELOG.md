@@ -1,3 +1,7 @@
+## v2.1.0
+- update: Node-RED 2.1.2
+- update: electron 15.3.0
+
 ## v2.0.1
 - update: electron 13.2.2
 - improve: ci includes test
