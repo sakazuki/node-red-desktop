@@ -25,7 +25,7 @@ async function copyFiles() {
 async function patchFiles() {
   await fs.copy('patch/underscore-package.json', path.join(__dirname, "node_modules/nomnom/node_modules/underscore/package.json"));
   // issue#49 https://github.com/sakazuki/node-red-desktop/issues/49
-  await fs.copy('patch/i18n.js', path.join(__dirname, "node_modules/@node-red/util/lib/i18n.js"));
+  // await fs.copy('patch/i18n.js', path.join(__dirname, "node_modules/@node-red/util/lib/i18n.js"));
   return ['nomnom/*/underscore/package.json', '@node-red/util/lib/i18.js'];
 }
 
@@ -46,8 +46,8 @@ async function main() {
   const noopts = !(opts.setup || opts.build)
   try {
     if (noopts || opts.setup) {
-      // const patched = await patchFiles();
-      // console.log(`Patched ${patched}.`);
+      const patched = await patchFiles();
+      console.log(`Patched ${patched}.`);
       const copied = await copyFiles();
       console.log(`Copy ${copied} to dist/*`);
     }
