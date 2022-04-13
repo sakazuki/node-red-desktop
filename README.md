@@ -1,6 +1,6 @@
 # Node-RED Desktop
 
-This is a desktop applicaiton of Node-RED
+This is a desktop application of Node-RED
 
 - [Homepage](https://sakazuki.github.io/node-red-desktop/)
 
