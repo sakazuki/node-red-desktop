@@ -71,7 +71,7 @@
     "node-red": "^2.1.2",
     "node-red-debugger": "^1.1.1",
     "node-red-nodegen": "0.1.1",
-    "npm": "^8.1.1",
+    "npm": "^8.11.0",
     "nrlint": "^1.0.2",
     "tmp": "^0.2.1"
   }
