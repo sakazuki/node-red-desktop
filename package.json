@@ -65,7 +65,7 @@
     "express": "^4.17.1",
     "express-ipfilter": "^1.2.0",
     "i18n": "^0.13.3",
-    "jquery-validation": "^1.19.3",
+    "jquery-validation": "^1.19.5",
     "lodash": "^4.17.21",
     "ngrok": "git+https://github.com/sakazuki/ngrok.git#startArgs",
     "node-red": "^2.1.2",
