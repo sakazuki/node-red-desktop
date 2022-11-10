@@ -39,7 +39,7 @@
     "assert": "^2.0.0",
     "commander": "^8.3.0",
     "css-loader": "^6.4.0",
-    "electron": "^15.3.0",
+    "electron": "^18.3.7",
     "electron-builder": "^22.13.1",
     "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
