@@ -11,9 +11,12 @@ async function copyFiles() {
     "package.json",
     "loading.html",
     "settings.html",
+    "prompt.html",
     "images",
     "locales",
     "src/renderer/desktop.css",
+    "src/renderer/settings.js",
+    "src/renderer/renderer.js",
     "node_modules"
   ];
   for (let file of files) {
@@ -22,10 +25,10 @@ async function copyFiles() {
   return files;
 }
 
-async function patchFiles() {
-  await fs.copy('patch/underscore-package.json', path.join(__dirname, "node_modules/nomnom/node_modules/underscore/package.json"));
-  return ['nomnom/*/underscore/package.json'];
-}
+// async function patchFiles() {
+//   await fs.copy('patch/underscore-package.json', path.join(__dirname, "node_modules/nomnom/node_modules/underscore/package.json"));
+//   return ['nomnom/*/underscore/package.json'];
+// }
 
 async function build() {
   const platform = (process.platform === "darwin") ? Platform.MAC : Platform.WINDOWS;
@@ -44,8 +47,8 @@ async function main() {
   const noopts = !(opts.setup || opts.build)
   try {
     if (noopts || opts.setup) {
-      const patched = await patchFiles();
-      console.log(`Patched ${patched}.`);
+      // const patched = await patchFiles();
+      // console.log(`Patched ${patched}.`);
       const copied = await copyFiles();
       console.log(`Copy ${copied} to dist/*`);
     }

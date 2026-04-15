@@ -1,139 +1,227 @@
 <html>
+
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-<title>Node-RED-Desktop</title>
-<link rel="icon" type="image/png" href="file:./node_modules/@node-red/editor-client/public/favicon.ico">
-<link rel="mask-icon" href="file:./node_modules/@node-red/editor-client/public/red/images/node-red-icon-black.svg" color="#8f0000">
-<link rel="stylesheet" href="file:./node_modules/@node-red/editor-client/public/vendor/jquery/css/base/jquery-ui.min.css">
-<link rel="stylesheet" href="file:./node_modules/@node-red/editor-client/public/vendor/font-awesome/css/font-awesome.min.css">
-<link rel="stylesheet" href="file:./node_modules/@node-red/editor-client/public/red/style.min.css">
-<style>
-.red-ui-tray {
-  position: unset;
-  right: unset;
-  width: 100%;
-  border-bottom: unset;
-}
-.red-ui-tray-body {
-  height: 100%;
-}
-.red-ui-tabs.red-ui-tabs-vertical ul {
-  height: 2em;
-}
-.red-ui-settings-tab {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  padding: 8px 20px 20px;
-  overflow-y: scroll;
-}
-.red-ui-settings-tabs-content input[type='number'] {
-  width: unset;
-}
-.error {
-  color: red;
-}
-</style>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>Node-RED-Desktop</title>
+  <link rel="icon" type="image/png" href="file:./node_modules/@node-red/editor-client/public/favicon.ico">
+  <link rel="mask-icon" href="file:./node_modules/@node-red/editor-client/public/red/images/node-red-icon-black.svg"
+    color="#8f0000">
+  <link rel="stylesheet"
+    href="file:./node_modules/@node-red/editor-client/public/vendor/jquery/css/base/jquery-ui.min.css">
+  <link rel="stylesheet"
+    href="file:./node_modules/@node-red/editor-client/public/vendor/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="file:./node_modules/@node-red/editor-client/public/red/style.min.css">
+  <style>
+    .red-ui-tray {
+      position: unset;
+      right: unset;
+      width: 100%;
+      border-bottom: unset;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    form#configForm {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .red-ui-tray-body-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .red-ui-tray-body {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .red-ui-tray-body>div {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .red-ui-settings-tabs-container {
+      flex-shrink: 0;
+    }
+
+    .red-ui-tabs.red-ui-tabs-vertical {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .red-ui-tabs.red-ui-tabs-vertical ul {
+      display: flex;
+      flex-direction: column;
+      height: auto;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .red-ui-tabs.red-ui-tabs-vertical li {
+      cursor: pointer;
+      padding: 8px 16px;
+      border-bottom: 2px solid transparent;
+    }
+
+    .red-ui-tabs.red-ui-tabs-vertical li.active {
+      border-bottom-color: #8f0000;
+      font-weight: bold;
+    }
+
+    .red-ui-settings-tabs-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .red-ui-settings-tab {
+      position: relative;
+      padding: 8px 20px 20px;
+      overflow-y: auto;
+      flex: 1;
+      display: none;
+    }
+
+    .red-ui-settings-tab.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .red-ui-settings-tabs-content input[type='number'] {
+      width: unset;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .red-ui-tray-header {
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+  </style>
 </head>
+
 <body>
-<div class="red-ui-editor">
-  <div class="red-ui-tray ui-draggable">
-    <form id="configForm">
-      <div class="red-ui-tray-header editor-tray-header">
-        <div class="red-ui-tray-titlebar">
-          <ul class="red-ui-tray-breadcrumbs">
-            <li>Settings</li>
-          </ul>
+  <div class="red-ui-editor">
+    <div class="red-ui-tray ui-draggable">
+      <form id="configForm">
+        <div class="red-ui-tray-header editor-tray-header">
+          <div class="red-ui-tray-titlebar">
+            <ul class="red-ui-tray-breadcrumbs">
+              <li>Settings</li>
+            </ul>
+          </div>
+          <div class="red-ui-tray-toolbar">
+            <button class="ui-button ui-corner-all ui-widget" id="button-cancel">Cancel</button>
+            <button class="ui-button ui-corner-all ui-widget primary" id="button-submit">Submit</button>
+          </div>
         </div>
-        <div class="red-ui-tray-toolbar">
-          <button class="ui-button ui-corner-all ui-widget" id="button-cancel">Cancel</button>
-          <button class="ui-button ui-corner-all ui-widget primary" id="button-submit">Submit</button>
-        </div>
-      </div>
-      <div class="red-ui-tray-body-wrapper">
-        <div class="red-ui-tray-body editor-tray-body">
-          <div>
-            <div class="red-ui-settings-tabs-container">
-              <div class="red-ui-tabs red-ui-tabs-vertical">
-                <div>
-                  <ul id="user-settings-tabs">
-                    <li class="red-ui-tab active" id="red-ui-tab-user-settings-nodered">
-                      <a href="#user-settings-nodered" class="red-ui-tab-label" title="Node-RED"><span class="red-ui-text-bidi-aware" dir="">Node-RED</span></a>
-                      <span class="red-ui-tabs-badges"></span>
-                    </li>
-                    <li class="red-ui-tab" id="red-ui-tab-user-settings-other">
-                      <a href="#user-settings-other" class="red-ui-tab-label" title="Other"><span class="red-ui-text-bidi-aware" dir="">Other</span></a>
-                      <span class="red-ui-tabs-badges"></span>
-                    </li>
-                  </ul>
+        <div class="red-ui-tray-body-wrapper">
+          <div class="red-ui-tray-body editor-tray-body">
+            <div>
+              <div class="red-ui-settings-tabs-container">
+                <div class="red-ui-tabs red-ui-tabs-vertical">
+                  <div>
+                    <ul id="user-settings-tabs">
+                      <li class="red-ui-tab active" id="red-ui-tab-user-settings-nodered">
+                        <a href="#user-settings-nodered" class="red-ui-tab-label" title="Node-RED"><span
+                            class="red-ui-text-bidi-aware" dir="">Node-RED</span></a>
+                        <span class="red-ui-tabs-badges"></span>
+                      </li>
+                      <li class="red-ui-tab" id="red-ui-tab-user-settings-other">
+                        <a href="#user-settings-other" class="red-ui-tab-label" title="Other"><span
+                            class="red-ui-text-bidi-aware" dir="">Other</span></a>
+                        <span class="red-ui-tabs-badges"></span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="red-ui-settings-tabs-content">
-              <div id="user-settings-nodered" class="red-ui-settings-tab">
-                <h3>Runtime Configuration</h3>
-                <div class="red-ui-settings-row form-row">
+              <div class="red-ui-settings-tabs-content">
+                <div id="user-settings-nodered" class="red-ui-settings-tab active">
+                  <h3>Runtime Configuration</h3>
+                  <div class="red-ui-settings-row form-row">
                     <label id="label-userdir" for="userdir">Userdir</label>
                     <input type="text" id="userdir" name="userdir" autocomplete="off" dir="" placeholder="Userdir">
-                </div>
-                <div class="red-ui-settings-row form-row">
+                  </div>
+                  <div class="red-ui-settings-row form-row">
                     <label id="label-credentialsecret" for="credentialsecret">Credential secret</label>
-                    <input type="text" id="credentialsecret" name="credentialsecret" autocomplete="off" dir="" placeholder="Secret">
-                </div>
-                <div class="red-ui-settings-row">
-                  <label id="label-nodesexcludes" for="node-input-blacklist">Nodes blacklist</label>
-                  <textarea id="nodesexcludes" name="nodesexcludes" style="display: none;"></textarea>
-                  <div style="height: 100px;" class="node-text-editor" id="node-input-blacklist"></div>
-                </div>
-                <div class="red-ui-settings-row">
+                    <input type="text" id="credentialsecret" name="credentialsecret" autocomplete="off" dir=""
+                      placeholder="Secret">
+                  </div>
+                  <div class="red-ui-settings-row">
+                    <label id="label-nodesexcludes" for="node-input-blacklist">Nodes blacklist</label>
+                    <textarea id="nodesexcludes" name="nodesexcludes"></textarea>
+                    <div style="height: 100px;" class="node-text-editor" id="node-input-blacklist"></div>
+                  </div>
+                  <div class="red-ui-settings-row">
                     <label id="label-projects" for="projects">Enable Projects</label>
                     <input type="checkbox" id="projects" name="projects">
-                </div>
-                <div class="red-ui-settings-row">
-                  <label id="label-listenport" for="listenport">Listen port</label>
-                  <input type="number" id="listenport" name="listenport" autocomplete="off" placeholder="">
-                </div>
-                <h4 id="label-httpnodeauth">HTTP Node Auth</h4>
-                <div class="red-ui-settings-row">
+                  </div>
+                  <div class="red-ui-settings-row">
+                    <label id="label-listenport" for="listenport">Listen port</label>
+                    <input type="number" id="listenport" name="listenport" autocomplete="off" placeholder="">
+                  </div>
+                  <h4 id="label-httpnodeauth">HTTP Node Auth</h4>
+                  <div class="red-ui-settings-row">
                     <label id="label-httpnodeauthuser" for="httpnodeauthuser">Username</label>
-                    <input type="text" id="httpnodeauthuser" name="httpnodeauthuser" autocomplete="off" dir="" placeholder="Username">
+                    <input type="text" id="httpnodeauthuser" name="httpnodeauthuser" autocomplete="off" dir=""
+                      placeholder="Username">
                     <label id="label-httpnodeauthpass" for="httpnodeauthpass">Password</label>
-                    <input type="text" id="httpnodeauthpass" name="httpnodeauthpass" autocomplete="off" dir="" placeholder="Password">
+                    <input type="text" id="httpnodeauthpass" name="httpnodeauthpass" autocomplete="off" dir=""
+                      placeholder="Password">
+                  </div>
                 </div>
-              </div>
-      
-              <div id="user-settings-other" class="red-ui-settings-tab" style="display: none;">
-                <div class="red-ui-settings-row">
-                  <input type="checkbox" id="hideonminimize" name="hideonminimize">
-                  <label id="label-hideonminimize" for="hideonminimize">Hide app on miminize</label>
-                </div>
-                <div class="red-ui-settings-row">
-                  <input type="checkbox" id="autocheckupdate" name="autocheckupdate">
-                  <label id="label-autocheckupdate" for="autocheckupdate">Check update on startup</label>
-                </div>
-                <div class="red-ui-settings-row">
-                  <input type="checkbox" id="allowprerelease" name="allowprerelease">
-                  <label id="label-allowprerelease" for="allowprerelease">Allow usging prerelase</label>
-                </div>
-                <div class="red-ui-settings-row">
-                  <input type="checkbox" id="openlastfile" name="openlastfile">
-                  <label id="label-openlastfile" for="openlastfile">Open a last file on startup</label>
+
+                <div id="user-settings-other" class="red-ui-settings-tab">
+                  <div class="red-ui-settings-row">
+                    <input type="checkbox" id="hideonminimize" name="hideonminimize">
+                    <label id="label-hideonminimize" for="hideonminimize">Hide app on miminize</label>
+                  </div>
+                  <div class="red-ui-settings-row">
+                    <input type="checkbox" id="autocheckupdate" name="autocheckupdate">
+                    <label id="label-autocheckupdate" for="autocheckupdate">Check update on startup</label>
+                  </div>
+                  <div class="red-ui-settings-row">
+                    <input type="checkbox" id="allowprerelease" name="allowprerelease">
+                    <label id="label-allowprerelease" for="allowprerelease">Allow usging prerelase</label>
+                  </div>
+                  <div class="red-ui-settings-row">
+                    <input type="checkbox" id="openlastfile" name="openlastfile">
+                    <label id="label-openlastfile" for="openlastfile">Open a last file on startup</label>
+                  </div>
+                  <div class="red-ui-settings-row form-row">
+                    <label id="label-ngrokauthtoken" for="ngrokauthtoken">ngrok Auth Token</label>
+                    <input type="text" id="ngrokauthtoken" name="ngrokauthtoken" autocomplete="off" dir="" placeholder="overrides NGROK_AUTHTOKEN env var">
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
-</div>
-<script src="file:./node_modules/@node-red/editor-client/public/vendor/vendor.js"></script>
-<script src="file:./node_modules/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="file:./node_modules/jquery-validation/dist/additional-methods.min.js"></script>
-<script src="renderer/settings.js"></script>
+  <script src="file:./node_modules/@node-red/editor-client/public/vendor/vendor.js"></script>
+  <script src="file:./node_modules/jquery-validation/dist/jquery.validate.min.js"></script>
+  <script src="file:./node_modules/jquery-validation/dist/additional-methods.min.js"></script>
+  <script src="renderer/settings.js"></script>
 </body>
+
 </html>

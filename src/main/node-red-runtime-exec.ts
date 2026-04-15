@@ -22,18 +22,27 @@ function logLines(id: string, type: string, data: string): void {
 
 const newExec = {
     init: function(_runtime: {events: any, exec: any}, _status: AppStatus) {
+        if (!_runtime.exec) {
+            throw new Error("runtime.exec not available");
+        }
         events = _runtime.events;
         status = _status;
         if (!origExec) {
             origExec = _runtime.exec;
             _runtime.exec = this;
         }
+        // Check npm CLI path
+        const npmCliPath = path.join(__dirname, "..", "node_modules", "npm", "bin", "npm-cli.js");
+        const fs = require('fs');
+        if (!fs.existsSync(npmCliPath)) {
+            console.warn("Bundled npm CLI not found at", npmCliPath, "- npm operations may fail");
+        }
     },
     _run: function(command: string, args: string[], options: any, emit: boolean): Promise<execResult> {
         return origExec.run(command,args,options,emit);
     }, 
     run: function(command: string, args: string[], options: any, emit: boolean): Promise<execResult> {
-        if (status.npmCommandEnabled || (path.parse(command).name !== "npm")) {
+        if (!command.includes('npm')) {
             return origExec.run(command,args,options,emit);
         }
         var invocationId = util.generateId();

@@ -2,12 +2,13 @@ import express from "express";
 import {IpFilter, IpDeniedError} from "express-ipfilter";
 // must load before node-red
 const runtime = require("@node-red/runtime");
-const installer = require("@node-red/registry/lib/installer");
-const Node = require("@node-red/runtime/lib/nodes/Node")
+// const installer = require("@node-red/registry/lib/installer");
+// const Node = require("@node-red/runtime/lib/nodes/Node")
 import newExec from "./node-red-runtime-exec";
 import RED from "node-red";
 import http from "http";
-import { ipcMain, app, ipcRenderer } from "electron";
+import { app, ipcRenderer } from "electron";
+import { appEventBus } from "./app-event-bus";
 import path from "path";
 import log from "./log";
 import { AppStatus } from "./main";
@@ -53,7 +54,6 @@ export class NodeREDApp {
     this.server = this.setupServer();
     this.listenIp = process.env.NRD_LISTEN_IP || process.env.LISTEN_IP || "127.0.0.1";
     this.listenPort = this.defineListenPort();
-    this.patchInstaller();
     this.patchRuntimeExec();
     this.setupRED();
   }
@@ -94,11 +94,16 @@ export class NodeREDApp {
         origin: "*",
         methods: "GET,PUT,POST,DELETE"
       },
-      httpNodeAUth: undefined,
+      httpNodeAuth: undefined,
       functionGlobalContext: {
         get NGROK_URL(): string { return _this.status.ngrokUrl }
       },
       functionExternalModules: true,
+      externalModules: {
+        palette: {
+          allowInstall: true
+        }
+      },
       editorTheme: {
         page: {
           title: app.name,
@@ -225,26 +230,26 @@ export class NodeREDApp {
   }
 
   private setupDebugOut() {
-    Node.prototype._send = Node.prototype.send
-    const me = this
-    Node.prototype.send = function(msg: any) {
-      Node.prototype._send.call(this, msg)
-      if (!me.status.debugOut) return
-      const _data = {
-        id: this.id,
-        z: this.z,
-        name: this.name,
-        topic: msg.topic,
-        msg: msg,
-        _path: msg._path
+    RED.hooks.add("onSend", (sendEvents: any[]) => {
+      if (!this.status.debugOut) return;
+      for (const sendEvent of sendEvents) {
+        const { msg, source } = sendEvent;
+        const _data = {
+          id: source.id,
+          z: source.node.z,
+          name: source.node.name,
+          topic: msg.topic,
+          msg: msg,
+          _path: msg._path
+        };
+        const data = RED.util.encodeObject(_data);
+        RED.runtime.events.emit("comms", {
+          topic: "debug",
+          data: data,
+          retain: false
+        });
       }
-      const data = RED.runtime.util.encodeObject(_data);
-      RED.runtime.events.emit("comms", {
-        topic: "debug",
-        data: data,
-        retain: false
-      })
-    }
+    });
   }
 
   private setupRED() {
@@ -264,18 +269,9 @@ export class NodeREDApp {
     this.app.use(this.settings.httpNodeRoot, RED.httpNode);
   }
 
-  private patchInstaller() {
-    installer._checkPrereq = installer.checkPrereq;
-    installer.checkPrereq = () => {
-      return new Promise<void>(resolve => {
-        resolve();
-      })
-    }
-  }
-
   private patchRuntimeExec() {
     newExec.init(RED.runtime._, this.status);
-    runtime._.nodes.installerEnabled = () => { return true };
+    // runtime._.nodes.installerEnabled = () => { return true };
   }
 
   get exec() {
@@ -287,7 +283,7 @@ export class NodeREDApp {
     try {
       await RED.start();
       this.server.listen(this.listenPort, this.listenIp, () => {
-        ipcMain.emit("browser:go", this.getAdminUrl());
+        appEventBus.emit("browser:go", this.getAdminUrl());
       });
     } catch (err) {
       log.error(err);
@@ -300,17 +296,17 @@ export class NodeREDApp {
       return;
     }
     await RED.nodes.stopFlows();
-    ipcMain.emit("browser:loading");
+    appEventBus.emit("browser:loading");
     this.setFlowFile(file);
     await RED.nodes.loadFlows(true);
-    ipcMain.emit("browser:go", this.getAdminUrl());
+    appEventBus.emit("browser:go", this.getAdminUrl());
   }
 
   public setFlowFile(file: string) {
     this.status.currentFile = file;
     this.settings = this.setupSettings();
     this.settings.storageModule.init(this.settings, RED.runtime._);
-    ipcMain.emit("browser:update-title");
+    appEventBus.emit("browser:update-title");
   }
 
   private loadPackageInfo(file: string): any {
@@ -337,12 +333,12 @@ export class NodeREDApp {
   }
 
   private success(message: string, timeout = 3000) {
-    ipcMain.emit("dialog:show", "success", message, timeout);
+    appEventBus.emit("dialog:show", "success", message, timeout);
   }
 
   private error(err: any, message: string) {
     log.info(err, message);
-    ipcMain.emit("dialog:show", "error", JSON.stringify([message, err]));
+    appEventBus.emit("dialog:show", "error", JSON.stringify([message, err]));
   }
 
   public async execNpmLink(dir: string) {

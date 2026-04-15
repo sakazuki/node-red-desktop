@@ -105,6 +105,8 @@
         "httpnodeauthuser": "ユーザ名",
         "httpnodeauthpass": "パスワード",
         "listenport": "待ち受けポート",
-        "listenportPlaceholder": "空欄の時は、ランダムなポートが使われます"
+        "listenportPlaceholder": "空欄の時は、ランダムなポートが使われます",
+        "ngrokauthtoken": "ngrok 認証トークン",
+        "ngrokauthtokenPlaceholder": "NGROK_AUTHTOKEN 環境変数を上書きします"
     }
 }

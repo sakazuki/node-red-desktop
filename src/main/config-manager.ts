@@ -1,8 +1,9 @@
-import storage from "electron-json-storage-sync";
+import Store from "electron-store";
 import log from "./log";
 import { app } from "electron";
 import path from "path";
 import os from "os";
+import fs from "fs";
 import { DEFAULT_NODES_EXCLUDES } from "./node-red";
 
 interface CONFIG {
@@ -21,7 +22,8 @@ interface CONFIG {
   httpNodeAuth: {user: string, pass: string};
   listenPort: string;
   debugOut: boolean;
-};
+  ngrokAuthtoken: string;
+}
 
 const DEFAULT_CONFIG: CONFIG = {
   openLastFile: true,
@@ -38,14 +40,19 @@ const DEFAULT_CONFIG: CONFIG = {
   hideOnMinimize: false,
   httpNodeAuth: {user: "", pass: ""},
   listenPort: "",
-  debugOut: false
+  debugOut: false,
+  ngrokAuthtoken: ""
 };
 
 export class ConfigManager {
   private name: string;
   public data: CONFIG;
+  private store: Store<CONFIG>;
+
   constructor(name: string) {
     this.name = name;
+    this.store = new Store<CONFIG>({ name, defaults: DEFAULT_CONFIG });
+    this.migrateLegacy();
     this.data = this.load();
     log.debug(">>> config loaded", this.data);
   }
@@ -54,31 +61,37 @@ export class ConfigManager {
     return this.name;
   }
 
-  private migration(config: any): CONFIG {
-    //v0.8.9
-    if (!config.hasOwnProperty("openLastFile")) config.openLastFile = DEFAULT_CONFIG.openLastFile;
-    if (!config.hasOwnProperty("httpNodeAuth")) config.httpNodeAuth = DEFAULT_CONFIG.httpNodeAuth;
-    return config;
+  private migrateLegacy(): void {
+    const legacyPath = path.join(app.getPath("userData"), "storage", `${this.name}.json`);
+    if (!fs.existsSync(legacyPath)) return;
+    try {
+      const raw = fs.readFileSync(legacyPath, "utf-8");
+      const data = JSON.parse(raw) as Partial<CONFIG>;
+      const keys = Object.keys(DEFAULT_CONFIG) as (keyof CONFIG)[];
+      for (const key of keys) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          this.store.set(key, data[key] as any);
+        }
+      }
+      fs.unlinkSync(legacyPath);
+      log.info("[config] Legacy storage migrated and deleted:", legacyPath);
+    } catch (err) {
+      log.error("[config] Failed to migrate legacy storage:", err);
+    }
   }
 
   public load(): CONFIG {
-    const res = storage.get(this.getName());
-    let config;
-    if (res.status) {
-      config = this.migration(res.data);
-    } else {
-      config = DEFAULT_CONFIG;
-    }
-    return config
+    return this.store.store;
   }
 
   public save(): boolean {
-    const res = storage.set(this.getName(), this.data);
-    log.debug(">>> config saved", res);
-    if (res.status) {
+    try {
+      this.store.store = this.data;
+      log.debug(">>> config saved");
       return true;
-    } else {
-      log.error(res.error);
+    } catch (err) {
+      log.error(err);
       return false;
     }
   }

@@ -1,5 +1,6 @@
-import { autoUpdater, UpdateCheckResult, UpdateInfo } from "electron-updater";
-import { BrowserWindow, app, dialog, ipcMain } from "electron";
+import { autoUpdater, UpdateCheckResult, UpdateInfo, UpdateDownloadedEvent } from "electron-updater";
+import { BrowserWindow, app, dialog } from "electron";
+import { appEventBus } from "./app-event-bus";
 import log from "./log";
 import i18n from "./i18n";
 import { AppStatus } from "./main";
@@ -36,11 +37,11 @@ export class CustomAutoUpdater {
     // this.sendStatusToWindow("Checking for update...");
   }
 
-  private onUpdateAvailable(info: UpdateCheckResult) {
+  private onUpdateAvailable(info: UpdateInfo) {
     // this.sendStatusToWindow("Update available.");
   }
 
-  private onUpdateNotAvaialable(info: UpdateCheckResult) {
+  private onUpdateNotAvaialable(info: UpdateInfo) {
     // this.sendStatusToWindow("Update not available.");
   }
 
@@ -54,28 +55,28 @@ export class CustomAutoUpdater {
       `- Downloaded ${progressObj.percent}% ` +
       `(${progressObj.transferred}/${progressObj.total})`;
     this.sendStatusToWindow(logMessage, true);
-    ipcMain.emit("browser:progress", progressObj.percent / 100);
+    appEventBus.emit("browser:progress", progressObj.percent / 100);
   }
 
-  private onUpdateDownloaded(info: UpdateCheckResult) {
+  private async onUpdateDownloaded(info: UpdateDownloadedEvent) {
     this.sendStatusToWindow("Update downloaded", true);
-    this.installUpdate(info);
+    await this.installUpdate(info);
   }
 
   private sendStatusToWindow(text: string, silent: boolean = false) {
     log.info(text);
-    if (!silent) ipcMain.emit("browser:message", text);
+    if (!silent) appEventBus.emit("browser:message", text);
   }
 
-  private installUpdate(info: any) {
-    const res = dialog.showMessageBoxSync(this.window, {
+  private async installUpdate(info: any) {
+    const { response: res } = await dialog.showMessageBox(this.window, {
       type: "info",
       title: `${app.name} v${info.version} ${i18n.__("update.downloaded")}`,
       message: i18n.__("update.message"),
       buttons: [i18n.__("update.restart"), i18n.__("update.later")]
     });
     if (res === 0) {
-      ipcMain.emit("browser:restart");
+      appEventBus.emit("browser:restart");
     }
   }
 
@@ -84,7 +85,7 @@ export class CustomAutoUpdater {
   }
 
   private async onUpdateFound(result: UpdateCheckResult) {
-    const res = dialog.showMessageBoxSync(this.window, {
+    const { response: res } = await dialog.showMessageBox(this.window, {
       title: app.name + " " + i18n.__("menu.checkversion"),
       type: "info",
       message:
