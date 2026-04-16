@@ -59,10 +59,11 @@ test.beforeAll(async () => {
   await mainWindow.waitForURL(/\/admin/, { timeout: 60000 });
   // Wait for the admin page network activity to settle
   await mainWindow.waitForLoadState("networkidle", { timeout: 30000 });
-  // Wait for Node-RED admin UI to set the final document title
-  // (configured via editorTheme.page.title = app.name in node-red.ts)
+  // Wait for Node-RED admin UI to set the final document title.
+  // node-red appends " : <hostname>" to the page title (red.js:19), so the
+  // actual title is e.g. "Node-RED-Desktop : 127.0.0.1" — check with includes().
   await mainWindow.waitForFunction(
-    () => document.title === "Node-RED-Desktop",
+    () => document.title.includes("Node-RED-Desktop"),
     { timeout: 30000 }
   );
 });
@@ -89,7 +90,7 @@ test.describe("Application launch", () => {
       "Playwright/Electron v34 incompatibility on Windows - see issue #39008"
     );
     const title = await mainWindow.title();
-    expect(title).toBe("Node-RED-Desktop");
+    expect(title).toContain("Node-RED-Desktop");
   });
 
   test("main process is running", async () => {
