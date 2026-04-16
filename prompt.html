@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'">
+  <title>Input</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 13px;
+      background: #f0f0f0;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      line-height: 1.4;
+    }
+    input {
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 13px;
+      border: 1px solid #aaa;
+      border-radius: 2px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+    input:focus {
+      outline: none;
+      border-color: #0078d4;
+    }
+    .buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: auto;
+    }
+    button {
+      padding: 5px 16px;
+      font-size: 12px;
+      border-radius: 2px;
+      cursor: pointer;
+      min-width: 72px;
+    }
+    #ok {
+      background: #0078d4;
+      color: #fff;
+      border: 1px solid #0078d4;
+    }
+    #ok:hover { background: #106ebe; }
+    #cancel {
+      background: #fff;
+      color: #333;
+      border: 1px solid #aaa;
+    }
+    #cancel:hover { background: #e5e5e5; }
+  </style>
+</head>
+<body>
+  <label id="label"></label>
+  <input type="text" id="input" autofocus>
+  <div class="buttons">
+    <button id="cancel">Cancel</button>
+    <button id="ok">OK</button>
+  </div>
+  <script>
+    window.promptApi.onInit(function(data) {
+      document.getElementById('label').textContent = data.label;
+      document.getElementById('input').value = data.value;
+    });
+
+    document.getElementById('ok').addEventListener('click', function() {
+      window.promptApi.submit(document.getElementById('input').value);
+    });
+
+    document.getElementById('cancel').addEventListener('click', function() {
+      window.promptApi.submit(null);
+    });
+
+    document.getElementById('input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        window.promptApi.submit(document.getElementById('input').value);
+      } else if (e.key === 'Escape') {
+        window.promptApi.submit(null);
+      }
+    });
+  </script>
+</body>
+</html>
