@@ -2,12 +2,13 @@
 
 [Japanese](ja/)
 
-This is a desktop applicaiton of Node-RED
+This is a desktop application of Node-RED
 
 ![screen](https://raw.githubusercontent.com/sakazuki/node-red-desktop/doc/screenshot.png)
 
 ## Announce
 
+- 2026-04-17  **4.1.0** release (Node-RED v4.1.8)
 - 2021-10-26  **2.1.0** release (Node-RED v2.1.2)
 - 2021-08-22  **2.0.0** release (Node-RED v2.0.5)
 - 2021-04-29  **1.3.0** release (Node-RED v1.3.3)
@@ -41,7 +42,7 @@ You can use almost all powerful and useful Node-RED features
 
 ## Node-RED-Desktop features
 
-- [Node-RED](https://nodered.org/) v2.X
+- [Node-RED](https://nodered.org/) v4.X
 - [Node-RED Flow debugger](https://github.com/node-red/node-red-debugger)
 - [Node-RED Flow Linter](https://github.com/node-red/nrlint)
 - [ngrok](https://ngrok.com/) integrated
@@ -111,7 +112,7 @@ You can use almost all powerful and useful Node-RED features
 - This function uses Node-RED Destktop builtin npm.  
 Some npm modules need to be compiled from node binary or C/C++ when installing.  
 In such cases, you need to install node.js before.  
-If so, please install node v12.x.x from [Node.js official site](https://nodejs.org/) and retry to install them.
+If so, please install node v18.x.x from [Node.js official site](https://nodejs.org/) and retry to install them.
   
   You can test to use `node` command with this flow.
 

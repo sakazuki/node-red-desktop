@@ -7,6 +7,7 @@ Node-REDのデスクトップ版です。
 ![screen](https://raw.githubusercontent.com/sakazuki/node-red-desktop/doc/screenshot.png)
 
 ## お知らせ
+- 2026-04-17 **4.1.0** リリース (Node-RED v4.1.8)
 - 2021-10-26 **2.1.0** リリース (Node-RED v2.1.2)
 - 2021-08-22 **2.0.0** リリース (Node-RED v2.0.5)
 - 2021-04-29 **1.3.0** リリース (Node-RED v1.3.3)
@@ -41,7 +42,7 @@ Node-REDの便利な機能のほとんどを使うことができます。
 
 ## 特徴
 
-- [Node-RED](https://nodered.org/) v2.X
+- [Node-RED](https://nodered.org/) v4.X
 - [Node-RED Flow debugger](https://github.com/node-red/node-red-debugger)
 - [Node-RED Flow Linter](https://github.com/node-red/nrlint)
 - [ngrok](https://ngrok.com/) 組み込み済み
@@ -117,7 +118,7 @@ Node-REDの便利な機能のほとんどを使うことができます。
 
 - このような場合、事前に `node`や必要なコマンドをインストールする必要があります。  
   [Node.js official site](https://nodejs.org/) から  
-  `node v12.x.x` をインストールしてからリトライしてみてください。
+  `node v18.x.x` をインストールしてからリトライしてみてください。
 
 - Node-RED-Desktopから `node` コマンドが実行できるかどうかは  
   以下のフローでも確認できます。
