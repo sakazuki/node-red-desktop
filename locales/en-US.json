@@ -105,6 +105,8 @@
         "httpnodeauthuser": "Username",
         "httpnodeauthpass": "Password",
         "listenport": "Listen port",
-        "listenportPlaceholder": "when empty,use random port"
+        "listenportPlaceholder": "when empty,use random port",
+        "ngrokauthtoken": "ngrok Auth Token",
+        "ngrokauthtokenPlaceholder": "overrides NGROK_AUTHTOKEN env var"
     }
 }

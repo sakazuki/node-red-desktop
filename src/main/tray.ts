@@ -1,4 +1,5 @@
-import { app, Menu, Tray, ipcMain } from "electron";
+import { app, Menu, Tray } from "electron";
+import { appEventBus } from "./app-event-bus";
 import path from "path";
 import i18n from "./i18n";
 import { NodeREDApp } from "./node-red";
@@ -13,28 +14,28 @@ export class CustomTray {
     const contextMenu = Menu.buildFromTemplate([
       {
         label: 'Show App',
-        click() { ipcMain.emit("browser:show"); }
+        click() { appEventBus.emit("browser:show"); }
       },
       {
         label: 'Hide App',
-        click() { ipcMain.emit("browser:hide"); }
+        click() { appEventBus.emit("browser:hide"); }
       },
       { type: "separator" },
       {
         label: i18n.__("menu.openLocalURL"),
-        click() { ipcMain.emit("endpoint:local"); }
+        click() { appEventBus.emit("endpoint:local"); }
       }, 
       {
         label: i18n.__("menu.openLocalAdminURL"),
-        click() { ipcMain.emit("endpoint:local-admin"); }
+        click() { appEventBus.emit("endpoint:local-admin"); }
       },
       {
         label: i18n.__("menu.openPublicURL"),
-        click() { ipcMain.emit("endpoint:public"); }
+        click() { appEventBus.emit("endpoint:public"); }
       }, 
       {
         label: i18n.__("menu.openNgrokInspect"),
-        click() { ipcMain.emit("ngrok:inspect"); }
+        click() { appEventBus.emit("ngrok:inspect"); }
       },
       { type: "separator" },
       {
@@ -46,7 +47,7 @@ export class CustomTray {
     this.tray.on("double-click", this.onShow.bind(this));
   }
   private onShow() {
-    ipcMain.emit("browser:show");
+    appEventBus.emit("browser:show");
   }
   public destroy() {
     this.tray.destroy();

@@ -11,18 +11,20 @@ function initApp() {
   session.on('change', function () {
     $("#nodesexcludes").val(session.getValue());
   });
-  $("#red-ui-tab-user-settings-nodered").click(function(){
-    $(this).addClass("active");
-    $("#user-settings-nodered").show();
+  $("#red-ui-tab-user-settings-nodered a").click(function(e){
+    e.preventDefault();
+    $("#red-ui-tab-user-settings-nodered").addClass("active");
+    $("#user-settings-nodered").addClass("active");
     $("#red-ui-tab-user-settings-other").removeClass("active");
-    $("#user-settings-other").hide();
+    $("#user-settings-other").removeClass("active");
     return false;
   });
-  $("#red-ui-tab-user-settings-other").click(function(){
-    $(this).addClass("active");
-    $("#user-settings-nodered").hide();
+  $("#red-ui-tab-user-settings-other a").click(function(e){
+    e.preventDefault();
+    $("#red-ui-tab-user-settings-other").addClass("active");
+    $("#user-settings-other").addClass("active");
     $("#red-ui-tab-user-settings-nodered").removeClass("active");
-    $("#user-settings-other").show();
+    $("#user-settings-nodered").removeClass("active");
     return false;
   });
 }
@@ -44,6 +46,8 @@ function initLang() {
   $("#label-httpnodeauthpass").text(window.NRDApi.t("settings.httpnodeauthpass"));
   $("#label-listenport").text(window.NRDApi.t("settings.listenport"));
   $("#listenport").attr("placeholder", window.NRDApi.t("settings.listenportPlaceholder"));
+  $("#label-ngrokauthtoken").text(window.NRDApi.t("settings.ngrokauthtoken"));
+  $("#ngrokauthtoken").attr("placeholder", window.NRDApi.t("settings.ngrokauthtokenPlaceholder"));
 }
 
 $(document).on("dragover", event => event.preventDefault());
@@ -68,6 +72,7 @@ window.NRDApi.onSettingsSet((event, settings) => {
   $("#allowprerelease").prop("checked", settings.allowPrerelease);
   $("#openlastfile").prop("checked", settings.openLastFile);
   $("#listenport").val(settings.listenPort);
+  $("#ngrokauthtoken").val(settings.ngrokAuthtoken);
   session.setValue($("#nodesexcludes").val(),-1);
 })
 
@@ -86,7 +91,8 @@ $("#button-submit").on("click", function(event) {
       user: $("#httpnodeauthuser").val(),
       pass: $("#httpnodeauthpass").val()
     },
-    listenPort: $("#listenport").val()
+    listenPort: $("#listenport").val(),
+    ngrokAuthtoken: $("#ngrokauthtoken").val()
   }
   window.NRDApi.sendSettingsUpdate(data);
 });

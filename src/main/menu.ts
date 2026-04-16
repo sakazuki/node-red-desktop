@@ -1,4 +1,5 @@
-import { app, Menu, MenuItemConstructorOptions, ipcMain, MenuItem} from "electron";
+import { app, Menu, MenuItemConstructorOptions, MenuItem} from "electron";
+import { appEventBus } from "./app-event-bus";
 import i18n from "./i18n";
 import { FileHistory } from "./file-history";
 import { AppStatus } from "./main";
@@ -40,13 +41,13 @@ export class AppMenu {
           label: i18n.__("menu.new"),
           enabled: this.fileUsable(),
           accelerator: "CmdOrCtrl+N",
-          click() { ipcMain.emit("file:new"); }
+          click() { appEventBus.emit("file:new"); }
         },
         {
           label: i18n.__("menu.open") + "...",
           enabled: this.fileUsable(),
           accelerator: "CmdOrCtrl+O",
-          click() { ipcMain.emit("file:open"); }
+          click() { appEventBus.emit("file:open"); }
         },
         {
           label: i18n.__("menu.openRecent") + "...",
@@ -58,36 +59,36 @@ export class AppMenu {
           label: i18n.__("menu.saveDeploy"),
           enabled: this.editorUsable(),
           accelerator: "CmdOrCtrl+S",
-          click() { ipcMain.emit("file:save"); }
+          click() { appEventBus.emit("file:save"); }
         },
         {
           label: i18n.__("menu.saveAsDeploy") + "...",
           enabled: this.fileUsable(),
           accelerator: "Shift+CmdOrCtrl+S",
-          click() { ipcMain.emit("file:save-as"); }
+          click() { appEventBus.emit("file:save-as"); }
         },
         { type: 'separator'},
         {
           label: i18n.__('menu.settings') + "...",
           enabled: this.enabled,
-          click() { ipcMain.emit("settings"); }
+          click() { appEventBus.emit("settings"); }
         },
         { type: 'separator'},
         {
           label: i18n.__('menu.openUserDir'),
           enabled: true,
-          click() { ipcMain.emit("file:open-userdir"); }
+          click() { appEventBus.emit("file:open-userdir"); }
         },
         {
           label: i18n.__('menu.openLogFile'),
           enabled: true,
-          click() { ipcMain.emit("file:open-logfile"); }
+          click() { appEventBus.emit("file:open-logfile"); }
         },
         { type: "separator"},
         {
           label: i18n.__("menu.relaunch"),
           enabled: this.editorUsable(),
-          click() { ipcMain.emit("browser:relaunch"); }
+          click() { appEventBus.emit("browser:relaunch"); }
         },
         { type: "separator"},
         { label: i18n.__("menu.quit"), role: "quit" }
@@ -121,33 +122,33 @@ export class AppMenu {
         {
           label: i18n.__("menu.openLocalURL"),
           enabled: this.editorUsable(),
-          click() { ipcMain.emit("endpoint:local"); }
+          click() { appEventBus.emit("endpoint:local"); }
         }, 
         {
           label: i18n.__("menu.openLocalAdminURL"),
           enabled: this.editorUsable(),
-          click() { ipcMain.emit("endpoint:local-admin"); }
+          click() { appEventBus.emit("endpoint:local-admin"); }
         },
         { type: "separator" },
         {
           label: i18n.__("menu.ngrokConnect"),
           enabled: this.enabled && (this.status.ngrokUrl.length === 0),
-          click() { ipcMain.emit("ngrok:connect"); }
+          click() { appEventBus.emit("ngrok:connect"); }
         },
         {
           label: i18n.__("menu.ngrokDisconnect"),
           enabled: this.enabled && (this.status.ngrokUrl.length > 0),
-          click() { ipcMain.emit("ngrok:disconnect") }
+          click() { appEventBus.emit("ngrok:disconnect") }
         }, 
         {
           label: i18n.__("menu.openPublicURL"),
           enabled: this.enabled && (this.status.ngrokUrl.length > 0),
-          click() { ipcMain.emit("endpoint:public"); }
+          click() { appEventBus.emit("endpoint:public"); }
         }, 
         {
           label: i18n.__("menu.openNgrokInspect"),
           enabled: this.enabled && this.status.ngrokStarted,
-          click() { ipcMain.emit("ngrok:inspect"); }
+          click() { appEventBus.emit("ngrok:inspect"); }
         } 
       ]
     };
@@ -158,20 +159,13 @@ export class AppMenu {
         {
           label: i18n.__("menu.addLocalNode") + "...",
           enabled: this.enabled,
-          click() { ipcMain.emit("node:addLocal"); }
+          click() { appEventBus.emit("node:addLocal"); }
         },
         {
           label: i18n.__("menu.addRemoteNode") + "...",
           enabled: this.enabled,
-          click() { ipcMain.emit("node:addRemote"); }
+          click() { appEventBus.emit("node:addRemote"); }
         },
-        { type: "separator"},
-        {
-          id: "tools.nodegen",
-          label: i18n.__("menu.nodegen"),
-          enabled: false,
-          click() { ipcMain.emit("node:nodegen"); }
-        }
       ]
     };
   
@@ -182,7 +176,7 @@ export class AppMenu {
           label: i18n.__("menu.reload"),
           enabled: this.enabled,
           accelerator: "CmdOrCtrl+R",
-          click(item, focusedWindow) { ipcMain.emit("view:reload", item, focusedWindow); }
+          click(item, focusedWindow) { appEventBus.emit("view:reload", item, focusedWindow); }
         },
         { type: "separator" },
         {
@@ -232,27 +226,27 @@ export class AppMenu {
         {
           label: "Node-RED",
           enabled: this.enabled,
-          click() { ipcMain.emit("help:node-red"); }
+          click() { appEventBus.emit("help:node-red"); }
         },
         {
           label: "Node-RED-Desktop",
           enabled: this.enabled,
-          click() { ipcMain.emit("help:node-red-desktop"); }
+          click() { appEventBus.emit("help:node-red-desktop"); }
         },
         // {
         //   label: "Author",
-        //   click() { ipcMain.emit("help:author"); }
+        //   click() { appEventBus.emit("help:author"); }
         // },
         { type: "separator" },
         {
           label: i18n.__("menu.checkversion") + "...",
           enabled: this.enabled,
-          click() { ipcMain.emit("help:check-updates"); }
+          click() { appEventBus.emit("help:check-updates"); }
         },
         {
           label: i18n.__("menu.version"),
           enabled: this.enabled,
-          click() { ipcMain.emit("help:version"); }
+          click() { appEventBus.emit("help:version"); }
         }
       ]
     };
@@ -267,7 +261,7 @@ export class AppMenu {
         {   
           label: "Toggle Developer Tools",
           accelerator: "Ctrl+Shift+I",
-          click(item, focusedWindow) { ipcMain.emit("dev:tools", item, focusedWindow); }
+          click(item, focusedWindow) { appEventBus.emit("dev:tools", item, focusedWindow); }
         }
       ]
     };
@@ -282,14 +276,14 @@ export class AppMenu {
         {
           label: i18n.__('menu.about'),
           enabled: this.enabled,
-          click() { ipcMain.emit("help:version"); }
+          click() { appEventBus.emit("help:version"); }
         },
         { type: 'separator'},
         {
           label: i18n.__('menu.settings') + "...",
           enabled: this.enabled,
           accelerator: 'Command+,',
-          click() { ipcMain.emit("settings"); }
+          click() { appEventBus.emit("settings"); }
         },
         { type: "separator" },
         { role: "services", submenu: []},
@@ -300,7 +294,7 @@ export class AppMenu {
         { type: 'separator'},
         {
           label: i18n.__("menu.relaunch"),
-          click() { ipcMain.emit("browser:relaunch"); }
+          click() { appEventBus.emit("browser:relaunch"); }
         },
         { type: "separator"},
         { label: i18n.__('menu.quit'), role: 'quit' }
@@ -344,7 +338,7 @@ export class AppMenu {
           new MenuItem({
             label: files[i],
             enabled: this.fileUsable(),
-            click(){ ipcMain.emit("file:open", files[i]); }
+            click(){ appEventBus.emit("file:open", files[i]); }
           })
         );
       }
@@ -353,7 +347,7 @@ export class AppMenu {
         new MenuItem({
           label: i18n.__('menu.clearRecent'),
           enabled: this.enabled,
-          click(){ ipcMain.emit("file:clear-recent"); }
+          click(){ appEventBus.emit("file:clear-recent"); }
         })
       );
     }
@@ -369,7 +363,7 @@ export class AppMenu {
             type: "checkbox",
             enabled: this.enabled,
             checked: (this.status.locale == locales[i]),
-            click(item, focusedWindow) { ipcMain.emit("view:set-locale", item, focusedWindow); }
+            click(item, focusedWindow) { appEventBus.emit("view:set-locale", item, focusedWindow); }
           },
         )
       )

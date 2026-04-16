@@ -1,16 +1,14 @@
 import fs from "fs";
-import {IpcMain} from "electron";
+import { appEventBus } from "./app-event-bus";
 
 export class FileHistory {
   public history: string[] = [];
   private size: number;
-  private ipcMain: IpcMain;
-  constructor(size: number = 10, ipcMain: IpcMain) {
+  constructor(size: number = 10) {
     this.size = size;
-    this.ipcMain = ipcMain;
   }
   public update() {
-    this.ipcMain.emit("history:update");
+    appEventBus.emit("history:update");
   }
   public add(path: string, update = true) {
     const i = this.history.indexOf(path);

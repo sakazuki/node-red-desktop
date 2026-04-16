@@ -1,3 +1,8 @@
+// Task 5.2: This preload script runs with Node.js access (sandbox:false) but the
+// renderer cannot access Node.js or ipcRenderer directly because contextIsolation:true
+// is enabled.  Only the typed NRDApi surface below is exposed to the renderer via
+// contextBridge.exposeInMainWorld.  i18n strings are accessible through NRDApi.t()
+// and NRDApi.setLocale() without exposing ipcRenderer to the renderer world.
 import { contextBridge, ipcRenderer } from 'electron'
 import { IpcRendererEvent } from 'electron/main'
 import _i18n from "./i18n";
