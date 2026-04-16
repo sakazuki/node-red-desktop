@@ -1,8 +1,7 @@
-import patchRequire from "./require-rebuild";
-patchRequire();
 import {
   app,
   App,
+  BaseWindow,
   BrowserWindowConstructorOptions,
   ipcMain,
   MenuItem,
@@ -18,18 +17,16 @@ import { CustomAutoUpdater } from "./auto-update";
 import i18n from "./i18n";
 import urlparse from "url";
 import { FileHistory } from "./file-history";
+import { appEventBus } from "./app-event-bus";
 import { FileManager } from "./file-manager";
 import { ConfigManager } from "./config-manager";
 import { CustomTray } from "./tray";
-import ngrok from "ngrok";
+import { NgrokManager } from "./ngrok-manager";
 import { NodeREDApp, NPM_COMMAND } from "./node-red";
 import log from "./log";
 import fs from "fs";
 import { pathToFileURL } from "url";
-import prompt from "electron-prompt";
 import semver from "semver";
-// import rebuild from "@node-red-desktop/electron-rebuild";
-import nodegen from "node-red-nodegen";
 import "./debug";
 
 process.env.NODE_ENV = "production";
@@ -64,6 +61,7 @@ export interface AppStatus {
   selection: {nodes: any[]};
   listenPort: string;
   debugOut: boolean;
+  ngrokAuthtoken: string;
 }
 
 type UserSettings = {
@@ -79,6 +77,7 @@ type UserSettings = {
   httpNodeAuth: {user: string, pass: string};
   listenPort: string;
   debugOut: boolean;
+  ngrokAuthtoken: string;
 }
 
 class BaseApplication {
@@ -98,6 +97,7 @@ class BaseApplication {
   private fileHistory: FileHistory;
   private status: AppStatus;
   private red: NodeREDApp;
+  private ngrokManager: NgrokManager = new NgrokManager();
 
   constructor(app: App) {
     this.app = app;
@@ -106,7 +106,7 @@ class BaseApplication {
     this.app.on("window-all-closed", this.onWindowAllClosed.bind(this));
     this.config = new ConfigManager(app.name);
     this.fileManager = new FileManager(this.config);
-    this.fileHistory = new FileHistory(FILE_HISTORY_SIZE, ipcMain);
+    this.fileHistory = new FileHistory(FILE_HISTORY_SIZE);
     this.status = {
       editorEnabled: false,
       ngrokUrl: "",
@@ -129,32 +129,30 @@ class BaseApplication {
       httpNodeAuth: this.config.data.httpNodeAuth,
       selection: {nodes: []},
       listenPort: this.config.data.listenPort,
-      debugOut: this.config.data.debugOut
+      debugOut: this.config.data.debugOut,
+      ngrokAuthtoken: this.config.data.ngrokAuthtoken
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
     this.red = new NodeREDApp(this.status);
-    ipcMain.on("browser:focus", this.setTitle.bind(this));
-    ipcMain.on("browser:show", () => this.getBrowserWindow().show());
-    ipcMain.on("browser:hide", () => this.getBrowserWindow().hide());
-    ipcMain.on("browser:minimize", (event: Electron.Event) =>
+    appEventBus.on("browser:focus", this.setTitle.bind(this));
+    appEventBus.on("browser:show", () => this.getBrowserWindow().show());
+    appEventBus.on("browser:hide", () => this.getBrowserWindow().hide());
+    appEventBus.on("browser:minimize", (event: Electron.Event) =>
       this.onMinimize(event)
     );
-    ipcMain.on("browser:before-close", (event: Electron.Event) => 
+    appEventBus.on("browser:before-close", (event: Electron.Event) =>
       this.onBeforeClose(event)
     );
-    ipcMain.on("browser:closed", this.onClosed.bind(this));
-    ipcMain.on("browser:restart", this.onRestart.bind(this));
-    ipcMain.on("browser:relaunch", this.onRelaunch.bind(this));
-    // @ts-ignore
-    ipcMain.on("browser:message", (text: string) => this.onMessage(text));
-    ipcMain.on("browser:loading", this.onLoading.bind(this));
-    // @ts-ignore
-    ipcMain.on("browser:go", (url: string) => this.go(url));
-    ipcMain.on("browser:update-title", this.setTitle.bind(this));
-    // @ts-ignore
-    ipcMain.on("browser:progress", (progress: number) => this.setProgress(progress));
-    ipcMain.on("history:update", this.updateMenu.bind(this));
-    ipcMain.on("menu:update", this.updateMenu.bind(this));
+    appEventBus.on("browser:closed", this.onClosed.bind(this));
+    appEventBus.on("browser:restart", this.onRestart.bind(this));
+    appEventBus.on("browser:relaunch", this.onRelaunch.bind(this));
+    appEventBus.on("browser:message", (text: string) => this.onMessage(text));
+    appEventBus.on("browser:loading", this.onLoading.bind(this));
+    appEventBus.on("browser:go", (url: string) => this.go(url));
+    appEventBus.on("browser:update-title", this.setTitle.bind(this));
+    appEventBus.on("browser:progress", (progress: number) => this.setProgress(progress));
+    appEventBus.on("history:update", this.updateMenu.bind(this));
+    appEventBus.on("menu:update", this.updateMenu.bind(this));
     // @ts-ignore
     ipcMain.on("window:new", (url: string) => this.onNewWindow(url));
     ipcMain.on("auth:signin", (event: Electron.Event, args: any) =>
@@ -172,44 +170,40 @@ class BaseApplication {
     ipcMain.on("view:selection-changed",(event: Electron.Event, selection: {nodes: any[]}) =>
       this.onSelectionChanged(event, selection)
     )
-    ipcMain.on("file:new", this.onFileNew.bind(this));
-    // @ts-ignore
-    ipcMain.on("file:open", this.onFileOpen.bind(this));
-    ipcMain.on("file:clear-recent", this.onFileClearHistory.bind(this));
-    ipcMain.on("file:save", this.onFileSave.bind(this));
-    ipcMain.on("file:save-as", this.onFileSaveAs.bind(this));
-    ipcMain.on("file:open-userdir", this.onUserdirOpen.bind(this));
-    ipcMain.on("file:open-logfile", this.onLogfileOpen.bind(this));
-    ipcMain.on("settings", this.onSettings.bind(this));
-    ipcMain.on("endpoint:local", this.onEndpointLocal.bind(this));
-    ipcMain.on("endpoint:local-admin", this.onEndpointLocalAdmin.bind(this));
-    ipcMain.on("endpoint:public", this.onEndpointPublic.bind(this));
-    ipcMain.on("ngrok:connect", this.onNgrokConnect.bind(this));
-    ipcMain.on("ngrok:disconnect", this.onNgrokDisconnect.bind(this));
-    ipcMain.on("ngrok:inspect", this.onNgrokInspect.bind(this));
-    // @ts-ignore
-    ipcMain.on("view:reload", (item: MenuItem, focusedWindow: BrowserWindow) =>
+    appEventBus.on("file:new", this.onFileNew.bind(this));
+    appEventBus.on("file:open", this.onFileOpen.bind(this));
+    appEventBus.on("file:clear-recent", this.onFileClearHistory.bind(this));
+    appEventBus.on("file:save", this.onFileSave.bind(this));
+    appEventBus.on("file:save-as", this.onFileSaveAs.bind(this));
+    appEventBus.on("file:open-userdir", this.onUserdirOpen.bind(this));
+    appEventBus.on("file:open-logfile", this.onLogfileOpen.bind(this));
+    appEventBus.on("settings", this.onSettings.bind(this));
+    appEventBus.on("endpoint:local", this.onEndpointLocal.bind(this));
+    appEventBus.on("endpoint:local-admin", this.onEndpointLocalAdmin.bind(this));
+    appEventBus.on("endpoint:public", this.onEndpointPublic.bind(this));
+    appEventBus.on("ngrok:connect", this.onNgrokConnect.bind(this));
+    appEventBus.on("ngrok:disconnect", this.onNgrokDisconnect.bind(this));
+    appEventBus.on("ngrok:inspect", this.onNgrokInspect.bind(this));
+    appEventBus.on("view:reload", (item: MenuItem, focusedWindow: BaseWindow | undefined) =>
       this.onViewReload(item, focusedWindow)
     );
-    ipcMain.on(
+    appEventBus.on(
       "view:set-locale",
-      // @ts-ignore
-      (item: MenuItem, focusedWindow: BrowserWindow) =>
+      (item: MenuItem, focusedWindow: BaseWindow | undefined) =>
         this.onSetLocale(item, focusedWindow)
     );
-    ipcMain.on("help:node-red", () => {
+    appEventBus.on("help:node-red", () => {
       this.onHelpWeb(HELP_NODERED_URL);
     });
-    ipcMain.on("help:node-red-desktop", () => {
+    appEventBus.on("help:node-red-desktop", () => {
       this.onHelpWeb(HELP_NODERED_DESKTOP_URL);
     });
-    ipcMain.on("help:author", () => {
+    appEventBus.on("help:author", () => {
       this.onHelpWeb(HELP_AUTHOR_URL);
     });
-    ipcMain.on("help:check-updates", this.onHelpCheckUpdates.bind(this));
-    ipcMain.on("help:version", this.onHelpVersion.bind(this));
-    // @ts-ignore
-    ipcMain.on("dev:tools", (item: MenuItem, focusedWindow: BrowserWindow) =>
+    appEventBus.on("help:check-updates", this.onHelpCheckUpdates.bind(this));
+    appEventBus.on("help:version", this.onHelpVersion.bind(this));
+    appEventBus.on("dev:tools", (item: MenuItem, focusedWindow: BaseWindow | undefined) =>
       this.onToggleDevTools(item, focusedWindow)
     );
     ipcMain.on("settings:loaded", this.onSettingsLoaded.bind(this));
@@ -217,12 +211,9 @@ class BaseApplication {
       this.onSettingsSubmit(event, args)
     );
     ipcMain.on("settings:cancel", this.onSettingsCancel.bind(this));
-    ipcMain.on("node:addLocal", this.onNodeAddLocal.bind(this));
-    ipcMain.on("node:addRemote", this.onNodeAddRemote.bind(this));
-    // ipcMain.on("node:rebuild", this.onNodeRebuild.bind(this));
-    ipcMain.on("node:nodegen", this.onNodeGenerator.bind(this));
-    // @ts-ignore
-    ipcMain.on("dialog:show", (type: "success" | "error" | "info", message: string, timeout?: number) =>
+    appEventBus.on("node:addLocal", this.onNodeAddLocal.bind(this));
+    appEventBus.on("node:addRemote", this.onNodeAddRemote.bind(this));
+    appEventBus.on("dialog:show", (type: "success" | "error" | "info", message: string, timeout?: number) =>
       this.showRedNotify(type, message, timeout)
     );
     ipcMain.on("ext:debugOut", this.onDebugOut.bind(this))
@@ -232,8 +223,13 @@ class BaseApplication {
     const options: BrowserWindowConstructorOptions = {
       webPreferences: {
         nodeIntegration: false,
-        nativeWindowOpen: true,
         contextIsolation: true,
+        // Task 5.1: sandbox is intentionally false because the preload script
+        // (preload.ts) requires Node.js built-ins (require/path) to load the
+        // i18n module.  The renderer is still isolated via contextIsolation:true
+        // and nodeIntegration:false, which enforces the security boundary.
+        // Setting sandbox:true would break the preload's Node.js access.
+        sandbox: false,
         preload: path.join(__dirname, "preload.js"),
         defaultFontFamily: {
           standard: "Meiryo UI",
@@ -313,6 +309,7 @@ class BaseApplication {
     this.config.data.httpNodeAuth = this.status.httpNodeAuth;
     this.config.data.listenPort = this.status.listenPort;
     this.config.data.debugOut = this.status.debugOut;
+    this.config.data.ngrokAuthtoken = this.status.ngrokAuthtoken;
     this.config.save();
   }
 
@@ -328,9 +325,9 @@ class BaseApplication {
     }
   }
 
-  private leavable(): boolean {
+  private async leavable(): Promise<boolean> {
     if (!this.checkEphemeralFile()) return true;
-    const res = dialog.showMessageBoxSync(this.getBrowserWindow(), {
+    const { response: res } = await dialog.showMessageBox(this.getBrowserWindow(), {
       type: "question",
       title: i18n.__("dialog.confirm"),
       message: i18n.__("dialog.closeMsg"),
@@ -342,7 +339,7 @@ class BaseApplication {
     });
     if (res === 0) {
       if (!this.status.projectsEnabled && this.usingTmpFile()) {
-        return this.onFileSaveAs();
+        return await this.onFileSaveAs();
       } else {
         return this.onFileSave();
       }
@@ -364,10 +361,10 @@ class BaseApplication {
     return (url.base === path.parse(this.settingsURL).base)
   }
 
-  private onBeforeClose(event?: Electron.Event) {
+  private async onBeforeClose(event?: Electron.Event) {
     if (this.isSettingsPage()) {
       this.unsetBeforeUnload();
-    } else if (this.leavable()) {
+    } else if (await this.leavable()) {
       this.unsetBeforeUnload();
       this.saveConfig();
     } else {
@@ -385,14 +382,14 @@ class BaseApplication {
     this.mainWindow = null;
   }
 
-  private onRestart() {
-    this.onBeforeClose();
+  private async onRestart() {
+    await this.onBeforeClose();
     this.customAutoUpdater!.quitAndInstall();
     app.quit();
   }
 
-  private onRelaunch() {
-    this.onBeforeClose();
+  private async onRelaunch() {
+    await this.onBeforeClose();
     app.relaunch();
     app.quit();
   }
@@ -453,7 +450,7 @@ class BaseApplication {
 
   private async checkNpmVersion() {
     try {
-      const res: execResult = await this.red.exec._run(NPM_COMMAND, ["-v"], {}, false);
+      const res: execResult = await this.red.exec.run(NPM_COMMAND, ["-v"], {}, false);
       log.info(">>> Check npm version", res);
       return (res.code === 0);
     } catch (err) {
@@ -466,7 +463,7 @@ class BaseApplication {
     this.status.editorEnabled = true;
     this.status.nodeCommandEnabled = await this.checkNodeVersion();
     this.status.npmCommandEnabled = await this.checkNpmVersion();
-    ipcMain.emit("menu:update");
+    appEventBus.emit("menu:update");
   }
 
   private onNodesChange(event: Electron.Event, args: {dirty: boolean}) {
@@ -476,12 +473,6 @@ class BaseApplication {
 
   private onSelectionChanged(event: Electron.Event, selection: {nodes: any[]}){
     this.status.selection = selection;
-    this.appMenu!.setMenuItemEnabled("tools.nodegen",
-      selection && 
-      selection.nodes && 
-      selection.nodes[0] &&
-      selection.nodes[0].type === "function" &&
-      !!this.red.getNode(selection.nodes[0].id))
   }
 
   private updateMenu() {
@@ -496,10 +487,10 @@ class BaseApplication {
     this.openAny(url);
   }
 
-  private onFileNew() {
+  private async onFileNew() {
     const file = this.fileManager.createTmp();
     this.status.newfileChanged = false;
-    this.setFlowFileAndRestart(file);
+    await this.setFlowFileAndRestart(file);
   }
 
   private getBrowserWindow() {
@@ -510,9 +501,9 @@ class BaseApplication {
     return this.mainWindow!.getBrowserWindow()!;
   }
 
-  private onFileOpen(file: string = "") {
+  private async onFileOpen(file: string = "") {
     if (!file) {
-      const files = dialog.showOpenDialogSync(this.getBrowserWindow(), {
+      const { filePaths } = await dialog.showOpenDialog(this.getBrowserWindow(), {
         title: i18n.__("dialog.openFlowFile"),
         properties: ["openFile"],
         defaultPath: path.dirname(this.status.currentFile),
@@ -521,11 +512,11 @@ class BaseApplication {
           { name: "ALL", extensions: ["*"] }
         ]
       });
-      if (files) file = files[0];
+      if (filePaths && filePaths.length > 0) file = filePaths[0];
     }
     if (file) {
       this.fileHistory.add(file);
-      this.setFlowFileAndRestart(file);
+      await this.setFlowFileAndRestart(file);
     }
   }
 
@@ -534,8 +525,8 @@ class BaseApplication {
     return true;
   }
 
-  private onFileSaveAs(): boolean {
-    const savefile = dialog.showSaveDialogSync(this.getBrowserWindow(), {
+  private async onFileSaveAs(): Promise<boolean> {
+    const { filePath: savefile } = await dialog.showSaveDialog(this.getBrowserWindow(), {
       title: i18n.__("dialog.saveFlowFile"),
       defaultPath: path.dirname(this.status.currentFile),
       filters: [
@@ -559,8 +550,8 @@ class BaseApplication {
     this.fileHistory.clear();
   }
 
-  private setFlowFileAndRestart(file: string) {
-    if (!this.leavable()) return;
+  private async setFlowFileAndRestart(file: string) {
+    if (!await this.leavable()) return;
     this.unsetBeforeUnload();
     this.red.setFlowFileAndRestart(file);
   }
@@ -587,18 +578,10 @@ class BaseApplication {
 
   private async onNgrokConnect() {
     try {
-      const ngrokOptions: ngrok.INgrokOptions = {
-        proto: "http",
-        addr: this.red.listenPort,
-        binPath: (bin: string) => bin.replace("app.asar", "app.asar.unpacked")
-      };
-      if (process.env.NRD_NGROK_START_ARGS) {
-        ngrokOptions.startArgs = process.env.NRD_NGROK_START_ARGS
-      }
-      const url = await ngrok.connect(ngrokOptions);
+      const url = await this.ngrokManager.connect(this.red.listenPort, this.status.ngrokAuthtoken);
       this.status.ngrokUrl = url;
       this.status.ngrokStarted = true;
-      ipcMain.emit("menu:update");
+      appEventBus.emit("menu:update");
       const body = `conntcted with <a href="${this.status.ngrokUrl}" target="_blank">${this.status.ngrokUrl}</a>`;
       this.showRedNotify("success", body);
     } catch (err) {
@@ -606,15 +589,14 @@ class BaseApplication {
       this.showRedNotify("error", JSON.stringify(err));
     }
   }
+
   private async onNgrokDisconnect() {
     try {
-      await ngrok.disconnect(this.status.ngrokUrl);
-      await ngrok.disconnect(
-        this.status.ngrokUrl.replace("https://", "http://")
-      );
+      await this.ngrokManager.disconnect();
       this.showRedNotify("success", `disconnected ${this.status.ngrokUrl}`, 3000);
       this.status.ngrokUrl = "";
-      ipcMain.emit("menu:update");
+      this.status.ngrokStarted = false;
+      appEventBus.emit("menu:update");
     } catch (err) {
       log.error(err);
     }
@@ -629,18 +611,22 @@ class BaseApplication {
     if (this.status.ngrokStarted) this.openAny(NGROK_INSPECT_URL);
   }
 
-  private async onViewReload(item: MenuItem, focusedWindow: BrowserWindow) {
+  private async onViewReload(item: MenuItem, focusedWindow: BaseWindow | undefined) {
     if (focusedWindow) {
-      await focusedWindow.loadURL(focusedWindow.webContents.getURL());
+      // loadURL is on BrowserWindow; focusedWindow in this app is always a BrowserWindow
+      const bw = focusedWindow as BrowserWindow;
+      await bw.loadURL(bw.webContents.getURL());
       this.setTitle();
     }
   }
 
-  private onSetLocale(item: MenuItem, focusedWindow: BrowserWindow) {
+  private onSetLocale(item: MenuItem, focusedWindow: BaseWindow | undefined) {
     this.status.locale = item.label;
     if (focusedWindow) {
-      const url = this.setLangUrl(focusedWindow.webContents.getURL());
-      focusedWindow.loadURL(url);
+      // loadURL is on BrowserWindow; focusedWindow in this app is always a BrowserWindow
+      const bw = focusedWindow as BrowserWindow;
+      const url = this.setLangUrl(bw.webContents.getURL());
+      bw.loadURL(url);
     }
   }
 
@@ -652,16 +638,16 @@ class BaseApplication {
     this.customAutoUpdater!.checkUpdates(true);
   }
 
-  private onHelpVersion() {
+  private async onHelpVersion() {
     const body = `
-      Name: ${app.name} 
+      Name: ${app.name}
       ${i18n.__("version.version")}: ${app.getVersion()}
       ${this.customAutoUpdater!.info()}
       ${this.red.info()}
       ${this.fileManager.info()}
     `.replace(/^\s*/gm, "");
 
-    dialog.showMessageBoxSync(this.getBrowserWindow(), {
+    await dialog.showMessageBox(this.getBrowserWindow(), {
       title: i18n.__("menu.version"),
       type: "info",
       message: app.name,
@@ -675,8 +661,10 @@ class BaseApplication {
     this.getBrowserWindow().webContents.send("red:notify", type, message, timeout);   
   }
 
-  private onToggleDevTools(item: MenuItem, focusedWindow: BrowserWindow) {
-    if (focusedWindow) focusedWindow.webContents.toggleDevTools();
+  private onToggleDevTools(item: MenuItem, focusedWindow: BaseWindow | undefined) {
+    if (focusedWindow && "webContents" in focusedWindow) {
+      (focusedWindow as BrowserWindow).webContents.toggleDevTools();
+    }
   }
 
   private onSettingsLoaded() {
@@ -695,6 +683,7 @@ class BaseApplication {
     this.status.openLastFile = args.openLastFile;
     this.status.httpNodeAuth = args.httpNodeAuth;
     this.status.listenPort = args.listenPort;
+    this.status.ngrokAuthtoken = args.ngrokAuthtoken;
     this.saveConfig();
     app.relaunch();
     app.quit();
@@ -720,12 +709,12 @@ class BaseApplication {
 
   private async onNodeAddLocal() {
     this.showShade();
-    const dirs = dialog.showOpenDialogSync(this.getBrowserWindow(), {
+    const { filePaths: dirs } = await dialog.showOpenDialog(this.getBrowserWindow(), {
       title: i18n.__("dialog.openNodeDir"),
       properties: ["openDirectory"],
       defaultPath: this.status.userDir
     });
-    if (dirs) {
+    if (dirs && dirs.length > 0) {
       this.loadingShade();
       await this.red.execNpmLink(dirs[0]);
     }
@@ -734,79 +723,20 @@ class BaseApplication {
 
   private async onNodeAddRemote() {
     this.showShade();
-    const res = await prompt({
+    const { showInputPrompt } = await import("./prompt-dialog.js");
+    const res = await showInputPrompt({
       width: this.getBrowserWindow().getBounds().width * 0.5,
       height: 200,
       resizable: true,
       title: i18n.__("dialog.npmInstall"),
       label: i18n.__("dialog.npmInstallDesc"),
       value: "",
-      inputAttrs: {
-        type: "text",
-        required: true
-      },
-      useHtmlLabel: true,
       minimizable: false,
       maximizable: false
     }, this.getBrowserWindow());
     if (res) {
       this.loadingShade();
       await this.red.execNpmInstall(res);
-    }
-    this.hideShade();
-  }
-
-  // private async onNodeRebuild() {
-  //   log.info(">>> Rebuild Start")
-  //   this.showShade();
-  //   try {
-  //     this.loadingShade();
-  //     await rebuild({
-  //       buildPath: this.status.userDir,
-  //       electronVersion: process.versions.electron
-  //     });
-  //     log.info(">>> Rebuild success");
-  //   } catch(err) {
-  //     log.error(">>> Rebuild failed", err);
-  //     this.showRedNotify("error", JSON.stringify(err));
-  //   }
-  //   this.hideShade();
-  // }
-
-  private async onNodeGenerator() {
-    const node = this.red.getNode(this.status.selection.nodes[0].id);
-    if (!node){
-      dialog.showMessageBox(this.getBrowserWindow(), {
-        title: i18n.__("dialog.nodegen"),
-        type: "info",
-        message: app.name,
-        detail: i18n.__("dialog.nodenotfound"),
-        buttons: [i18n.__("dialog.ok")],
-        noLink: true
-      });
-      return;
-    }
-    const data = {
-      dst: this.status.userDir,
-      src: [
-        `// name: ${node.name || "no name"}`,
-        `// outputs: ${node.wires.length}`,
-        node.func, ""
-      ].join("\n")
-    };
-    const options = {};
-
-    log.info(">>> nodegen Start", data)
-    this.showShade();
-    try {
-      this.loadingShade();
-      const result = await nodegen.function2node(data, options)
-      log.info(">>> nodegen success", result);
-      this.openAny(pathToFileURL(result).href);
-      // await this.red.execNpmLink(result);
-    } catch(err) {
-      log.error(">>> nodegen failed", err);
-      this.showRedNotify("error", JSON.stringify(err));
     }
     this.hideShade();
   }
