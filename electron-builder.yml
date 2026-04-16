@@ -1,0 +1,58 @@
+---
+appId: "com.electron.node-red-desktop"
+productName: "Node-RED-Desktop"
+directories:
+  app: "dist"
+  output: "release"
+asar: true
+files:
+- "**/*"
+- from: "node_modules/@node-red/nodes/examples"
+  to: "node_modules/@node-red/nodes/examples"
+- "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+- "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
+- "!**/node_modules/*.d.ts"
+- "!**/node_modules/.bin"
+- "!**/node_modules/npm/node_modules/**/*"
+- "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}"
+- "!.editorconfig"
+- "!**/._*"
+- "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}"
+- "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}"
+- "!**/{appveyor.yml,.travis.yml,circle.yml}"
+- "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+- "!{.config,.sessions,flows,flows_cred}.json"
+- "!log.txt"
+- "!*.jsop"
+win:
+  target:
+  - nsis
+  # - portable
+  icon: "images/node-red-icon.png"
+  publish:
+  - provider: "github"
+    # private: true
+nsis:
+  perMachine: false
+  artifactName: ${productName}_Setup_${version}.${ext}
+portable:
+  artifactName: "${productName}_${version}_portable.${ext}"
+mac:
+  category: "public.app-category.developer-tools"
+  target:
+  - zip
+  - dmg
+  icon: "images/node-red-icon.icns"
+  publish:
+  - provider: "github"
+linux:
+  category: "Development"
+  target:
+  - rpm
+  - target: deb
+    arch:
+    - x64
+    - armv7l
+  synopsis: "Node-RED Low Code development"
+  publish:
+  - provider: "github"
