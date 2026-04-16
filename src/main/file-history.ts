@@ -1,0 +1,34 @@
+import fs from "fs";
+import { appEventBus } from "./app-event-bus";
+
+export class FileHistory {
+  public history: string[] = [];
+  private size: number;
+  constructor(size: number = 10) {
+    this.size = size;
+  }
+  public update() {
+    appEventBus.emit("history:update");
+  }
+  public add(path: string, update = true) {
+    const i = this.history.indexOf(path);
+    if (i > -1) this.history.splice(i, 1);
+    this.history.unshift(path);
+    this.history.splice(this.size);
+    if (update) this.update();
+  }
+  public load(data: string[]) {
+    this.clear();
+    if (data) {
+      data.reverse()?.forEach(v => {
+        if (fs.existsSync(v)) this.add(v, false);
+      });
+    }
+    this.update();
+    return this.history;
+  }
+  public clear() {
+    this.history.splice(0);
+    this.update();
+  }
+}
