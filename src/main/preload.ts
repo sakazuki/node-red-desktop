@@ -78,6 +78,13 @@ contextBridge.exposeInMainWorld("NRDApi", {
   ) => {
     ipcRenderer.on("red:notify", listener);
   },
+  // Test-only methods: emit events for E2E tests
+  testNodeAddLocal: () => {
+    ipcRenderer.send("test:node:addLocal");
+  },
+  testNodeAddRemote: () => {
+    ipcRenderer.send("test:node:addRemote");
+  },
 });
 
 declare global {
@@ -127,4 +134,7 @@ export type NRDApi = {
       timeout: number,
     ) => void,
   ) => void;
+  // Test-only methods: emit events for E2E tests
+  testNodeAddLocal: () => void;
+  testNodeAddRemote: () => void;
 };
