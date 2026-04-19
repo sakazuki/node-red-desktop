@@ -14,7 +14,13 @@
  * To run when compatible: npx playwright test
  * Reference: https://github.com/microsoft/playwright/issues/39008
  */
-import { test, expect, _electron as electron, ElectronApplication, Page } from "@playwright/test";
+import {
+  test,
+  expect,
+  _electron as electron,
+  ElectronApplication,
+  Page,
+} from "@playwright/test";
 import path from "path";
 import fs from "fs";
 
@@ -32,14 +38,14 @@ test.beforeAll(async () => {
   test.skip(
     PLAYWRIGHT_ELECTRON34_INCOMPATIBLE,
     "Playwright 1.59.x is incompatible with Electron v34 on Windows: " +
-    "--remote-debugging-port=0 is rejected as a CLI arg. " +
-    "Tracking: https://github.com/microsoft/playwright/issues/39008"
+      "--remote-debugging-port=0 is rejected as a CLI arg. " +
+      "Tracking: https://github.com/microsoft/playwright/issues/39008",
   );
 
   // Verify the built app exists before launching
   if (!fs.existsSync(mainJsPath)) {
     throw new Error(
-      `Built app not found at ${mainJsPath}. Run 'npm run build' first.`
+      `Built app not found at ${mainJsPath}. Run 'npm run build' first.`,
     );
   }
 
@@ -79,7 +85,7 @@ test.describe("Application launch", () => {
   test("shows an initial window", async () => {
     test.skip(
       PLAYWRIGHT_ELECTRON34_INCOMPATIBLE,
-      "Playwright/Electron v34 incompatibility on Windows - see issue #39008"
+      "Playwright/Electron v34 incompatibility on Windows - see issue #39008",
     );
     const windows = electronApp.windows();
     expect(windows.length).toBeGreaterThanOrEqual(1);
@@ -88,7 +94,7 @@ test.describe("Application launch", () => {
   test("has the correct title", async () => {
     test.skip(
       PLAYWRIGHT_ELECTRON34_INCOMPATIBLE,
-      "Playwright/Electron v34 incompatibility on Windows - see issue #39008"
+      "Playwright/Electron v34 incompatibility on Windows - see issue #39008",
     );
     // app.name varies by environment (e.g. "Node-RED-Desktop" when packaged,
     // "Electron" in unpackaged CI). Retrieve it at runtime and assert the window
@@ -100,11 +106,9 @@ test.describe("Application launch", () => {
   test("main process is running", async () => {
     test.skip(
       PLAYWRIGHT_ELECTRON34_INCOMPATIBLE,
-      "Playwright/Electron v34 incompatibility on Windows - see issue #39008"
+      "Playwright/Electron v34 incompatibility on Windows - see issue #39008",
     );
-    const isPackaged = await electronApp.evaluate(
-      ({ app }) => app.isPackaged
-    );
+    const isPackaged = await electronApp.evaluate(({ app }) => app.isPackaged);
     // In development/test mode, app should not be packaged
     expect(isPackaged).toBe(false);
   });
@@ -114,7 +118,7 @@ test.describe("AppEventBus event flows", () => {
   test("ipcRenderer is accessible via contextBridge", async () => {
     test.skip(
       PLAYWRIGHT_ELECTRON34_INCOMPATIBLE,
-      "Playwright/Electron v34 incompatibility on Windows - see issue #39008"
+      "Playwright/Electron v34 incompatibility on Windows - see issue #39008",
     );
     // Verify the preload bridge is set up (contextIsolation-safe)
     const hasPreloadBridge = await mainWindow.evaluate(() => {
@@ -127,7 +131,7 @@ test.describe("AppEventBus event flows", () => {
   test("window is visible and not minimized", async () => {
     test.skip(
       PLAYWRIGHT_ELECTRON34_INCOMPATIBLE,
-      "Playwright/Electron v34 incompatibility on Windows - see issue #39008"
+      "Playwright/Electron v34 incompatibility on Windows - see issue #39008",
     );
     // Check via the Electron BrowserWindow API rather than CSS visibility.
     // body may have visibility:hidden during initialization, so DOM checks
@@ -137,5 +141,106 @@ test.describe("AppEventBus event flows", () => {
       return win !== undefined && win.isVisible() && !win.isMinimized();
     });
     expect(isVisible).toBe(true);
+  });
+});
+
+test.describe("Node menu operations", () => {
+  test("node:addRemote installs GitHub package and logs installed packages", async () => {
+    test.setTimeout(120_000);
+    test.skip(
+      PLAYWRIGHT_ELECTRON34_INCOMPATIBLE,
+      "Playwright/Electron v34 incompatibility on Windows - see issue #39008",
+    );
+
+    // Capture main process stdout to assert on log output
+    await electronApp.evaluate(() => {
+      (global as { __capturedStdout?: string }).__capturedStdout = "";
+      const origWrite = process.stdout.write.bind(process.stdout);
+      (process.stdout as unknown as Record<string, unknown>).write = (
+        chunk: unknown,
+        ...rest: unknown[]
+      ): boolean => {
+        if (typeof chunk === "string") {
+          (global as { __capturedStdout?: string }).__capturedStdout += chunk;
+        }
+        return (origWrite as (...a: unknown[]) => boolean)(chunk, ...rest);
+      };
+    });
+
+    const windowOpened = electronApp.waitForEvent("window");
+    await electronApp.evaluate(() => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const path = window.NRDApi.path;
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { appEventBus } = require(path.join(
+        window.NRDApi.mainDir,
+        "app-event-bus.js",
+      ));
+      appEventBus.emit("node:addRemote");
+    });
+
+    const promptWindow = await windowOpened;
+    await promptWindow.waitForSelector("#input", { timeout: 5000 });
+    await promptWindow.fill(
+      "#input",
+      "https://github.com/kazuhitoyokoi/node-red-contrib-example-lower-case",
+    );
+
+    await Promise.all([
+      promptWindow.waitForEvent("close"),
+      promptWindow.click("#ok"),
+    ]);
+
+    // Wait for npm install to complete and verify "Installed packages" log appears
+    await expect
+      .poll(
+        async () =>
+          electronApp.evaluate(
+            () =>
+              (global as { __capturedStdout?: string }).__capturedStdout ?? "",
+          ),
+        { timeout: 120_000, intervals: [3000] },
+      )
+      .toContain("Installed packages");
+  });
+
+  test("node:addLocal triggers open directory dialog", async () => {
+    test.skip(
+      PLAYWRIGHT_ELECTRON34_INCOMPATIBLE,
+      "Playwright/Electron v34 incompatibility on Windows - see issue #39008",
+    );
+
+    // Mock dialog.showOpenDialog to avoid blocking the native OS picker
+    await electronApp.evaluate(({ dialog }) => {
+      (global as { __addLocalDialogCalled?: boolean }).__addLocalDialogCalled =
+        false;
+      (dialog as unknown as Record<string, unknown>).showOpenDialog =
+        async () => {
+          (
+            global as { __addLocalDialogCalled?: boolean }
+          ).__addLocalDialogCalled = true;
+          return { filePaths: [], canceled: true };
+        };
+    });
+
+    await electronApp.evaluate(() => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const path = window.NRDApi.path;
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { appEventBus } = require(path.join(
+        window.NRDApi.mainDir,
+        "app-event-bus.js",
+      ));
+      appEventBus.emit("node:addLocal");
+    });
+
+    // Wait for the async handler to complete (showShade → dialog → hideShade)
+    await mainWindow.waitForTimeout(500);
+
+    const dialogCalled = await electronApp.evaluate(() => {
+      return !!(global as { __addLocalDialogCalled?: boolean })
+        .__addLocalDialogCalled;
+    });
+    expect(dialogCalled).toBe(true);
   });
 });
