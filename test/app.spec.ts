@@ -139,3 +139,85 @@ test.describe("AppEventBus event flows", () => {
     expect(isVisible).toBe(true);
   });
 });
+
+test.describe("Node menu operations", () => {
+  test("node:addRemote installs GitHub package and logs installed packages", async () => {
+    test.setTimeout(120_000);
+    test.skip(
+      PLAYWRIGHT_ELECTRON34_INCOMPATIBLE,
+      "Playwright/Electron v34 incompatibility on Windows - see issue #39008"
+    );
+
+    // Capture main process stdout to assert on log output
+    await electronApp.evaluate(() => {
+      (global as { __capturedStdout?: string }).__capturedStdout = "";
+      const origWrite = process.stdout.write.bind(process.stdout);
+      (process.stdout as unknown as Record<string, unknown>).write = (
+        chunk: unknown, ...rest: unknown[]
+      ): boolean => {
+        if (typeof chunk === "string") {
+          (global as { __capturedStdout?: string }).__capturedStdout += chunk;
+        }
+        return (origWrite as (...a: unknown[]) => boolean)(chunk, ...rest);
+      };
+    });
+
+    const windowOpened = electronApp.waitForEvent("window");
+    await electronApp.evaluate(() => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const path = require("path");
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { appEventBus } = require(path.join(path.dirname(require.main!.filename), "app-event-bus.js"));
+      appEventBus.emit("node:addRemote");
+    });
+
+    const promptWindow = await windowOpened;
+    await promptWindow.waitForSelector("#input", { timeout: 5000 });
+    await promptWindow.fill("#input", "https://github.com/kazuhitoyokoi/node-red-contrib-example-lower-case");
+
+    await Promise.all([
+      promptWindow.waitForEvent("close"),
+      promptWindow.click("#ok"),
+    ]);
+
+    // Wait for npm install to complete and verify "Installed packages" log appears
+    await expect.poll(
+      async () => electronApp.evaluate(
+        () => (global as { __capturedStdout?: string }).__capturedStdout ?? ""
+      ),
+      { timeout: 120_000, intervals: [3000] }
+    ).toContain("Installed packages");
+  });
+
+  test("node:addLocal triggers open directory dialog", async () => {
+    test.skip(
+      PLAYWRIGHT_ELECTRON34_INCOMPATIBLE,
+      "Playwright/Electron v34 incompatibility on Windows - see issue #39008"
+    );
+
+    // Mock dialog.showOpenDialog to avoid blocking the native OS picker
+    await electronApp.evaluate(({ dialog }) => {
+      (global as { __addLocalDialogCalled?: boolean }).__addLocalDialogCalled = false;
+      (dialog as unknown as Record<string, unknown>).showOpenDialog = async () => {
+        (global as { __addLocalDialogCalled?: boolean }).__addLocalDialogCalled = true;
+        return { filePaths: [], canceled: true };
+      };
+    });
+
+    await electronApp.evaluate(() => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const path = require("path");
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { appEventBus } = require(path.join(path.dirname(require.main!.filename), "app-event-bus.js"));
+      appEventBus.emit("node:addLocal");
+    });
+
+    // Wait for the async handler to complete (showShade → dialog → hideShade)
+    await mainWindow.waitForTimeout(500);
+
+    const dialogCalled = await electronApp.evaluate(() => {
+      return !!(global as { __addLocalDialogCalled?: boolean }).__addLocalDialogCalled;
+    });
+    expect(dialogCalled).toBe(true);
+  });
+});
