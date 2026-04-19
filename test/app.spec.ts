@@ -164,11 +164,7 @@ test.describe("AppEventBus event flows", () => {
   test("window is visible and not minimized", async () => {
     test.skip(
       PLAYWRIGHT_ELECTRON34_INCOMPATIBLE,
-<<<<<<< HEAD
-      "Playwright/Electron v34 incompatibility on Windows - see issue #39008"
-=======
       "Playwright/Electron v34 incompatibility on Windows - see issue #39008",
->>>>>>> main
     );
     // Check via the Electron BrowserWindow API rather than CSS visibility.
     // body may have visibility:hidden during initialization, so DOM checks
@@ -180,8 +176,6 @@ test.describe("AppEventBus event flows", () => {
     expect(isVisible).toBe(true);
   });
 });
-<<<<<<< HEAD
-=======
 
 test.describe("Node menu operations", () => {
   test("node:addRemote installs GitHub package and logs installed packages", async () => {
@@ -283,4 +277,3 @@ test.describe("Node menu operations", () => {
     expect(dialogCalled).toBe(true);
   });
 });
->>>>>>> main
