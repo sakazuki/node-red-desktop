@@ -363,7 +363,7 @@ export class NodeREDApp {
       const res = await this.exec.run(NPM_COMMAND, ["install", args], {cwd: this.status.userDir}, true);
       if (res.code !== 0) throw res;
       const after = this.loadPackageInfo(path.join(this.status.userDir, "package.json"));
-      const newPkgs = _.difference(Object.keys(after.dependencies), Object.keys(before.dependencies));
+      const newPkgs = _.difference(Object.keys(after.dependencies || {}), Object.keys(before.dependencies || {}));
       log.info("Installed packages", newPkgs)
       for (const pkgname of newPkgs) {
         const pkginfo = this.loadPackageInfo(path.join(this.status.userDir, "node_modules", pkgname, "package.json"));
