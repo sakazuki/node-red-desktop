@@ -168,11 +168,8 @@ test.describe("Node menu operations", () => {
     });
 
     const windowOpened = electronApp.waitForEvent("window");
-    await electronApp.evaluate(() => {
-      const path = require("path");
-      const mainDir = path.dirname(require.main!.filename);
-      const { appEventBus } = require(path.join(mainDir, "app-event-bus.js"));
-      appEventBus.emit("node:addRemote");
+    await mainWindow.evaluate(() => {
+      window.NRDApi.testNodeAddRemote();
     });
 
     const promptWindow = await windowOpened;
@@ -219,11 +216,8 @@ test.describe("Node menu operations", () => {
         };
     });
 
-    await electronApp.evaluate(() => {
-      const path = require("path");
-      const mainDir = path.dirname(require.main!.filename);
-      const { appEventBus } = require(path.join(mainDir, "app-event-bus.js"));
-      appEventBus.emit("node:addLocal");
+    await mainWindow.evaluate(() => {
+      window.NRDApi.testNodeAddLocal();
     });
 
     // Wait for the async handler to complete (showShade → dialog → hideShade)

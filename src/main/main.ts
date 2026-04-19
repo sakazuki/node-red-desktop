@@ -8,7 +8,7 @@ import {
   BrowserWindow,
   dialog,
   shell,
-  Notification
+  Notification,
 } from "electron";
 import { CustomBrowserWindow } from "./browser-window";
 import { AppMenu } from "./menu";
@@ -57,8 +57,8 @@ export interface AppStatus {
   openLastFile: boolean;
   nodeCommandEnabled: boolean;
   npmCommandEnabled: boolean;
-  httpNodeAuth: {user: string, pass: string};
-  selection: {nodes: any[]};
+  httpNodeAuth: { user: string; pass: string };
+  selection: { nodes: any[] };
   listenPort: string;
   debugOut: boolean;
   ngrokAuthtoken: string;
@@ -74,11 +74,11 @@ type UserSettings = {
   autoDownload: boolean;
   hideOnMinimize: boolean;
   openLastFile: boolean;
-  httpNodeAuth: {user: string, pass: string};
+  httpNodeAuth: { user: string; pass: string };
   listenPort: string;
   debugOut: boolean;
   ngrokAuthtoken: string;
-}
+};
 
 class BaseApplication {
   private mainWindow: CustomBrowserWindow | null = null;
@@ -87,10 +87,10 @@ class BaseApplication {
   private tray: CustomTray | null = null;
   private app: App;
   private loadingURL: string = pathToFileURL(
-    path.join(__dirname, "..", "loading.html")
+    path.join(__dirname, "..", "loading.html"),
   ).href;
   private settingsURL: string = pathToFileURL(
-    path.join(__dirname, "..", "settings.html")
+    path.join(__dirname, "..", "settings.html"),
   ).href;
   private config: ConfigManager;
   private fileManager: FileManager;
@@ -127,10 +127,10 @@ class BaseApplication {
       nodeCommandEnabled: false,
       npmCommandEnabled: false,
       httpNodeAuth: this.config.data.httpNodeAuth,
-      selection: {nodes: []},
+      selection: { nodes: [] },
       listenPort: this.config.data.listenPort,
       debugOut: this.config.data.debugOut,
-      ngrokAuthtoken: this.config.data.ngrokAuthtoken
+      ngrokAuthtoken: this.config.data.ngrokAuthtoken,
     };
     this.appMenu = new AppMenu(this.status, this.fileHistory);
     this.red = new NodeREDApp(this.status);
@@ -138,10 +138,10 @@ class BaseApplication {
     appEventBus.on("browser:show", () => this.getBrowserWindow().show());
     appEventBus.on("browser:hide", () => this.getBrowserWindow().hide());
     appEventBus.on("browser:minimize", (event: Electron.Event) =>
-      this.onMinimize(event)
+      this.onMinimize(event),
     );
     appEventBus.on("browser:before-close", (event: Electron.Event) =>
-      this.onBeforeClose(event)
+      this.onBeforeClose(event),
     );
     appEventBus.on("browser:closed", this.onClosed.bind(this));
     appEventBus.on("browser:restart", this.onRestart.bind(this));
@@ -150,26 +150,32 @@ class BaseApplication {
     appEventBus.on("browser:loading", this.onLoading.bind(this));
     appEventBus.on("browser:go", (url: string) => this.go(url));
     appEventBus.on("browser:update-title", this.setTitle.bind(this));
-    appEventBus.on("browser:progress", (progress: number) => this.setProgress(progress));
+    appEventBus.on("browser:progress", (progress: number) =>
+      this.setProgress(progress),
+    );
     appEventBus.on("history:update", this.updateMenu.bind(this));
     appEventBus.on("menu:update", this.updateMenu.bind(this));
     // @ts-ignore
     ipcMain.on("window:new", (url: string) => this.onNewWindow(url));
     ipcMain.on("auth:signin", (event: Electron.Event, args: any) =>
-      this.onSignIn(event, args)
+      this.onSignIn(event, args),
     );
     ipcMain.on("auth:signedin", (event: Electron.Event, args: any) =>
-      this.onSignedIn(event, args)
+      this.onSignedIn(event, args),
     );
     ipcMain.on("editor:started", (event: Electron.Event, args: any) =>
-      this.onEditorStarted(event, args)
+      this.onEditorStarted(event, args),
     );
-    ipcMain.on("nodes:change", (event: Electron.Event, args: {dirty: boolean}) =>
-      this.onNodesChange(event, args)
+    ipcMain.on(
+      "nodes:change",
+      (event: Electron.Event, args: { dirty: boolean }) =>
+        this.onNodesChange(event, args),
     );
-    ipcMain.on("view:selection-changed",(event: Electron.Event, selection: {nodes: any[]}) =>
-      this.onSelectionChanged(event, selection)
-    )
+    ipcMain.on(
+      "view:selection-changed",
+      (event: Electron.Event, selection: { nodes: any[] }) =>
+        this.onSelectionChanged(event, selection),
+    );
     appEventBus.on("file:new", this.onFileNew.bind(this));
     appEventBus.on("file:open", this.onFileOpen.bind(this));
     appEventBus.on("file:clear-recent", this.onFileClearHistory.bind(this));
@@ -179,18 +185,23 @@ class BaseApplication {
     appEventBus.on("file:open-logfile", this.onLogfileOpen.bind(this));
     appEventBus.on("settings", this.onSettings.bind(this));
     appEventBus.on("endpoint:local", this.onEndpointLocal.bind(this));
-    appEventBus.on("endpoint:local-admin", this.onEndpointLocalAdmin.bind(this));
+    appEventBus.on(
+      "endpoint:local-admin",
+      this.onEndpointLocalAdmin.bind(this),
+    );
     appEventBus.on("endpoint:public", this.onEndpointPublic.bind(this));
     appEventBus.on("ngrok:connect", this.onNgrokConnect.bind(this));
     appEventBus.on("ngrok:disconnect", this.onNgrokDisconnect.bind(this));
     appEventBus.on("ngrok:inspect", this.onNgrokInspect.bind(this));
-    appEventBus.on("view:reload", (item: MenuItem, focusedWindow: BaseWindow | undefined) =>
-      this.onViewReload(item, focusedWindow)
+    appEventBus.on(
+      "view:reload",
+      (item: MenuItem, focusedWindow: BaseWindow | undefined) =>
+        this.onViewReload(item, focusedWindow),
     );
     appEventBus.on(
       "view:set-locale",
       (item: MenuItem, focusedWindow: BaseWindow | undefined) =>
-        this.onSetLocale(item, focusedWindow)
+        this.onSetLocale(item, focusedWindow),
     );
     appEventBus.on("help:node-red", () => {
       this.onHelpWeb(HELP_NODERED_URL);
@@ -203,20 +214,31 @@ class BaseApplication {
     });
     appEventBus.on("help:check-updates", this.onHelpCheckUpdates.bind(this));
     appEventBus.on("help:version", this.onHelpVersion.bind(this));
-    appEventBus.on("dev:tools", (item: MenuItem, focusedWindow: BaseWindow | undefined) =>
-      this.onToggleDevTools(item, focusedWindow)
+    appEventBus.on(
+      "dev:tools",
+      (item: MenuItem, focusedWindow: BaseWindow | undefined) =>
+        this.onToggleDevTools(item, focusedWindow),
     );
     ipcMain.on("settings:loaded", this.onSettingsLoaded.bind(this));
     ipcMain.on("settings:update", (event: Electron.Event, args: UserSettings) =>
-      this.onSettingsSubmit(event, args)
+      this.onSettingsSubmit(event, args),
     );
     ipcMain.on("settings:cancel", this.onSettingsCancel.bind(this));
     appEventBus.on("node:addLocal", this.onNodeAddLocal.bind(this));
     appEventBus.on("node:addRemote", this.onNodeAddRemote.bind(this));
-    appEventBus.on("dialog:show", (type: "success" | "error" | "info", message: string, timeout?: number) =>
-      this.showRedNotify(type, message, timeout)
+    appEventBus.on(
+      "dialog:show",
+      (type: "success" | "error" | "info", message: string, timeout?: number) =>
+        this.showRedNotify(type, message, timeout),
     );
-    ipcMain.on("ext:debugOut", this.onDebugOut.bind(this))
+    ipcMain.on("ext:debugOut", this.onDebugOut.bind(this));
+    // Test-only handlers: emit events on app-event-bus for E2E test access
+    ipcMain.on("test:node:addLocal", () => {
+      appEventBus.emit("node:addLocal");
+    });
+    ipcMain.on("test:node:addRemote", () => {
+      appEventBus.emit("node:addRemote");
+    });
   }
 
   private create() {
@@ -235,8 +257,8 @@ class BaseApplication {
           standard: "Meiryo UI",
           serif: "MS PMincho",
           sansSerif: "Meiryo UI",
-          monospace: "MS Gothic"
-        }
+          monospace: "MS Gothic",
+        },
       },
       title: app.name,
       fullscreenable: true,
@@ -247,7 +269,7 @@ class BaseApplication {
       acceptFirstMouse: true,
       autoHideMenuBar: true,
       // titleBarStyle: "hidden",
-      icon: path.join(__dirname, "..", "images", "favicon.ico")
+      icon: path.join(__dirname, "..", "images", "favicon.ico"),
     };
     const savedOption = this.config.data.windowBounds || {};
     Object.assign(options, savedOption);
@@ -276,7 +298,7 @@ class BaseApplication {
     this.fileHistory.load(this.config.data.recentFiles);
     this.customAutoUpdater = new CustomAutoUpdater(
       this.getBrowserWindow(),
-      this.status
+      this.status,
     );
     this.tray = new CustomTray(this.red);
     this.red.startRED();
@@ -327,16 +349,19 @@ class BaseApplication {
 
   private async leavable(): Promise<boolean> {
     if (!this.checkEphemeralFile()) return true;
-    const { response: res } = await dialog.showMessageBox(this.getBrowserWindow(), {
-      type: "question",
-      title: i18n.__("dialog.confirm"),
-      message: i18n.__("dialog.closeMsg"),
-      buttons: [
-        i18n.__("dialog.yes"),
-        i18n.__("dialog.no"),
-        i18n.__("dialog.cancel")
-      ]
-    });
+    const { response: res } = await dialog.showMessageBox(
+      this.getBrowserWindow(),
+      {
+        type: "question",
+        title: i18n.__("dialog.confirm"),
+        message: i18n.__("dialog.closeMsg"),
+        buttons: [
+          i18n.__("dialog.yes"),
+          i18n.__("dialog.no"),
+          i18n.__("dialog.cancel"),
+        ],
+      },
+    );
     if (res === 0) {
       if (!this.status.projectsEnabled && this.usingTmpFile()) {
         return await this.onFileSaveAs();
@@ -358,7 +383,7 @@ class BaseApplication {
 
   private isSettingsPage() {
     const url = path.parse(this.getBrowserWindow().webContents.getURL());
-    return (url.base === path.parse(this.settingsURL).base)
+    return url.base === path.parse(this.settingsURL).base;
   }
 
   private async onBeforeClose(event?: Electron.Event) {
@@ -404,7 +429,7 @@ class BaseApplication {
     this.getBrowserWindow().setTitle(this.red.windowTitle());
   }
 
-  private setProgress(progress: number){
+  private setProgress(progress: number) {
     this.getBrowserWindow().setProgressBar(progress);
   }
 
@@ -413,7 +438,7 @@ class BaseApplication {
   }
 
   private async go(url: string) {
-    if (!url) throw new Error("no url")
+    if (!url) throw new Error("no url");
     await this.getBrowserWindow().loadURL(this.setLangUrl(url));
     this.setTitle();
   }
@@ -423,7 +448,7 @@ class BaseApplication {
     const msg: Electron.NotificationConstructorOptions = {
       title: app.name,
       body: text,
-      closeButtonText: i18n.__("dialog.ok")
+      closeButtonText: i18n.__("dialog.ok"),
     };
     const notification = new Notification(msg);
     notification.show();
@@ -435,11 +460,16 @@ class BaseApplication {
 
   private async checkNodeVersion() {
     try {
-      const res: execResult = await this.red.exec.run("node", ["-v"], {}, false);
+      const res: execResult = await this.red.exec.run(
+        "node",
+        ["-v"],
+        {},
+        false,
+      );
       log.info(">>> Check node.js version", res);
       if (res.code === 0) {
         const range = semver.validRange(process.version.split(".")[0]);
-        if (!range) throw new Error('Invalid version');
+        if (!range) throw new Error("Invalid version");
         return semver.satisfies(res.stdout.trim(), range);
       }
     } catch (err) {
@@ -450,9 +480,14 @@ class BaseApplication {
 
   private async checkNpmVersion() {
     try {
-      const res: execResult = await this.red.exec.run(NPM_COMMAND, ["-v"], {}, false);
+      const res: execResult = await this.red.exec.run(
+        NPM_COMMAND,
+        ["-v"],
+        {},
+        false,
+      );
       log.info(">>> Check npm version", res);
-      return (res.code === 0);
+      return res.code === 0;
     } catch (err) {
       log.error(err);
     }
@@ -466,12 +501,15 @@ class BaseApplication {
     appEventBus.emit("menu:update");
   }
 
-  private onNodesChange(event: Electron.Event, args: {dirty: boolean}) {
+  private onNodesChange(event: Electron.Event, args: { dirty: boolean }) {
     this.status.modified = args.dirty;
     if (args.dirty) this.status.newfileChanged = true;
   }
 
-  private onSelectionChanged(event: Electron.Event, selection: {nodes: any[]}){
+  private onSelectionChanged(
+    event: Electron.Event,
+    selection: { nodes: any[] },
+  ) {
     this.status.selection = selection;
   }
 
@@ -503,15 +541,18 @@ class BaseApplication {
 
   private async onFileOpen(file: string = "") {
     if (!file) {
-      const { filePaths } = await dialog.showOpenDialog(this.getBrowserWindow(), {
-        title: i18n.__("dialog.openFlowFile"),
-        properties: ["openFile"],
-        defaultPath: path.dirname(this.status.currentFile),
-        filters: [
-          { name: "flows file", extensions: ["json"] },
-          { name: "ALL", extensions: ["*"] }
-        ]
-      });
+      const { filePaths } = await dialog.showOpenDialog(
+        this.getBrowserWindow(),
+        {
+          title: i18n.__("dialog.openFlowFile"),
+          properties: ["openFile"],
+          defaultPath: path.dirname(this.status.currentFile),
+          filters: [
+            { name: "flows file", extensions: ["json"] },
+            { name: "ALL", extensions: ["*"] },
+          ],
+        },
+      );
       if (filePaths && filePaths.length > 0) file = filePaths[0];
     }
     if (file) {
@@ -526,14 +567,17 @@ class BaseApplication {
   }
 
   private async onFileSaveAs(): Promise<boolean> {
-    const { filePath: savefile } = await dialog.showSaveDialog(this.getBrowserWindow(), {
-      title: i18n.__("dialog.saveFlowFile"),
-      defaultPath: path.dirname(this.status.currentFile),
-      filters: [
-        { name: "flows file", extensions: ["json"] },
-        { name: "ALL", extensions: ["*"] }
-      ]
-    });
+    const { filePath: savefile } = await dialog.showSaveDialog(
+      this.getBrowserWindow(),
+      {
+        title: i18n.__("dialog.saveFlowFile"),
+        defaultPath: path.dirname(this.status.currentFile),
+        filters: [
+          { name: "flows file", extensions: ["json"] },
+          { name: "ALL", extensions: ["*"] },
+        ],
+      },
+    );
     if (!savefile) return false;
     const oldfile = this.status.currentFile;
     this.red.setFlowFile(savefile);
@@ -551,7 +595,7 @@ class BaseApplication {
   }
 
   private async setFlowFileAndRestart(file: string) {
-    if (!await this.leavable()) return;
+    if (!(await this.leavable())) return;
     this.unsetBeforeUnload();
     this.red.setFlowFileAndRestart(file);
   }
@@ -578,7 +622,10 @@ class BaseApplication {
 
   private async onNgrokConnect() {
     try {
-      const url = await this.ngrokManager.connect(this.red.listenPort, this.status.ngrokAuthtoken);
+      const url = await this.ngrokManager.connect(
+        this.red.listenPort,
+        this.status.ngrokAuthtoken,
+      );
       this.status.ngrokUrl = url;
       this.status.ngrokStarted = true;
       appEventBus.emit("menu:update");
@@ -593,7 +640,11 @@ class BaseApplication {
   private async onNgrokDisconnect() {
     try {
       await this.ngrokManager.disconnect();
-      this.showRedNotify("success", `disconnected ${this.status.ngrokUrl}`, 3000);
+      this.showRedNotify(
+        "success",
+        `disconnected ${this.status.ngrokUrl}`,
+        3000,
+      );
       this.status.ngrokUrl = "";
       this.status.ngrokStarted = false;
       appEventBus.emit("menu:update");
@@ -611,7 +662,10 @@ class BaseApplication {
     if (this.status.ngrokStarted) this.openAny(NGROK_INSPECT_URL);
   }
 
-  private async onViewReload(item: MenuItem, focusedWindow: BaseWindow | undefined) {
+  private async onViewReload(
+    item: MenuItem,
+    focusedWindow: BaseWindow | undefined,
+  ) {
     if (focusedWindow) {
       // loadURL is on BrowserWindow; focusedWindow in this app is always a BrowserWindow
       const bw = focusedWindow as BrowserWindow;
@@ -653,15 +707,27 @@ class BaseApplication {
       message: app.name,
       detail: body,
       buttons: [i18n.__("dialog.ok")],
-      noLink: true
+      noLink: true,
     });
   }
 
-  private showRedNotify(type: "success" | "error" | "info", message: string, timeout?: number) {
-    this.getBrowserWindow().webContents.send("red:notify", type, message, timeout);   
+  private showRedNotify(
+    type: "success" | "error" | "info",
+    message: string,
+    timeout?: number,
+  ) {
+    this.getBrowserWindow().webContents.send(
+      "red:notify",
+      type,
+      message,
+      timeout,
+    );
   }
 
-  private onToggleDevTools(item: MenuItem, focusedWindow: BaseWindow | undefined) {
+  private onToggleDevTools(
+    item: MenuItem,
+    focusedWindow: BaseWindow | undefined,
+  ) {
     if (focusedWindow && "webContents" in focusedWindow) {
       (focusedWindow as BrowserWindow).webContents.toggleDevTools();
     }
@@ -709,11 +775,14 @@ class BaseApplication {
 
   private async onNodeAddLocal() {
     this.showShade();
-    const { filePaths: dirs } = await dialog.showOpenDialog(this.getBrowserWindow(), {
-      title: i18n.__("dialog.openNodeDir"),
-      properties: ["openDirectory"],
-      defaultPath: this.status.userDir
-    });
+    const { filePaths: dirs } = await dialog.showOpenDialog(
+      this.getBrowserWindow(),
+      {
+        title: i18n.__("dialog.openNodeDir"),
+        properties: ["openDirectory"],
+        defaultPath: this.status.userDir,
+      },
+    );
     if (dirs && dirs.length > 0) {
       this.loadingShade();
       await this.red.execNpmLink(dirs[0]);
@@ -724,16 +793,19 @@ class BaseApplication {
   private async onNodeAddRemote() {
     this.showShade();
     const { showInputPrompt } = await import("./prompt-dialog.js");
-    const res = await showInputPrompt({
-      width: this.getBrowserWindow().getBounds().width * 0.5,
-      height: 200,
-      resizable: true,
-      title: i18n.__("dialog.npmInstall"),
-      label: i18n.__("dialog.npmInstallDesc"),
-      value: "",
-      minimizable: false,
-      maximizable: false
-    }, this.getBrowserWindow());
+    const res = await showInputPrompt(
+      {
+        width: this.getBrowserWindow().getBounds().width * 0.5,
+        height: 200,
+        resizable: true,
+        title: i18n.__("dialog.npmInstall"),
+        label: i18n.__("dialog.npmInstallDesc"),
+        value: "",
+        minimizable: false,
+        maximizable: false,
+      },
+      this.getBrowserWindow(),
+    );
     if (res) {
       this.loadingShade();
       await this.red.execNpmInstall(res);
@@ -742,8 +814,8 @@ class BaseApplication {
   }
 
   private onDebugOut() {
-    this.status.debugOut = !this.status.debugOut
-    console.log(this.status)
+    this.status.debugOut = !this.status.debugOut;
+    console.log(this.status);
   }
 }
 
