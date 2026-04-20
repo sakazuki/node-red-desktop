@@ -1,6 +1,6 @@
 ## v4.1.0
 - update: Node-RED 4.1.8
-- update: electron 34.5.8
+- update: electron 41.2.1
 
 ## v2.1.0
 - update: Node-RED 2.1.2

@@ -5,6 +5,9 @@ directories:
   app: "dist"
   output: "release"
 asar: true
+asarUnpack:
+  - "node_modules/@node-red/editor-client/public/**"
+  - "node_modules/jquery-validation/dist/**"
 files:
 - "**/*"
 - from: "node_modules/@node-red/nodes/examples"
@@ -39,6 +42,7 @@ portable:
   artifactName: "${productName}_${version}_portable.${ext}"
 mac:
   category: "public.app-category.developer-tools"
+  minimumSystemVersion: "12.0"
   target:
   - zip
   - dmg

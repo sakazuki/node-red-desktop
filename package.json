@@ -1,7 +1,7 @@
 {
   "name": "node-red-desktop",
   "productName": "Node-RED-Desktop",
-  "version": "4.1.0-beta.14",
+  "version": "4.1.0-beta.16",
   "description": "Node-RED Desktop",
   "main": "main/main.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "test": "playwright test"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "keywords": [
     "electron",
@@ -41,7 +41,7 @@
     "assert": "^2.0.0",
     "commander": "^8.3.0",
     "css-loader": "^6.4.0",
-    "electron": "^34.5.8",
+    "electron": "^41.0.0",
     "electron-builder": "^26.8.1",
     "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
