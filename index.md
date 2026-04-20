@@ -8,7 +8,7 @@ This is a desktop application of Node-RED
 
 ## Announce
 
-- 2026-04-17  **4.1.0** release (Node-RED v4.1.8) *(beta)*
+- 2026-04-21  **4.1.0** release (Node-RED v4.1.8)
 - 2021-10-26  **2.1.0** release (Node-RED v2.1.2)
 - 2021-08-22  **2.0.0** release (Node-RED v2.0.5)
 - 2021-04-29  **1.3.0** release (Node-RED v1.3.3)
@@ -43,10 +43,7 @@ You can use almost all powerful and useful Node-RED features
 ## Node-RED-Desktop features
 
 - [Node-RED](https://nodered.org/) v4.X
-- [Node-RED Flow debugger](https://github.com/node-red/node-red-debugger)
-- [Node-RED Flow Linter](https://github.com/node-red/nrlint)
 - [ngrok](https://ngrok.com/) integrated
-- [Node generator](https://www.npmjs.com/package/node-red-nodegen) integrated
 - npm integrated
 - multi language
   - english
@@ -65,6 +62,7 @@ You can use almost all powerful and useful Node-RED features
 
 ## How to publish the HTTP endpoint
 
+1. Prepare: Get [Authtoken](https://dashboard.ngrok.com/get-started/your-authtoken) on ngrok.com and set **[File]-[Settings]**
 1. create a flow using **"http in"** and **"http response"** nodes and deploy it.
 1. click **[Endpoint]-[Connect ngrok]**
 1. you will get the domain such as https://1234xxxx.ngrok.com.
@@ -145,7 +143,7 @@ If so, please install node v18.x.x from [Node.js official site](https://nodejs.o
 
 ## How to use excluded standard nodes
 
-- You can activate them at **[Nodes exclude]** form in **[File]-[Settings...]**.  
+- You can activate them at **[Nodes exclude]** form in **[File]-[Settings...]-[Other]**.  
 When you activate the MQTT node, Delete `10-mqtt.js` from **[Node exclude]**.
 
 - Default **[Nodes exclude]** is below

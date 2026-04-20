@@ -7,7 +7,7 @@ Node-REDのデスクトップ版です。
 ![screen](https://raw.githubusercontent.com/sakazuki/node-red-desktop/doc/screenshot.png)
 
 ## お知らせ
-- 2026-04-17 **4.1.0** リリース (Node-RED v4.1.8) *(beta)*
+- 2026-04-21 **4.1.0** リリース (Node-RED v4.1.8)
 - 2021-10-26 **2.1.0** リリース (Node-RED v2.1.2)
 - 2021-08-22 **2.0.0** リリース (Node-RED v2.0.5)
 - 2021-04-29 **1.3.0** リリース (Node-RED v1.3.3)
@@ -65,6 +65,7 @@ Node-REDの便利な機能のほとんどを使うことができます。
 
 ## HTTPエンドポイントの公開方法
 
+1. 準備: ngrok.comで [Authtoken](https://dashboard.ngrok.com/get-started/your-authtoken) を取得し、**[ファイル]-[設定...]-[その他]** に設定します
 1. **"http in"** と **"http response"** ノードを使ったフローを作成してデプロイします。
 1. **[エンドポイント]-[ngrokに接続]**をクリックします
 1. https://1234xxxx.ngrok.com　のようなURLが発行されます
