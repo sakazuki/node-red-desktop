@@ -5,9 +5,6 @@ directories:
   app: "dist"
   output: "release"
 asar: true
-asarUnpack:
-  - "node_modules/@node-red/editor-client/public/**"
-  - "node_modules/jquery-validation/dist/**"
 files:
 - "**/*"
 - from: "node_modules/@node-red/nodes/examples"

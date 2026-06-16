@@ -32,9 +32,26 @@ async function copyFiles() {
 
 async function build() {
   const platform = (process.platform === "darwin") ? Platform.MAC : Platform.WINDOWS;
+  const npmSrc = path.join(__dirname, 'dist', 'node_modules', 'npm');
   return await builder.build({
     targets: platform.createTarget(),
-    config
+    config: {
+      ...config,
+      // afterPack runs after app files are staged but before the installer is
+      // built. We copy npm with its full nested node_modules here so that
+      // electron-builder's node_modules filtering cannot strip it.
+      afterPack: async (context) => {
+        const npmDest = path.join(context.appOutDir, 'resources', 'npm');
+        await fs.copy(npmSrc, npmDest);
+        console.log(`Copied npm to ${npmDest}`);
+        // minipass-flush@1.0.6 uses `const { Minipass } = require('minipass')` (named export, v5+).
+        // Its nested minipass@3.3.6 uses `module.exports = class` (v3 style), so Minipass is undefined.
+        // Removing the nested copy lets it resolve to the top-level minipass@7.x which exports correctly.
+        const nestedMinipass = path.join(npmDest, 'node_modules', 'minipass-flush', 'node_modules', 'minipass');
+        await fs.remove(nestedMinipass);
+        console.log(`Removed nested minipass@3.x from minipass-flush (incompatible export style)`);
+      }
+    }
   });
 }
 
