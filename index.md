@@ -8,6 +8,7 @@ This is a desktop application of Node-RED
 
 ## Announce
 
+- 2026-06-17 **5.0.0** release (Node-RED v5.0.0)
 - 2026-04-21  **4.1.0** release (Node-RED v4.1.8)
 - 2021-10-26  **2.1.0** release (Node-RED v2.1.2)
 - 2021-08-22  **2.0.0** release (Node-RED v2.0.5)
