@@ -311,7 +311,7 @@ export class AppMenu {
       template = [file, endpoint, tools, view, help];
     }
   
-    if (new RegExp(`${app.name}-debug`).exec(process.env.NODE_DEBUG!)) {
+    if (!app.isPackaged || new RegExp(`${app.name}-debug`).exec(process.env.NODE_DEBUG!)) {
       template.push(dev);
     };
   

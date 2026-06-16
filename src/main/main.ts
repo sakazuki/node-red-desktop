@@ -27,6 +27,7 @@ import log from "./log";
 import fs from "fs";
 import { pathToFileURL } from "url";
 import semver from "semver";
+import { checkNodeVersion } from "./node-version-guard";
 import "./debug";
 
 process.env.NODE_ENV = "production";
@@ -747,4 +748,15 @@ class BaseApplication {
   }
 }
 
-const main: BaseApplication = new BaseApplication(app);
+// Startup prerequisite guard: the embedded Node-RED 5.x runtime requires a
+// Node.js floor. Surface a clear, named error before the runtime initializes
+// rather than failing with an opaque internal error later in bootstrap.
+const nodeVersionCheck = checkNodeVersion(process.versions.node);
+if (!nodeVersionCheck.ok) {
+  const message = nodeVersionCheck.message!;
+  log.error(message);
+  dialog.showErrorBox("Unsupported Node.js version", message);
+  app.exit(1);
+} else {
+  const main: BaseApplication = new BaseApplication(app);
+}

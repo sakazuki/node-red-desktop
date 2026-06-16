@@ -1,3 +1,11 @@
+## v5.0.0
+- update: Node-RED 4.1.8 -> 5.0.0
+- update: node engine >=22.9.0 (added startup version guard)
+- verify: admin API same-origin (Node-RED 5.x removed permissive default CORS)
+- keep: user flows and credentials preserved across upgrade
+- update: node-install interception for Node-RED 5.x install command (self-bundled npm retained)
+- ci: build and test on Node 22.x
+
 ## v4.1.0
 - update: Node-RED 4.1.8
 - update: electron 41.2.1
